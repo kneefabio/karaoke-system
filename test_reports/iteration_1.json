@@ -1,0 +1,60 @@
+{
+  "summary": "Completed comprehensive testing of karaoke booking system. Backend APIs working perfectly (100% success rate). Frontend functionality working well with minor UI error message display issue.",
+  
+  "backend_issues": {
+    "critical_bugs": [],
+    "flaky_endpoints": []
+  },
+  
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "BookingPage",
+        "issue": "Error messages from backend (400 status) not displayed as toast notifications to users",
+        "selector": "toast notifications",
+        "fix_priority": "MEDIUM",
+        "details": "When wrong name is used with existing code, backend correctly returns 400 error but frontend doesn't show user-friendly error message"
+      },
+      {
+        "component": "BookingPage", 
+        "issue": "Closed bookings error message not displayed to users",
+        "selector": "toast notifications",
+        "fix_priority": "MEDIUM",
+        "details": "When bookings are closed, backend rejects requests but frontend doesn't show error message to inform users"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  
+  "passed_tests": [
+    "API health check and connectivity",
+    "Settings endpoint functionality", 
+    "New singer booking with progressive code generation (001, 002, 003...)",
+    "Existing singer booking with correct code/name match",
+    "Backend validation of wrong name for existing code",
+    "Admin login with correct credentials (admin/admin123)",
+    "Admin dashboard loading and data display",
+    "Real-time statistics display (singers, bookings, sung songs)",
+    "Toggle bookings open/closed functionality",
+    "Song status toggle (mark as sung/not sung)",
+    "Song and singer deletion functionality",
+    "Admin logout functionality",
+    "Progressive code system working correctly",
+    "Real-time polling every 3 seconds in dashboard"
+  ],
+  
+  "test_report_links": ["/app/backend_test.py", "/app/backend_test_results.json"],
+  
+  "success_percentage": {
+    "backend": "100% (8/8 tests passed)",
+    "frontend": "90% (minor error message display issues)"
+  },
+  
+  "updated_files": ["/app/backend_test.py"],
+  
+  "action_item_for_main_agent": "Fix error message display in frontend: ensure toast notifications show backend error messages for invalid bookings (wrong name/code combinations and closed bookings scenarios)",
+  
+  "should_call_test_agent_after_fix": "false",
+  "should_main_agent_test_itself": "true"
+}

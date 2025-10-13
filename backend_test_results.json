@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-10-13T21:18:28.863458",
+  "total_tests": 8,
+  "passed_tests": 8,
+  "success_rate": 100.0,
+  "results": [
+    {
+      "test": "API Health Check",
+      "success": true,
+      "details": "Status: 200, Response: {'message': 'Karaoke Booking System'}"
+    },
+    {
+      "test": "Settings Endpoint",
+      "success": true,
+      "details": "Settings: {'prenotazioni_aperte': True}"
+    },
+    {
+      "test": "Booking Existing Singer",
+      "success": true,
+      "details": "Response: {'success': True, 'codice': '001', 'message': 'Prenotazione aggiunta!', 'nuovo_cantante': False}"
+    },
+    {
+      "test": "Booking Wrong Name for Code",
+      "success": true,
+      "details": "Correctly rejected: {'detail': 'Il nome non corrisponde al codice inserito'}"
+    },
+    {
+      "test": "Admin Login",
+      "success": true,
+      "details": "Login successful, token received"
+    },
+    {
+      "test": "Admin Singers List",
+      "success": true,
+      "details": "Found 1 singers"
+    },
+    {
+      "test": "Admin Stats",
+      "success": true,
+      "details": "Stats: {'totale_prenotazioni': 2, 'canzoni_cantate': 0, 'in_attesa': 2, 'totale_cantanti': 1}"
+    },
+    {
+      "test": "Toggle Bookings",
+      "success": true,
+      "details": "Bookings closed and rejected correctly, then reopened"
+    }
+  ]
+}

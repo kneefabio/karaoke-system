@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,10 +7,11 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
-
+from datetime import datetime, timezone, timedelta
+import bcrypt
+import jwt
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -19,54 +21,274 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
-app = FastAPI()
+# JWT Configuration
+SECRET_KEY = os.environ.get('JWT_SECRET', 'karaoke_secret_key_change_in_production')
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
-# Create a router with the /api prefix
+security = HTTPBearer()
+
+# Create the main app
+app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
-
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
+# Models
+class Singer(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    nome: str
+    codice: str
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class Song(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    singer_id: str
+    canzone: str
+    tonalita: str
+    ordine_prenotazione: int
+    cantata: bool = False
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
-# Add your routes to the router instead of directly to app
+class Settings(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    prenotazioni_aperte: bool = True
+
+class BookingRequest(BaseModel):
+    nome: str
+    canzone: str
+    tonalita: str
+    codice: Optional[str] = None
+
+class BookingResponse(BaseModel):
+    success: bool
+    codice: str
+    message: str
+    nuovo_cantante: bool
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+class SingerWithSongs(BaseModel):
+    id: str
+    nome: str
+    codice: str
+    canzoni: List[Song]
+    timestamp: str
+
+class Stats(BaseModel):
+    totale_prenotazioni: int
+    canzoni_cantate: int
+    in_attesa: int
+    totale_cantanti: int
+
+class UpdateSongRequest(BaseModel):
+    cantata: Optional[bool] = None
+    ordine_prenotazione: Optional[int] = None
+
+# Helper functions
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return username
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+async def get_next_codice():
+    # Get highest code number
+    singers = await db.singers.find({}).to_list(None)
+    if not singers:
+        return "001"
+    codes = [int(s['codice']) for s in singers if s['codice'].isdigit()]
+    if not codes:
+        return "001"
+    return str(max(codes) + 1).zfill(3)
+
+async def get_next_order():
+    songs = await db.songs.find({}).to_list(None)
+    if not songs:
+        return 1
+    orders = [s['ordine_prenotazione'] for s in songs]
+    return max(orders) + 1 if orders else 1
+
+# Initialize admin user and settings
+@app.on_event("startup")
+async def startup_event():
+    # Create default admin if not exists
+    admin = await db.admins.find_one({"username": "admin"})
+    if not admin:
+        hashed_password = bcrypt.hashpw("admin123".encode('utf-8'), bcrypt.gensalt())
+        await db.admins.insert_one({
+            "username": "admin",
+            "password": hashed_password.decode('utf-8')
+        })
+    
+    # Create default settings if not exists
+    settings = await db.settings.find_one({})
+    if not settings:
+        await db.settings.insert_one({"prenotazioni_aperte": True})
+
+# Public Routes
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Karaoke Booking System"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+@api_router.get("/settings")
+async def get_settings():
+    settings = await db.settings.find_one({}, {"_id": 0})
+    if not settings:
+        return {"prenotazioni_aperte": True}
+    return settings
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
+@api_router.post("/book", response_model=BookingResponse)
+async def create_booking(booking: BookingRequest):
+    # Check if bookings are open
+    settings = await db.settings.find_one({})
+    if settings and not settings.get('prenotazioni_aperte', True):
+        raise HTTPException(status_code=400, detail="Le prenotazioni sono finite")
     
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
+    nuovo_cantante = False
     
-    return status_checks
+    # If codice provided, verify it
+    if booking.codice:
+        singer = await db.singers.find_one({"codice": booking.codice})
+        if not singer:
+            raise HTTPException(status_code=400, detail="Codice non trovato")
+        if singer['nome'].lower() != booking.nome.lower():
+            raise HTTPException(status_code=400, detail="Il nome non corrisponde al codice inserito")
+        singer_id = singer['id']
+        codice = booking.codice
+    else:
+        # Create new singer
+        codice = await get_next_codice()
+        singer = Singer(nome=booking.nome, codice=codice)
+        await db.singers.insert_one(singer.model_dump())
+        singer_id = singer.id
+        nuovo_cantante = True
+    
+    # Create song booking
+    ordine = await get_next_order()
+    song = Song(
+        singer_id=singer_id,
+        canzone=booking.canzone,
+        tonalita=booking.tonalita,
+        ordine_prenotazione=ordine
+    )
+    await db.songs.insert_one(song.model_dump())
+    
+    message = f"Prenotazione confermata! Il tuo codice è {codice}. Ricordalo per le prossime prenotazioni." if nuovo_cantante else "Prenotazione aggiunta!"
+    
+    return BookingResponse(
+        success=True,
+        codice=codice,
+        message=message,
+        nuovo_cantante=nuovo_cantante
+    )
 
-# Include the router in the main app
+# Admin Routes
+@api_router.post("/admin/login", response_model=LoginResponse)
+async def admin_login(login: LoginRequest):
+    admin = await db.admins.find_one({"username": login.username})
+    if not admin:
+        raise HTTPException(status_code=401, detail="Credenziali non valide")
+    
+    if not bcrypt.checkpw(login.password.encode('utf-8'), admin['password'].encode('utf-8')):
+        raise HTTPException(status_code=401, detail="Credenziali non valide")
+    
+    access_token = create_access_token(data={"sub": login.username})
+    return LoginResponse(access_token=access_token)
+
+@api_router.get("/admin/singers", response_model=List[SingerWithSongs])
+async def get_singers(username: str = Depends(verify_token)):
+    singers = await db.singers.find({}, {"_id": 0}).to_list(None)
+    result = []
+    
+    for singer in singers:
+        songs = await db.songs.find({"singer_id": singer['id']}, {"_id": 0}).to_list(None)
+        songs_sorted = sorted(songs, key=lambda x: x['ordine_prenotazione'])
+        result.append(SingerWithSongs(
+            id=singer['id'],
+            nome=singer['nome'],
+            codice=singer['codice'],
+            canzoni=[Song(**song) for song in songs_sorted],
+            timestamp=singer['timestamp']
+        ))
+    
+    # Sort by timestamp (first to arrive first)
+    result.sort(key=lambda x: x.timestamp)
+    return result
+
+@api_router.get("/admin/stats", response_model=Stats)
+async def get_stats(username: str = Depends(verify_token)):
+    songs = await db.songs.find({}, {"_id": 0}).to_list(None)
+    singers = await db.singers.find({}, {"_id": 0}).to_list(None)
+    
+    totale_prenotazioni = len(songs)
+    canzoni_cantate = sum(1 for song in songs if song.get('cantata', False))
+    in_attesa = totale_prenotazioni - canzoni_cantate
+    totale_cantanti = len(singers)
+    
+    return Stats(
+        totale_prenotazioni=totale_prenotazioni,
+        canzoni_cantate=canzoni_cantate,
+        in_attesa=in_attesa,
+        totale_cantanti=totale_cantanti
+    )
+
+@api_router.put("/admin/song/{song_id}")
+async def update_song(song_id: str, update: UpdateSongRequest, username: str = Depends(verify_token)):
+    song = await db.songs.find_one({"id": song_id})
+    if not song:
+        raise HTTPException(status_code=404, detail="Canzone non trovata")
+    
+    update_data = {}
+    if update.cantata is not None:
+        update_data['cantata'] = update.cantata
+    if update.ordine_prenotazione is not None:
+        update_data['ordine_prenotazione'] = update.ordine_prenotazione
+    
+    await db.songs.update_one({"id": song_id}, {"$set": update_data})
+    return {"success": True}
+
+@api_router.delete("/admin/song/{song_id}")
+async def delete_song(song_id: str, username: str = Depends(verify_token)):
+    result = await db.songs.delete_one({"id": song_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Canzone non trovata")
+    return {"success": True}
+
+@api_router.delete("/admin/singer/{singer_id}")
+async def delete_singer(singer_id: str, username: str = Depends(verify_token)):
+    # Delete all songs for this singer
+    await db.songs.delete_many({"singer_id": singer_id})
+    # Delete singer
+    result = await db.singers.delete_one({"id": singer_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Cantante non trovato")
+    return {"success": True}
+
+@api_router.put("/admin/settings")
+async def update_settings(settings: Settings, username: str = Depends(verify_token)):
+    await db.settings.update_one({}, {"$set": settings.model_dump()}, upsert=True)
+    return {"success": True}
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -77,7 +299,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'

@@ -129,18 +129,33 @@ cd ..
 echo.
 
 REM Setup Frontend
+echo.
 echo [3/6] Configurazione Frontend...
+echo.
+if not exist "frontend" (
+    echo [ERRORE] Cartella frontend non trovata!
+    echo Assicurati di essere nella cartella principale del progetto.
+    pause
+    exit /b 1
+)
+
 cd frontend
 
-echo Installazione dipendenze Node.js...
+echo Installazione dipendenze Node.js (puo richiedere qualche minuto)...
 call yarn install --silent
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERRORE] Installazione dipendenze fallita
+    cd ..
+    pause
+    exit /b 1
+)
 
 echo Configurazione file .env per ambiente locale...
 (
     echo REACT_APP_BACKEND_URL=http://localhost:8001
 ) > .env
 
-echo ✓ Frontend configurato
+echo [OK] Frontend configurato
 cd ..
 echo.
 

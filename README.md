@@ -360,67 +360,28 @@ brew services start mongodb-community
 
 ---
 
-## 🎯 Avvio del Sistema
+## 🌐 ACCESSO AL SISTEMA
 
-### Avvio Completo (Raccomandato)
+Dopo aver avviato il sistema (vedi Passo 8 sopra):
 
-**Windows:**
-```cmd
-start-all.bat
-```
+### 📱 Pagina Pubblica (per i clienti)
+**URL:** http://localhost:3000
 
-**Mac/Linux:**
-```bash
-./start-all.sh
-```
+Questa è la pagina che i tuoi clienti vedranno quando scansionano il QR code.
 
-Questo avvierà automaticamente backend e frontend.
+### 👨‍💼 Dashboard Amministratore
+**URL:** http://localhost:3000/admin/login
 
-### Avvio Manuale Separato
+**Credenziali di accesso:**
+- Username: `admin`
+- Password: `admin123`
 
-**Backend:**
-```bash
-# Windows
-start-backend.bat
+⚠️ **IMPORTANTE:** Quando usi il sistema per davvero, cambia questa password!
 
-# Mac/Linux
-./start-backend.sh
-```
+### 📚 Documentazione API
+**URL:** http://localhost:8001/docs
 
-**Frontend:**
-```bash
-# Windows
-start-frontend.bat
-
-# Mac/Linux
-./start-frontend.sh
-```
-
-**MongoDB:**
-```bash
-# Mac/Linux
-mongod --dbpath ~/data/db
-
-# Windows
-mongod --dbpath %USERPROFILE%\data\db
-
-# Oppure avvia come servizio se installato
-```
-
-## 🌐 Accesso
-
-Dopo l'avvio, il sistema sarà disponibile su:
-
-- **Frontend (Pagina Pubblica):** http://localhost:3000
-- **Backend API:** http://localhost:8001
-- **Documentazione API Interattiva:** http://localhost:8001/docs
-- **Admin Dashboard:** http://localhost:3000/admin/dashboard
-
-### Credenziali Admin
-- **Username:** `admin`
-- **Password:** `admin123`
-
-⚠️ **Importante:** Cambia la password admin in produzione modificando il file `backend/server.py`
+Qui puoi vedere e testare tutte le API del sistema.
 
 ## 📁 Struttura del Progetto
 

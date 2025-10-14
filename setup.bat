@@ -2,44 +2,75 @@
 chcp 65001 >nul
 SETLOCAL EnableDelayedExpansion
 
+title Setup Sistema Karaoke
+
 echo =================================
 echo Setup Sistema Prenotazioni Karaoke
 echo =================================
 echo.
+echo Questo processo richiede 2-5 minuti.
+echo.
+pause
 
 REM Verifica prerequisiti
+echo.
 echo [1/6] Verifica prerequisiti...
+echo.
 
 where python >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
-    echo ✗ Python non trovato. Installa Python 3.11+ da https://www.python.org/
+    echo [ERRORE] Python non trovato!
+    echo.
+    echo Devi installare Python prima di continuare:
+    echo 1. Vai su https://www.python.org/downloads/
+    echo 2. Scarica Python 3.11 o superiore
+    echo 3. IMPORTANTE: Spunta "Add Python to PATH" durante installazione
+    echo 4. Riavvia questo script
+    echo.
     pause
     exit /b 1
 )
-echo ✓ Python trovato
+echo [OK] Python trovato
 
 where node >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
-    echo ✗ Node.js non trovato. Installa Node.js 18+ da https://nodejs.org/
+    echo [ERRORE] Node.js non trovato!
+    echo.
+    echo Devi installare Node.js prima di continuare:
+    echo 1. Vai su https://nodejs.org/
+    echo 2. Scarica la versione LTS
+    echo 3. Installa seguendo le istruzioni
+    echo 4. Riavvia questo script
+    echo.
     pause
     exit /b 1
 )
-echo ✓ Node.js trovato
+echo [OK] Node.js trovato
 
 where mongod >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
-    echo ⚠ MongoDB non trovato. Installa MongoDB da https://www.mongodb.com/try/download/community
-    echo Continuo comunque, ma dovrai avviare MongoDB manualmente.
+    echo [ATTENZIONE] MongoDB non trovato!
+    echo.
+    echo MongoDB e' necessario per il database.
+    echo Installalo da: https://www.mongodb.com/try/download/community
+    echo.
+    echo Premi un tasto per continuare comunque...
+    pause >nul
 ) else (
-    echo ✓ MongoDB trovato
+    echo [OK] MongoDB trovato
 )
 
 where yarn >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
-    echo ⚠ Yarn non trovato. Installo Yarn...
+    echo [ATTENZIONE] Yarn non trovato. Lo installo ora...
     call npm install -g yarn
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERRORE] Impossibile installare Yarn
+        pause
+        exit /b 1
+    )
 )
-echo ✓ Yarn pronto
+echo [OK] Yarn pronto
 echo.
 
 REM Setup Backend

@@ -1,0 +1,174 @@
+=====================================
+GUIDA RAPIDA - WINDOWS
+Sistema Prenotazioni Karaoke
+=====================================
+
+📋 COSA DEVI FARE (IN ORDINE):
+
+1️⃣ INSTALLA I PROGRAMMI NECESSARI
+   
+   a) Python 3.11+
+      - Vai su: https://www.python.org/downloads/
+      - Scarica e installa
+      - ⚠️ IMPORTANTE: Spunta "Add Python to PATH"
+   
+   b) Node.js 18+
+      - Vai su: https://nodejs.org/
+      - Scarica la versione LTS (verde)
+      - Installa normalmente
+   
+   c) MongoDB
+      - Vai su: https://www.mongodb.com/try/download/community
+      - Scarica e installa
+      - ⚠️ IMPORTANTE: Spunta "Install MongoDB as a Service"
+
+2️⃣ APRI LA CARTELLA DEL PROGETTO
+   
+   - Apri Esplora Risorse (tasto Windows + E)
+   - Vai nella cartella dove hai scaricato/estratto il progetto
+   - Dovresti vedere questi file:
+     ✓ setup.bat
+     ✓ README.md
+     ✓ cartelle: backend, frontend
+
+3️⃣ ESEGUI L'INSTALLAZIONE
+   
+   - Fai DOPPIO CLICK su: setup.bat
+   - Si aprirà una finestra nera
+   - Leggi i messaggi e segui le istruzioni
+   - Aspetta che finisca (2-5 minuti)
+   - Alla fine vedrai: "SETUP COMPLETATO CON SUCCESSO!"
+   - Premi un tasto per chiudere
+
+   ⚠️ SE LA FINESTRA SI CHIUDE SUBITO:
+   - Click destro su setup.bat
+   - Seleziona "Modifica"
+   - Vai all'ultima riga
+   - Assicurati che ci sia scritto: pause
+   - Salva e riprova
+
+4️⃣ AVVIA MONGODB (se non parte automaticamente)
+   
+   Metodo 1 - Come Servizio:
+   - Tasto Windows
+   - Scrivi: cmd
+   - Click destro su "Prompt dei comandi"
+   - Seleziona "Esegui come amministratore"
+   - Scrivi: net start MongoDB
+   - Premi Invio
+
+   Metodo 2 - Manualmente:
+   - Apri Prompt dei comandi normale
+   - Scrivi: mongod
+   - Premi Invio
+   - Lascia questa finestra aperta
+
+5️⃣ AVVIA IL SISTEMA KARAOKE
+   
+   - Vai nella cartella del progetto
+   - Fai DOPPIO CLICK su: start-all.bat
+   - Si apriranno DUE finestre:
+     a) Finestra Backend (resta aperta)
+     b) Finestra Frontend (apre il browser)
+   - Aspetta 10-20 secondi
+   - Il browser si aprirà automaticamente
+
+6️⃣ USA IL SISTEMA
+   
+   Nel browser vedrai il form di prenotazione.
+   
+   Per accedere alla Dashboard Admin:
+   - Vai su: http://localhost:3000/admin/login
+   - Username: admin
+   - Password: admin123
+
+=====================================
+
+🔧 RISOLUZIONE PROBLEMI:
+
+❌ "Python non è riconosciuto"
+   → Reinstalla Python, spunta "Add Python to PATH"
+   → Chiudi e riapri il Prompt
+
+❌ "Node non è riconosciuto"
+   → Reinstalla Node.js
+   → Chiudi e riapri il Prompt
+
+❌ Setup.bat non fa niente
+   → Apri Prompt dei comandi (cmd)
+   → Scrivi: cd (spazio)
+   → Trascina la cartella del progetto nella finestra
+   → Premi Invio
+   → Scrivi: setup.bat
+   → Premi Invio
+
+❌ MongoDB non si avvia
+   → Apri Prompt come Amministratore
+   → Scrivi: net start MongoDB
+
+❌ "Porta già in uso"
+   → Chiudi tutti i programmi
+   → Riavvia il PC
+   → Riprova
+
+❌ Il browser non si apre
+   → Apri manualmente: http://localhost:3000
+
+=====================================
+
+📞 COMANDI UTILI:
+
+Verificare se Python è installato:
+  python --version
+
+Verificare se Node.js è installato:
+  node --version
+
+Verificare se MongoDB è installato:
+  mongod --version
+
+Vedere se MongoDB è in esecuzione:
+  tasklist | findstr mongod
+
+Fermare tutto:
+  - Vai alle finestre aperte
+  - Premi Ctrl+C in ogni finestra
+  - Chiudi le finestre
+
+=====================================
+
+📝 FILE IMPORTANTI:
+
+setup.bat           → Installa tutto
+start-all.bat       → Avvia tutto
+start-backend.bat   → Avvia solo backend
+start-frontend.bat  → Avvia solo frontend
+README.md           → Documentazione completa
+
+=====================================
+
+🎉 DOPO L'INSTALLAZIONE:
+
+Ogni volta che vuoi usare il sistema:
+1. Assicurati che MongoDB sia avviato
+2. Doppio click su: start-all.bat
+3. Aspetta che si apra il browser
+4. Buon divertimento!
+
+=====================================
+
+✅ CHECKLIST VELOCE:
+
+Prima di iniziare, hai:
+□ Installato Python?
+□ Installato Node.js?
+□ Installato MongoDB?
+□ Eseguito setup.bat?
+□ Avviato MongoDB?
+□ Fatto doppio click su start-all.bat?
+
+Se hai spuntato tutto → Dovresti vedere il form!
+
+=====================================
+
+Ultima modifica: Gennaio 2025

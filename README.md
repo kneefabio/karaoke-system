@@ -535,138 +535,76 @@ karaoke/                          ← Cartella principale
 
 ---
 
-## 🔧 Stack Tecnologico
+## 🔐 CAMBIARE LA PASSWORD ADMIN
 
-### Backend
-- **FastAPI** - Framework API REST moderno e veloce
-- **MongoDB** - Database NoSQL per flessibilità
-- **Motor** - Driver MongoDB asincrono
-- **PyJWT** - Autenticazione JWT
-- **Bcrypt** - Hashing password sicuro
-- **Pydantic** - Validazione dati
+⚠️ **IMPORTANTE:** Prima di usare il sistema con clienti veri, cambia la password!
 
-### Frontend
-- **React 19** - UI library moderna
-- **React Router** - Navigazione SPA
-- **Axios** - HTTP client
-- **Tailwind CSS** - Utility-first CSS framework
-- **Shadcn/UI** - Componenti UI accessibili
-- **Lucide React** - Icone moderne
-- **Sonner** - Toast notifications eleganti
+**Passo 1:** Apri il file `backend/server.py` con un editor di testo
 
-## 📖 Utilizzo
-
-### Flusso Cliente
-
-1. Il cliente scansiona il QR code (che punta a `http://localhost:3000` in locale)
-2. Compila il form con:
-   - **Codice** (opzionale): se ha già prenotato prima
-   - **Nome**: il suo nome
-   - **Canzone**: titolo della canzone
-   - **Tonalità**: es. Do, Re, originale, +1, -2
-3. Clicca "Invia Prenotazione"
-4. Riceve il codice univoco da ricordare per future prenotazioni
-
-### Flusso Amministratore
-
-1. Accede a `/admin/login`
-2. Inserisce credenziali (admin/admin123)
-3. Visualizza la dashboard con:
-   - Statistiche in tempo reale
-   - Lista cantanti con tutte le loro canzoni
-   - Numeri d'ordine per ogni canzone
-4. Può:
-   - Marcare canzoni come cantate (✓)
-   - Eliminare canzoni singole
-   - Eliminare cantanti con tutte le loro canzoni
-   - Chiudere/aprire le prenotazioni con toggle
-
-## 🔒 Sicurezza
-
-- Password admin hashata con bcrypt
-- Autenticazione JWT per API protette
-- Validazione input lato backend
-- CORS configurato correttamente
-- Verifica nome/codice per prevenire prenotazioni false
-
-⚠️ **Per produzione:**
-1. Cambia `JWT_SECRET` in `backend/.env`
-2. Cambia password admin di default
-3. Usa HTTPS
-4. Configura CORS_ORIGINS con dominio specifico
-5. Usa MongoDB Atlas o server dedicato
-
-## 🐛 Troubleshooting
-
-### MongoDB non si avvia
-```bash
-# Crea la directory dati
-mkdir -p ~/data/db  # Mac/Linux
-mkdir %USERPROFILE%\data\db  # Windows
-
-# Avvia con percorso specifico
-mongod --dbpath ~/data/db
+**Passo 2:** Cerca questa riga (circa linea 140):
+```python
+hashed_password = bcrypt.hashpw("admin123".encode('utf-8'), bcrypt.gensalt())
 ```
 
-### Porta già in uso
-Se le porte 3000 o 8001 sono occupate:
-
-**Backend** - modifica `start-backend.sh/bat` cambiando `--port 8001`
-**Frontend** - modifica `package.json` aggiungendo `"start": "PORT=3001 react-scripts start"`
-
-### Errore CORS
-Verifica che `backend/.env` contenga:
-```
-CORS_ORIGINS=http://localhost:3000
+**Passo 3:** Cambia `admin123` con la tua password
+```python
+hashed_password = bcrypt.hashpw("TuaNuovaPassword".encode('utf-8'), bcrypt.gensalt())
 ```
 
-### Frontend non si connette al backend
-Verifica che `frontend/.env` contenga:
-```
-REACT_APP_BACKEND_URL=http://localhost:8001
-```
+**Passo 4:** Salva il file
 
-## 📝 API Endpoints
+**Passo 5:** Riavvia il backend
 
-### Pubblici
-- `GET /api/` - Health check
-- `POST /api/book` - Crea prenotazione
-- `GET /api/settings` - Ottieni stato prenotazioni
+**Passo 6:** Cancella il database vecchio per resettare:
+- Apri MongoDB Compass (se installato)
+- Oppure dal Terminale: `mongo` poi `use karaoke_db` poi `db.dropDatabase()`
 
-### Admin (richiedono token JWT)
-- `POST /api/admin/login` - Login admin
-- `GET /api/admin/singers` - Lista cantanti con canzoni
-- `GET /api/admin/stats` - Statistiche sistema
-- `PUT /api/admin/song/{id}` - Modifica canzone
-- `DELETE /api/admin/song/{id}` - Elimina canzone
-- `DELETE /api/admin/singer/{id}` - Elimina cantante
-- `PUT /api/admin/settings` - Aggiorna impostazioni
+**Passo 7:** Riavvia tutto di nuovo - la nuova password sarà attiva
 
-Documentazione interattiva completa: http://localhost:8001/docs
+---
 
-## 🎨 Personalizzazione
+## 📧 SUPPORTO E CONTATTI
 
-### Colori e Stile
-Modifica `frontend/src/App.css` e i componenti in `frontend/src/pages/`
+### Hai problemi?
 
-### Database
-Il database MongoDB si chiama `karaoke_db` e contiene le collection:
-- `singers` - Cantanti con codici univoci
-- `songs` - Prenotazioni canzoni
-- `settings` - Configurazione sistema
-- `admins` - Utenti amministratori
+1. **Leggi la sezione "PROBLEMI COMUNI"** sopra
+2. **Controlla i log:**
+   - Backend: guarda la finestra nera/terminale dove gira il backend
+   - Frontend: premi F12 nel browser, vai su "Console"
+3. **MongoDB:** Assicurati che sia avviato
+4. **Firewall:** Potrebbe bloccare le porte, disattivalo temporaneamente per testare
 
-## 📄 Licenza
-
-Progetto creato per uso personale/commerciale.
-
-## 🤝 Supporto
-
-Per problemi o domande, consulta la documentazione API su `/docs` o controlla i log:
-- Backend: console dove hai avviato il backend
+### File di log
+- Backend: console dove hai avviato `start-backend`
 - Frontend: console browser (F12)
-- MongoDB: file di log MongoDB
+- MongoDB: vedi documentazione MongoDB per i log
+
+---
+
+## 📄 LICENZA
+
+Progetto creato per uso personale/commerciale. Puoi modificarlo e usarlo come preferisci.
+
+---
+
+## 🎉 CONCLUSIONE
+
+**Ora hai tutto pronto!**
+
+1. ✅ Hai installato tutti i programmi necessari
+2. ✅ Hai eseguito lo script di installazione
+3. ✅ Puoi avviare il sistema con un doppio click
+4. ✅ I tuoi clienti possono prenotare tramite QR code
+5. ✅ Tu gestisci tutto dalla dashboard
+
+**Ricorda:**
+- Ogni volta che vuoi usare il sistema: doppio click su `start-all.bat` (Windows) o `./start-all.sh` (Mac)
+- Tieni sempre aperta la dashboard admin durante l'evento
+- I clienti devono essere sulla tua stessa rete WiFi
+- Cambia la password admin prima di usarlo pubblicamente
 
 ---
 
 **Buon divertimento con il tuo sistema Karaoke! 🎤🎵**
+
+Hai domande? Rileggi la guida passo per passo o controlla la sezione "PROBLEMI COMUNI".

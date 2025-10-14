@@ -160,64 +160,110 @@ cd ..
 echo.
 
 REM Crea script di avvio
+echo.
 echo [4/6] Creazione script di avvio...
+echo.
 
 REM Script backend
 (
     echo @echo off
-    echo echo Avvio Backend su http://localhost:8001...
+    echo title Karaoke Backend
+    echo echo ========================================
+    echo echo Avvio Backend su http://localhost:8001
+    echo echo ========================================
+    echo echo.
     echo cd backend
     echo call venv\Scripts\activate.bat
+    echo echo Backend in esecuzione...
+    echo echo Documentazione API: http://localhost:8001/docs
+    echo echo.
+    echo echo Premi Ctrl+C per fermare
+    echo echo.
     echo uvicorn server:app --reload --host 0.0.0.0 --port 8001
+    echo pause
 ) > start-backend.bat
 
 REM Script frontend
 (
     echo @echo off
-    echo echo Avvio Frontend su http://localhost:3000...
+    echo title Karaoke Frontend
+    echo echo ========================================
+    echo echo Avvio Frontend su http://localhost:3000
+    echo echo ========================================
+    echo echo.
     echo cd frontend
+    echo echo Frontend in esecuzione...
+    echo echo Il browser si aprira automaticamente
+    echo echo.
+    echo echo Premi Ctrl+C per fermare
+    echo echo.
     echo yarn start
+    echo pause
 ) > start-frontend.bat
 
 REM Script completo
 (
     echo @echo off
     echo chcp 65001 ^>nul
-    echo echo =================================
-    echo echo Avvio Sistema Karaoke
-    echo echo =================================
-    echo echo.
+    echo title Sistema Karaoke
+    echo cls
     echo.
-    echo echo Verifica MongoDB...
+    echo ========================================
+    echo   SISTEMA PRENOTAZIONI KARAOKE
+    echo ========================================
+    echo.
+    echo Controllo MongoDB...
+    echo.
     echo tasklist /FI "IMAGENAME eq mongod.exe" 2^>NUL ^| find /I /N "mongod.exe"^>NUL
     echo if "%%ERRORLEVEL%%"=="0" (
-    echo     echo ✓ MongoDB già in esecuzione
+    echo     echo [OK] MongoDB in esecuzione
     echo ^) else (
-    echo     echo ⚠ Avvia MongoDB manualmente in un altro terminale: mongod
-    echo     echo    oppure come servizio Windows
-    echo ^
+    echo     echo [ATTENZIONE] MongoDB non in esecuzione!
+    echo     echo.
+    echo     echo Avvia MongoDB prima di continuare:
+    echo     echo - Apri un nuovo Prompt come Amministratore
+    echo     echo - Scrivi: net start MongoDB
+    echo     echo.
+    echo     echo Oppure avvia mongod manualmente
+    echo     echo.
+    echo     pause
+    echo ^)
     echo.
-    echo echo.
-    echo echo Backend: http://localhost:8001
-    echo echo Frontend: http://localhost:3000
-    echo echo API Docs: http://localhost:8001/docs
-    echo echo.
-    echo echo Login Admin: username=admin, password=admin123
-    echo echo.
-    echo echo Premi Ctrl+C per fermare i servizi
-    echo echo.
+    echo ========================================
+    echo   INFORMAZIONI ACCESSO
+    echo ========================================
     echo.
-    echo REM Avvia backend in una nuova finestra
+    echo Pagina Pubblica:  http://localhost:3000
+    echo Dashboard Admin:  http://localhost:3000/admin/login
+    echo API Docs:         http://localhost:8001/docs
+    echo.
+    echo Credenziali Admin:
+    echo   Username: admin
+    echo   Password: admin123
+    echo.
+    echo ========================================
+    echo.
+    echo Il backend si aprira in una finestra separata
+    echo Il frontend si aprira nel browser
+    echo.
+    echo Premi un tasto per avviare...
+    echo pause ^>nul
+    echo.
+    echo echo Avvio Backend...
     echo start "Karaoke Backend" cmd /k "cd backend ^&^& venv\Scripts\activate.bat ^&^& uvicorn server:app --reload --host 0.0.0.0 --port 8001"
     echo.
-    echo timeout /t 3 /nobreak ^>nul
+    echo echo Attendo 5 secondi...
+    echo timeout /t 5 /nobreak ^>nul
     echo.
-    echo REM Avvia frontend
+    echo echo Avvio Frontend...
     echo cd frontend
     echo yarn start
 ) > start-all.bat
 
-echo ✓ Script di avvio creati
+echo [OK] Script di avvio creati:
+echo   - start-all.bat      (avvia tutto)
+echo   - start-backend.bat  (solo backend)
+echo   - start-frontend.bat (solo frontend)
 echo.
 
 REM Crea directory MongoDB

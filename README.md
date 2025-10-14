@@ -2,7 +2,7 @@
 
 Sistema completo per gestire prenotazioni di canzoni per karaoke con dashboard amministrativa in tempo reale.
 
-## 🌟 Caratteristiche
+## 🌟 Cosa fa questo sistema
 
 ### Pagina Pubblica
 - Form prenotazione intuitivo (nome, canzone, tonalità)
@@ -26,26 +26,339 @@ Sistema completo per gestire prenotazioni di canzoni per karaoke con dashboard a
 - Toggle per chiudere/aprire prenotazioni
 - Aggiornamento automatico ogni 3 secondi
 
-## 🚀 Installazione Automatica
+---
 
-### Prerequisiti
-- Python 3.11 o superiore
-- Node.js 18 o superiore
-- MongoDB Community Edition
-- Yarn (verrà installato automaticamente se mancante)
+## 📥 GUIDA INSTALLAZIONE COMPLETA - PASSO PER PASSO
 
-### Windows
-```cmd
-setup.bat
-```
+### PARTE 1: SCARICA E INSTALLA I PROGRAMMI NECESSARI
 
-### Mac/Linux
+#### 🔹 Passo 1: Installa Python
+
+**Windows:**
+1. Vai su https://www.python.org/downloads/
+2. Clicca sul grande pulsante giallo "Download Python 3.11.x"
+3. Apri il file scaricato (es: `python-3.11.9-amd64.exe`)
+4. ⚠️ **IMPORTANTE:** Spunta la casella "Add Python to PATH" in basso
+5. Clicca "Install Now"
+6. Aspetta che finisca l'installazione
+7. Clicca "Close"
+
+**Mac:**
+1. Vai su https://www.python.org/downloads/
+2. Clicca sul grande pulsante "Download Python 3.11.x"
+3. Apri il file scaricato (es: `python-3.11.9-macos11.pkg`)
+4. Segui la procedura guidata cliccando "Continua" e "Installa"
+5. Inserisci la password del Mac quando richiesto
+6. Clicca "Chiudi" quando finito
+
+**Come verificare:**
+1. Apri il Terminale (Mac) o Prompt dei comandi (Windows)
+   - Windows: Premi tasto Windows, scrivi `cmd`, premi Invio
+   - Mac: Premi Cmd+Spazio, scrivi `Terminal`, premi Invio
+2. Scrivi: `python --version` e premi Invio
+3. Dovresti vedere: `Python 3.11.x`
+
+---
+
+#### 🔹 Passo 2: Installa Node.js
+
+**Windows e Mac:**
+1. Vai su https://nodejs.org/
+2. Clicca sul pulsante verde "LTS" (Recommended for Most Users)
+3. Apri il file scaricato:
+   - Windows: `node-v18.x.x-x64.msi`
+   - Mac: `node-v18.x.x.pkg`
+4. Segui la procedura guidata:
+   - Clicca "Next" o "Continua" per ogni schermata
+   - Accetta i termini di licenza
+   - Clicca "Install" o "Installa"
+5. Aspetta che finisca
+6. Clicca "Finish" o "Chiudi"
+
+**Come verificare:**
+1. Apri un NUOVO Terminale/Prompt (chiudi quello vecchio e aprilo di nuovo)
+2. Scrivi: `node --version` e premi Invio
+3. Dovresti vedere: `v18.x.x`
+
+---
+
+#### 🔹 Passo 3: Installa MongoDB
+
+**Windows:**
+1. Vai su https://www.mongodb.com/try/download/community
+2. Seleziona:
+   - Version: 7.0.x (Current)
+   - Platform: Windows
+   - Package: msi
+3. Clicca "Download"
+4. Apri il file scaricato (es: `mongodb-windows-x86_64-7.0.x.msi`)
+5. Clicca "Next" fino ad arrivare a "Service Configuration"
+6. ⚠️ **IMPORTANTE:** Spunta "Install MongoDB as a Service"
+7. Clicca "Next" e poi "Install"
+8. Aspetta che finisca
+9. Clicca "Finish"
+
+**Mac:**
+1. Apri il Terminale
+2. Copia e incolla questo comando (tutto insieme) e premi Invio:
+   ```bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+3. Segui le istruzioni (potrebbero chiederti la password)
+4. Quando finito, scrivi:
+   ```bash
+   brew tap mongodb/brew
+   ```
+5. Premi Invio, aspetta che finisca
+6. Poi scrivi:
+   ```bash
+   brew install mongodb-community
+   ```
+7. Premi Invio e aspetta (può richiedere alcuni minuti)
+
+**Come verificare:**
+1. Apri Terminale/Prompt
+2. Scrivi: `mongod --version` e premi Invio
+3. Dovresti vedere informazioni sulla versione di MongoDB
+
+---
+
+### PARTE 2: SCARICA IL PROGETTO KARAOKE
+
+#### 🔹 Passo 4: Scarica i file del progetto
+
+**Opzione A - Da Emergent (se hai salvato su GitHub):**
+1. Vai su https://github.com
+2. Accedi con il tuo account
+3. Trova il repository del progetto
+4. Clicca il pulsante verde "Code"
+5. Clicca "Download ZIP"
+6. Vai nella cartella Download
+7. Fai click destro sul file ZIP → "Estrai tutto" (Windows) o doppio click (Mac)
+8. Scegli dove estrarre (es: Documenti)
+
+**Opzione B - Crea manualmente:**
+1. Apri la tua piattaforma Emergent
+2. Clicca sul pulsante "VS Code" per vedere tutti i file
+3. Crea una cartella sul tuo computer (es: `Documenti/karaoke`)
+4. Copia tutti i file e cartelle da Emergent in questa cartella locale
+
+---
+
+### PARTE 3: INSTALLA IL PROGETTO
+
+#### 🔹 Passo 5: Vai nella cartella del progetto
+
+**Windows:**
+1. Apri Esplora Risorse (tasto Windows + E)
+2. Vai dove hai estratto/creato la cartella del progetto
+3. Fai click destro sulla cartella del progetto
+4. Seleziona "Apri nel terminale" o "Apri finestra PowerShell qui"
+   - Se non vedi questa opzione, vai al Passo 5b
+
+**Passo 5b (se non hai "Apri nel terminale"):**
+1. Apri il Prompt dei comandi (tasto Windows, scrivi `cmd`)
+2. Scrivi `cd ` (cd con uno spazio)
+3. Trascina la cartella del progetto nella finestra del prompt
+4. Premi Invio
+
+**Mac:**
+1. Apri Finder
+2. Vai dove hai estratto/creato la cartella del progetto
+3. Fai click destro sulla cartella
+4. Tieni premuto "Option" (Alt) e clicca "Copia percorso"
+5. Apri Terminale
+6. Scrivi `cd ` (cd con uno spazio)
+7. Premi Cmd+V per incollare il percorso
+8. Premi Invio
+
+---
+
+#### 🔹 Passo 6: Esegui lo script di installazione
+
+⚠️ **IMPORTANTE:** Assicurati di essere nella cartella del progetto (vedi Passo 5)
+
+**Windows:**
+1. Nel Prompt dei comandi, scrivi:
+   ```cmd
+   setup.bat
+   ```
+2. Premi Invio
+3. Aspetta che finisca (può richiedere 2-5 minuti)
+4. Lo script installerà tutto automaticamente
+5. Quando vedi "Setup completato con successo!", sei pronto
+
+**Mac:**
+1. Nel Terminale, scrivi:
+   ```bash
+   chmod +x setup.sh
+   ```
+2. Premi Invio
+3. Poi scrivi:
+   ```bash
+   ./setup.sh
+   ```
+4. Premi Invio
+5. Aspetta che finisca (può richiedere 2-5 minuti)
+6. Quando vedi "Setup completato con successo!", sei pronto
+
+---
+
+### PARTE 4: AVVIA IL SISTEMA
+
+#### 🔹 Passo 7: Avvia MongoDB (se non è già avviato)
+
+**Windows:**
+- MongoDB dovrebbe essere già avviato come servizio
+- Se hai problemi, apri il Prompt dei comandi come Amministratore:
+  1. Tasto Windows, scrivi `cmd`
+  2. Fai click destro su "Prompt dei comandi"
+  3. Clicca "Esegui come amministratore"
+  4. Scrivi: `net start MongoDB`
+  5. Premi Invio
+
+**Mac:**
+1. Apri un NUOVO Terminale
+2. Scrivi:
+   ```bash
+   brew services start mongodb-community
+   ```
+3. Premi Invio
+
+---
+
+#### 🔹 Passo 8: Avvia il sistema Karaoke
+
+**Windows:**
+1. Vai nella cartella del progetto (Esplora Risorse)
+2. Fai doppio click su `start-all.bat`
+3. Si apriranno due finestre:
+   - Una nera (Backend)
+   - Una che poi aprirà il browser (Frontend)
+4. Aspetta 10-20 secondi
+5. Il browser si aprirà automaticamente su http://localhost:3000
+
+**Mac:**
+1. Apri Terminale
+2. Vai nella cartella del progetto (vedi Passo 5)
+3. Scrivi:
+   ```bash
+   ./start-all.sh
+   ```
+4. Premi Invio
+5. Aspetta 10-20 secondi
+6. Il browser si aprirà automaticamente su http://localhost:3000
+
+---
+
+### PARTE 5: USA IL SISTEMA
+
+#### 🔹 Passo 9: Testa la pagina pubblica
+
+1. Il browser dovrebbe aprirsi automaticamente
+2. Se non si apre, vai manualmente su: **http://localhost:3000**
+3. Vedrai il form di prenotazione
+4. Prova a prenotare una canzone:
+   - Nome: Mario
+   - Canzone: Volare
+   - Tonalità: Do
+5. Clicca "Invia Prenotazione"
+6. Ti verrà dato un codice (es: 001)
+7. ✅ Ricorda questo codice!
+
+---
+
+#### 🔹 Passo 10: Accedi alla Dashboard Admin
+
+1. Nel browser, vai su: **http://localhost:3000/admin/login**
+2. Inserisci:
+   - Username: `admin`
+   - Password: `admin123`
+3. Clicca "Accedi"
+4. Vedrai la dashboard con:
+   - Statistiche in alto
+   - Lista cantanti con le loro canzoni
+5. Prova a:
+   - Cliccare ✓ verde per marcare una canzone come cantata
+   - Cliccare 🗑️ rosso per eliminare
+   - Usare lo switch per chiudere le prenotazioni
+
+---
+
+#### 🔹 Passo 11: Vedi la documentazione API (opzionale)
+
+1. Nel browser, vai su: **http://localhost:8001/docs**
+2. Vedrai tutte le API disponibili
+3. Puoi testarle direttamente da lì
+
+---
+
+### 🛑 COME FERMARE IL SISTEMA
+
+**Windows:**
+1. Vai alla finestra nera del Backend
+2. Premi `Ctrl+C`
+3. Chiudi la finestra
+4. Vai alla finestra del Frontend
+5. Premi `Ctrl+C`
+6. Chiudi la finestra
+
+**Mac:**
+1. Vai al Terminale
+2. Premi `Ctrl+C`
+3. Chiudi il Terminale
+
+---
+
+### 🔄 COME RIAVVIARE IL SISTEMA
+
+Ogni volta che vuoi usare il sistema:
+
+**Windows:**
+1. Vai nella cartella del progetto
+2. Doppio click su `start-all.bat`
+3. Aspetta che si apra il browser
+
+**Mac:**
+1. Apri Terminale
+2. Vai nella cartella del progetto: `cd /percorso/cartella`
+3. Scrivi: `./start-all.sh`
+4. Premi Invio
+
+---
+
+## ❓ PROBLEMI COMUNI
+
+### "Python non è riconosciuto"
+- Reinstalla Python e assicurati di spuntare "Add Python to PATH"
+- Chiudi e riapri il Terminale/Prompt
+
+### "Node non è riconosciuto"
+- Reinstalla Node.js
+- Chiudi e riapri il Terminale/Prompt
+
+### "MongoDB non si avvia"
+**Windows:**
+- Vai a Servizi (tasto Windows, scrivi "services.msc")
+- Cerca "MongoDB"
+- Click destro → Avvia
+
+**Mac:**
 ```bash
-chmod +x setup.sh
-./setup.sh
+brew services start mongodb-community
 ```
 
-Lo script installerà automaticamente tutte le dipendenze e configurerà l'ambiente.
+### "La porta 3000 è già in uso"
+- Qualche altro programma sta usando quella porta
+- Chiudi tutti i programmi e riprova
+- Oppure cambia porta nel file
+
+### "Errore durante l'installazione"
+- Assicurati di avere una connessione internet
+- Prova a eseguire di nuovo lo script di setup
+- Assicurati di essere amministratore (Windows) o usa `sudo` (Mac)
+
+---
 
 ## 🎯 Avvio del Sistema
 

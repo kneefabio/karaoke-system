@@ -267,34 +267,41 @@ echo   - start-frontend.bat (solo frontend)
 echo.
 
 REM Crea directory MongoDB
+echo.
 echo [5/6] Preparazione directory MongoDB...
 if not exist "%USERPROFILE%\data\db" (
     mkdir "%USERPROFILE%\data\db"
+    echo [OK] Directory MongoDB creata
+) else (
+    echo [OK] Directory MongoDB gia esistente
 )
-echo ✓ Directory MongoDB pronta
 echo.
 
 REM Riepilogo
-echo [6/6] =================================
-echo Setup completato con successo!
-echo =================================
 echo.
-echo Per avviare il sistema:
-echo   start-all.bat         - Avvia tutto automaticamente
+echo ========================================
+echo [6/6] SETUP COMPLETATO CON SUCCESSO!
+echo ========================================
 echo.
-echo Oppure avvia separatamente:
-echo   start-backend.bat     - Solo backend
-echo   start-frontend.bat    - Solo frontend
+echo Prossimi passi:
 echo.
-echo Accesso:
-echo   Frontend:  http://localhost:3000
-echo   Backend:   http://localhost:8001
-echo   API Docs:  http://localhost:8001/docs
+echo 1. Assicurati che MongoDB sia avviato
+echo    Windows: net start MongoDB (come Amministratore)
 echo.
-echo Credenziali Admin:
-echo   Username: admin
-echo   Password: admin123
+echo 2. Per avviare il sistema, fai doppio click su:
+echo    start-all.bat
 echo.
-echo Buon divertimento con il tuo sistema Karaoke! 🎤
+echo 3. Accedi al sistema:
+echo    - Pagina Pubblica:  http://localhost:3000
+echo    - Dashboard Admin:  http://localhost:3000/admin/login
+echo    - API Docs:         http://localhost:8001/docs
+echo.
+echo 4. Credenziali Admin:
+echo    - Username: admin
+echo    - Password: admin123
+echo.
+echo ========================================
+echo.
+echo Buon divertimento con il tuo sistema Karaoke!
 echo.
 pause

@@ -383,7 +383,118 @@ Questa è la pagina che i tuoi clienti vedranno quando scansionano il QR code.
 
 Qui puoi vedere e testare tutte le API del sistema.
 
-## 📁 Struttura del Progetto
+---
+
+## 🎨 COME CREARE IL QR CODE PER I CLIENTI
+
+Quando usi il sistema sul tuo PC locale:
+
+1. Vai su un sito di generazione QR code gratuito:
+   - https://www.qr-code-generator.com/
+   - https://www.qrcode-monkey.com/
+   
+2. Inserisci l'URL: `http://TUO-IP-LOCALE:3000`
+   
+   **Per trovare il tuo IP locale:**
+   - **Windows:** 
+     1. Apri Prompt comandi
+     2. Scrivi: `ipconfig`
+     3. Cerca "Indirizzo IPv4" (es: 192.168.1.100)
+   - **Mac:**
+     1. Vai in Preferenze di Sistema
+     2. Clicca Rete
+     3. Vedi l'IP a destra
+
+3. Genera il QR code
+
+4. Scaricalo e stampalo
+
+5. I clienti scannerizzeranno il QR code con il loro telefono
+
+⚠️ **IMPORTANTE:** Il telefono dei clienti deve essere sulla STESSA rete WiFi del tuo PC!
+
+---
+
+## 💡 SUGGERIMENTI PER L'USO
+
+### Per il Karaoke
+1. Stampa il QR code e mettilo in un posto visibile
+2. Tieni aperta la dashboard admin sul tuo PC
+3. I clienti scannerizzano e prenotano
+4. Tu vedi le prenotazioni in tempo reale
+5. Marchi come "cantata" dopo ogni esibizione
+
+### Organizzazione Turni
+Il sistema NON segue l'ordine di arrivo delle prenotazioni.
+Il numero #1, #2, #3 accanto a ogni canzone indica solo l'ordine in cui sono state prenotate.
+
+**Come funziona meglio:**
+- Fai cantare una canzone a ogni cantante
+- Poi ricominci il giro
+- Esempio: Mario canta la sua #1, poi Luca la sua #1, poi Sara la sua #1, poi Mario la sua #2...
+
+---
+
+## 🔧 INFORMAZIONI TECNICHE
+
+### Stack Tecnologico
+
+**Backend:**
+- FastAPI - Framework API REST
+- MongoDB - Database NoSQL
+- Motor - Driver MongoDB asincrono
+- PyJWT - Autenticazione JWT
+- Bcrypt - Hashing password
+
+**Frontend:**
+- React 19 - UI library
+- React Router - Navigazione
+- Axios - HTTP client
+- Tailwind CSS - Framework CSS
+- Shadcn/UI - Componenti UI
+- Sonner - Notifiche toast
+
+### Struttura Database MongoDB
+
+**Collection: singers**
+```json
+{
+  "id": "uuid",
+  "nome": "Mario",
+  "codice": "001",
+  "timestamp": "2025-01-13T10:30:00Z"
+}
+```
+
+**Collection: songs**
+```json
+{
+  "id": "uuid",
+  "singer_id": "uuid-del-cantante",
+  "canzone": "Volare",
+  "tonalita": "Do",
+  "ordine_prenotazione": 1,
+  "cantata": false,
+  "timestamp": "2025-01-13T10:30:00Z"
+}
+```
+
+**Collection: settings**
+```json
+{
+  "prenotazioni_aperte": true
+}
+```
+
+**Collection: admins**
+```json
+{
+  "username": "admin",
+  "password": "hash-bcrypt"
+}
+```
+
+---
 
 ```
 .

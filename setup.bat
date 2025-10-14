@@ -74,20 +74,47 @@ echo [OK] Yarn pronto
 echo.
 
 REM Setup Backend
+echo.
 echo [2/6] Configurazione Backend...
+echo.
+if not exist "backend" (
+    echo [ERRORE] Cartella backend non trovata!
+    echo Assicurati di essere nella cartella principale del progetto.
+    pause
+    exit /b 1
+)
+
 cd backend
 
 if not exist "venv" (
     echo Creazione ambiente virtuale Python...
     python -m venv venv
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERRORE] Impossibile creare ambiente virtuale
+        cd ..
+        pause
+        exit /b 1
+    )
 )
 
 echo Attivazione ambiente virtuale...
 call venv\Scripts\activate.bat
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERRORE] Impossibile attivare ambiente virtuale
+    cd ..
+    pause
+    exit /b 1
+)
 
-echo Installazione dipendenze Python...
+echo Installazione dipendenze Python (puo richiedere qualche minuto)...
 python -m pip install --upgrade pip --quiet
 pip install -r requirements.txt --quiet
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERRORE] Installazione dipendenze fallita
+    cd ..
+    pause
+    exit /b 1
+)
 
 echo Configurazione file .env per ambiente locale...
 (
@@ -97,7 +124,7 @@ echo Configurazione file .env per ambiente locale...
     echo JWT_SECRET=karaoke_secret_key_change_in_production
 ) > .env
 
-echo ✓ Backend configurato
+echo [OK] Backend configurato
 cd ..
 echo.
 

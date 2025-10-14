@@ -64,8 +64,12 @@ where yarn >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     echo [ATTENZIONE] Yarn non trovato. Lo installo ora...
     call npm install -g yarn
+    echo.
+    echo Verifico installazione Yarn...
+    where yarn >nul 2>&1
     if %ERRORLEVEL% NEQ 0 (
-        echo [ERRORE] Impossibile installare Yarn
+        echo [ERRORE] Yarn non installato correttamente
+        echo Prova a installarlo manualmente: npm install -g yarn
         pause
         exit /b 1
     )

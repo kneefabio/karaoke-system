@@ -496,29 +496,44 @@ Il numero #1, #2, #3 accanto a ogni canzone indica solo l'ordine in cui sono sta
 
 ---
 
+## 📁 STRUTTURA FILE DEL PROGETTO
+
+Ecco come sono organizzati i file:
+
 ```
-.
-├── backend/
-│   ├── server.py          # API FastAPI
-│   ├── requirements.txt   # Dipendenze Python
-│   └── .env              # Configurazione ambiente
-├── frontend/
+karaoke/                          ← Cartella principale
+│
+├── backend/                      ← Tutto il codice del server
+│   ├── server.py                 ← File principale API
+│   ├── requirements.txt          ← Lista librerie Python
+│   ├── .env                      ← Configurazione (URL database, ecc)
+│   └── venv/                     ← Ambiente virtuale Python (creato automaticamente)
+│
+├── frontend/                     ← Tutto il codice dell'interfaccia
 │   ├── src/
 │   │   ├── pages/
-│   │   │   ├── BookingPage.jsx      # Form prenotazione pubblica
-│   │   │   ├── AdminLogin.jsx       # Login amministratore
-│   │   │   └── AdminDashboard.jsx   # Dashboard admin
-│   │   ├── components/ui/           # Componenti UI Shadcn
-│   │   ├── App.js                   # Root component
-│   │   └── App.css                  # Stili globali
-│   ├── package.json       # Dipendenze Node.js
-│   └── .env              # Configurazione frontend
-├── setup.sh              # Script installazione Linux/Mac
-├── setup.bat             # Script installazione Windows
-├── start-all.sh          # Avvio completo Linux/Mac
-├── start-all.bat         # Avvio completo Windows
-└── README.md             # Questa documentazione
+│   │   │   ├── BookingPage.jsx       ← Pagina prenotazione pubblica
+│   │   │   ├── AdminLogin.jsx        ← Pagina login admin
+│   │   │   └── AdminDashboard.jsx    ← Dashboard amministratore
+│   │   ├── components/ui/            ← Componenti interfaccia (bottoni, card, ecc)
+│   │   ├── App.js                    ← File principale React
+│   │   └── App.css                   ← Stili globali
+│   ├── package.json              ← Lista librerie Node.js
+│   ├── .env                      ← Configurazione frontend
+│   └── node_modules/             ← Librerie (creato automaticamente)
+│
+├── setup.sh                      ← Script installazione Mac/Linux
+├── setup.bat                     ← Script installazione Windows
+├── start-all.sh                  ← Script avvio completo Mac/Linux
+├── start-all.bat                 ← Script avvio completo Windows
+├── start-backend.sh              ← Avvia solo backend Mac/Linux
+├── start-backend.bat             ← Avvia solo backend Windows
+├── start-frontend.sh             ← Avvia solo frontend Mac/Linux
+├── start-frontend.bat            ← Avvia solo frontend Windows
+└── README.md                     ← Questo file (documentazione)
 ```
+
+---
 
 ## 🔧 Stack Tecnologico
 

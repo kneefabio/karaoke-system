@@ -157,15 +157,35 @@ export default function AdminDashboard() {
             <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'Space Grotesk' }}>Dashboard Admin</h1>
             <p className="text-gray-600">Gestione prenotazioni karaoke</p>
           </div>
-          <Button 
-            onClick={logout} 
-            variant="outline" 
-            className="flex items-center gap-2"
-            data-testid="logout-btn"
-          >
-            <LogOut className="w-4 h-4" />
-            Esci
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              onClick={handleClearSung}
+              variant="outline"
+              className="flex items-center gap-2 border-orange-500 text-orange-600 hover:bg-orange-50"
+              data-testid="clear-sung-btn"
+            >
+              <ListChecks className="w-4 h-4" />
+              Elimina Cantate
+            </Button>
+            <Button 
+              onClick={handleResetAll}
+              variant="outline"
+              className="flex items-center gap-2 border-red-500 text-red-600 hover:bg-red-50"
+              data-testid="reset-all-btn"
+            >
+              <Trash2 className="w-4 h-4" />
+              Reset Serata
+            </Button>
+            <Button 
+              onClick={logout} 
+              variant="outline" 
+              className="flex items-center gap-2"
+              data-testid="logout-btn"
+            >
+              <LogOut className="w-4 h-4" />
+              Esci
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}

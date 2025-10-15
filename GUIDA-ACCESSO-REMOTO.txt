@@ -1,0 +1,370 @@
+# GUIDA ACCESSO REMOTO
+# Sistema Prenotazioni Karaoke
+
+=====================================
+COME PERMETTERE PRENOTAZIONI DA 4G/5G
+=====================================
+
+Il tuo PC è su una rete locale (192.168.x.x).
+Gli smartphone su 4G/5G sono su Internet.
+Devi "esporre" il tuo server a Internet.
+
+=====================================
+METODO 1: NGROK (RACCOMANDATO)
+=====================================
+
+✅ PRO: Facile, veloce, gratuito
+❌ CONTRO: URL cambia ogni volta (piano gratuito)
+
+### PASSO 1: Installa ngrok
+
+1. Vai su: https://ngrok.com/download
+2. Scarica "Windows (64-bit)"
+3. Estrai ngrok.exe in una cartella (es: C:\ngrok)
+
+### PASSO 2: Registrati
+
+1. Vai su: https://dashboard.ngrok.com/signup
+2. Crea un account gratuito
+3. Copia il token dalla dashboard
+
+### PASSO 3: Configura ngrok
+
+Apri Prompt dei comandi:
+
+```cmd
+cd C:\ngrok
+ngrok config add-authtoken IL_TUO_TOKEN_QUI
+```
+
+### PASSO 4: Avvia il sistema karaoke
+
+1. Doppio click su: start-all.bat
+2. Aspetta che backend e frontend siano avviati
+
+### PASSO 5: Avvia ngrok
+
+Apri un NUOVO Prompt dei comandi:
+
+```cmd
+cd C:\ngrok
+ngrok http 8001
+```
+
+Vedrai qualcosa tipo:
+
+```
+Forwarding  https://abc123.ngrok-free.app -> http://localhost:8001
+```
+
+COPIA l'URL: https://abc123.ngrok-free.app
+
+### PASSO 6: Configura il frontend
+
+**Opzione A - Per test rapidi:**
+
+Apri: frontend/.env
+
+Aggiungi questa riga:
+```
+REACT_APP_BACKEND_URL=https://abc123.ngrok-free.app
+```
+
+Salva e riavvia il frontend (Ctrl+C e poi start-frontend.bat)
+
+**Opzione B - Build per produzione:**
+
+1. Apri Prompt nella cartella del progetto
+2. Vai in frontend:
+   ```cmd
+   cd frontend
+   ```
+3. Modifica .env come sopra
+4. Build:
+   ```cmd
+   yarn build
+   ```
+5. Servi la build con un server statico
+
+### PASSO 7: Genera QR Code
+
+1. Vai su: https://www.qr-code-generator.com/
+2. Inserisci l'URL completo:
+   ```
+   https://abc123.ngrok-free.app
+   ```
+3. Genera e scarica il QR
+4. Gli smartphone scannerizzano → vedono la pagina!
+
+⚠️ NOTA: Con il piano gratuito, l'URL cambia ogni volta che riavvii ngrok. Devi rigenerare il QR code.
+
+### PASSO 8: Piano a pagamento (opzionale)
+
+Se vuoi un URL fisso:
+- Ngrok Pro: $8/mese
+- URL tipo: https://tuonome.ngrok.io (sempre uguale)
+
+=====================================
+METODO 2: CLOUDFLARE TUNNEL
+=====================================
+
+✅ PRO: Gratuito, URL fisso
+❌ CONTRO: Setup più complesso
+
+### PASSO 1: Installa cloudflared
+
+1. Vai su: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+2. Scarica per Windows
+3. Estrai in C:\cloudflared
+
+### PASSO 2: Login
+
+```cmd
+cd C:\cloudflared
+cloudflared tunnel login
+```
+
+Si apre il browser, fai login con Cloudflare (o crea account)
+
+### PASSO 3: Crea tunnel
+
+```cmd
+cloudflared tunnel create karaoke
+```
+
+Copia il Tunnel ID che appare
+
+### PASSO 4: Configura
+
+Crea file: C:\cloudflared\config.yml
+
+```yaml
+tunnel: TUNNEL_ID_QUI
+credentials-file: C:\cloudflared\.cloudflared\TUNNEL_ID.json
+
+ingress:
+  - hostname: karaoke.tuodominio.com
+    service: http://localhost:8001
+  - service: http_status:404
+```
+
+### PASSO 5: Aggiungi DNS
+
+```cmd
+cloudflared tunnel route dns karaoke karaoke.tuodominio.com
+```
+
+### PASSO 6: Avvia tunnel
+
+```cmd
+cloudflared tunnel run karaoke
+```
+
+Ora il tuo backend è su: https://karaoke.tuodominio.com
+
+=====================================
+METODO 3: PORT FORWARDING (Router)
+=====================================
+
+✅ PRO: Gratis, nessun servizio terzo
+❌ CONTRO: Richiede IP pubblico statico, configurazione router
+
+### PASSO 1: Trova IP locale del PC
+
+```cmd
+ipconfig
+```
+
+Cerca "Indirizzo IPv4" (es: 192.168.1.100)
+
+### PASSO 2: Accedi al router
+
+1. Browser: http://192.168.1.1 (o 192.168.0.1)
+2. Login con credenziali router
+
+### PASSO 3: Configura Port Forwarding
+
+Nel router, trova sezione "Port Forwarding" o "Virtual Server"
+
+Aggiungi:
+- Porta esterna: 8001
+- IP interno: 192.168.1.100 (IP del tuo PC)
+- Porta interna: 8001
+- Protocollo: TCP
+
+Salva
+
+### PASSO 4: Trova IP pubblico
+
+Vai su: https://www.whatismyip.com/
+
+Copia l'IP (es: 95.123.45.67)
+
+### PASSO 5: Accesso
+
+L'URL sarà: http://95.123.45.67:8001
+
+⚠️ PROBLEMA: L'IP pubblico può cambiare. Serve IP statico o servizio DynDNS.
+
+=====================================
+CONFRONTO METODI
+=====================================
+
+| Metodo      | Facilità | Costo    | URL Fisso | Sicurezza |
+|-------------|----------|----------|-----------|-----------|
+| ngrok       | ★★★★★    | Gratis*  | No*       | ★★★★☆     |
+| Cloudflare  | ★★★☆☆    | Gratis   | Sì        | ★★★★★     |
+| Port Fwd    | ★★☆☆☆    | Gratis   | No**      | ★★☆☆☆     |
+
+* ngrok Pro ($8/mese) ha URL fisso
+** Serve IP statico o DynDNS
+
+=====================================
+RACCOMANDAZIONE
+=====================================
+
+Per uso occasionale (serate karaoke):
+👉 NGROK (piano gratuito)
+   - Veloce da configurare
+   - Rigeneri QR code ogni sera
+   - HTTPS automatico
+
+Per uso frequente:
+👉 NGROK PRO ($8/mese)
+   - URL fisso
+   - QR code sempre uguale
+   - Affidabile
+
+Per uso professionale:
+👉 CLOUDFLARE TUNNEL
+   - Gratis
+   - Tuo dominio personalizzato
+   - Molto sicuro
+
+=====================================
+SICUREZZA
+=====================================
+
+⚠️ IMPORTANTE:
+
+1. **Non esporre dati sensibili**
+   - Il sistema karaoke è sicuro (solo nomi e canzoni)
+   - La dashboard admin ha password
+
+2. **Cambia password admin**
+   - Prima di esporre a Internet
+   - Vedi GUIDA-COLORI.txt per come fare
+
+3. **HTTPS automatico**
+   - ngrok e Cloudflare danno HTTPS gratis
+   - Port forwarding no (servirebbe certificato SSL)
+
+4. **Firewall Windows**
+   - Potrebbe bloccare le connessioni
+   - Aggiungi eccezione per porta 8001 se necessario
+
+=====================================
+TROUBLESHOOTING
+=====================================
+
+❌ "ngrok not found"
+   → Assicurati di essere nella cartella giusta (cd C:\ngrok)
+
+❌ "Failed to listen on port 8001"
+   → Il backend non è avviato, avvia start-all.bat prima
+
+❌ "Invalid credentials"
+   → Token ngrok sbagliato, ricontrolla
+
+❌ Gli smartphone vedono errore CORS
+   → Aggiungi l'URL ngrok in backend/.env:
+   ```
+   CORS_ORIGINS=http://localhost:3000,https://abc123.ngrok-free.app
+   ```
+   Riavvia backend
+
+❌ L'URL ngrok cambia sempre
+   → Piano gratuito fa così, passa a Pro o usa Cloudflare
+
+=====================================
+SCRIPT AUTOMATICO
+=====================================
+
+Creo uno script per avviare tutto insieme.
+
+Crea file: start-karaoke-online.bat
+
+```batch
+@echo off
+echo ========================================
+echo   AVVIO SISTEMA KARAOKE ONLINE
+echo ========================================
+echo.
+
+REM Avvia sistema locale
+echo Avvio backend e frontend...
+start "Karaoke" cmd /k start-all.bat
+
+echo Attendo 10 secondi...
+timeout /t 10 /nobreak
+
+REM Avvia ngrok
+echo Avvio ngrok...
+cd C:\ngrok
+start "ngrok" cmd /k ngrok http 8001
+
+echo.
+echo ========================================
+echo   SISTEMA AVVIATO
+echo ========================================
+echo.
+echo 1. Copia l'URL da ngrok (finestra ngrok)
+echo 2. Modifica frontend/.env con quell'URL
+echo 3. Riavvia frontend
+echo 4. Genera QR code con l'URL
+echo.
+pause
+```
+
+=====================================
+ESEMPIO COMPLETO WORKFLOW
+=====================================
+
+GIORNO DELLA SERATA:
+
+1. Avvia sistema:
+   ```
+   start-all.bat
+   ```
+
+2. In un altro prompt:
+   ```
+   cd C:\ngrok
+   ngrok http 8001
+   ```
+
+3. Copia URL (es: https://xyz789.ngrok-free.app)
+
+4. Genera QR su https://www.qr-code-generator.com/
+
+5. Stampa QR e appendilo
+
+6. Apri dashboard admin sul PC:
+   http://localhost:3000/admin/login
+
+7. Gli ospiti scannerizzano QR → prenotano
+
+8. Tu gestisci dalla dashboard
+
+FINE SERATA:
+
+1. Premi Ctrl+C in entrambe le finestre
+2. Chiudi tutto
+
+=====================================
+
+Per supporto su ngrok:
+https://ngrok.com/docs
+
+Per supporto su Cloudflare:
+https://developers.cloudflare.com/cloudflare-one/

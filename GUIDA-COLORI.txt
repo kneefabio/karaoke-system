@@ -1,0 +1,264 @@
+# GUIDA PERSONALIZZAZIONE COLORI
+# Sistema Prenotazioni Karaoke
+
+=====================================
+COME CAMBIARE I COLORI DEL SISTEMA
+=====================================
+
+## 📁 FILE DA MODIFICARE:
+
+1. /app/frontend/src/App.css - Colori globali
+2. /app/frontend/src/pages/BookingPage.jsx - Pagina prenotazione
+3. /app/frontend/src/pages/AdminLogin.jsx - Login admin
+4. /app/frontend/src/pages/AdminDashboard.jsx - Dashboard
+
+=====================================
+TEMA 1: SFONDO SCURO CON TESTO BIANCO
+=====================================
+
+### PASSO 1: Modifica App.css
+
+Apri: /app/frontend/src/App.css
+
+CAMBIA:
+```css
+body {
+  font-family: 'Inter', sans-serif;
+  background: #fafafa;
+  color: #1a1a1a;
+}
+```
+
+CON:
+```css
+body {
+  font-family: 'Inter', sans-serif;
+  background: #1a1a1a;
+  color: #ffffff;
+}
+```
+
+---
+
+### PASSO 2: Modifica BookingPage.jsx
+
+Apri: /app/frontend/src/pages/BookingPage.jsx
+
+TROVA (riga ~60):
+```jsx
+<div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%)' }}>
+```
+
+CAMBIA CON:
+```jsx
+<div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)' }}>
+```
+
+TROVA (riga ~61):
+```jsx
+<Card className="w-full max-w-lg shadow-lg border-0" data-testid="booking-form-card">
+```
+
+CAMBIA CON:
+```jsx
+<Card className="w-full max-w-lg shadow-lg border-gray-700 bg-gray-900 text-white" data-testid="booking-form-card">
+```
+
+TROVA (riga ~67):
+```jsx
+<CardDescription className="text-base">Inserisci i tuoi dati per prenotare una canzone</CardDescription>
+```
+
+CAMBIA CON:
+```jsx
+<CardDescription className="text-base text-gray-300">Inserisci i tuoi dati per prenotare una canzone</CardDescription>
+```
+
+TROVA tutte le righe con:
+```jsx
+className="text-xs text-gray-500"
+```
+
+CAMBIA CON:
+```jsx
+className="text-xs text-gray-400"
+```
+
+---
+
+### PASSO 3: Modifica AdminDashboard.jsx
+
+Apri: /app/frontend/src/pages/AdminDashboard.jsx
+
+TROVA (riga ~136):
+```jsx
+<div className="min-h-screen bg-gray-50 p-6" data-testid="admin-dashboard">
+```
+
+CAMBIA CON:
+```jsx
+<div className="min-h-screen bg-gray-900 p-6" data-testid="admin-dashboard">
+```
+
+TROVA (riga ~144):
+```jsx
+<p className="text-gray-600">Gestione prenotazioni karaoke</p>
+```
+
+CAMBIA CON:
+```jsx
+<p className="text-gray-300">Gestione prenotazioni karaoke</p>
+```
+
+TROVA tutte le Card:
+```jsx
+<Card>
+```
+
+CAMBIA CON:
+```jsx
+<Card className="bg-gray-800 border-gray-700 text-white">
+```
+
+TROVA:
+```jsx
+<CardTitle className="text-sm font-medium text-gray-600">
+```
+
+CAMBIA CON:
+```jsx
+<CardTitle className="text-sm font-medium text-gray-300">
+```
+
+TROVA (lista cantanti):
+```jsx
+<div key={singer.id} className="border rounded-lg p-5 bg-white shadow-sm"
+```
+
+CAMBIA CON:
+```jsx
+<div key={singer.id} className="border border-gray-700 rounded-lg p-5 bg-gray-800 shadow-sm"
+```
+
+TROVA:
+```jsx
+<p className="text-sm text-gray-500 mt-1">
+```
+
+CAMBIA CON:
+```jsx
+<p className="text-sm text-gray-400 mt-1">
+```
+
+TROVA (nelle canzoni):
+```jsx
+song.cantata ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
+```
+
+CAMBIA CON:
+```jsx
+song.cantata ? 'bg-green-900 border-green-700' : 'bg-gray-700 border-gray-600'
+```
+
+TROVA:
+```jsx
+<p className={`font-medium ${song.cantata ? 'line-through text-gray-500' : ''}`}>
+```
+
+CAMBIA CON:
+```jsx
+<p className={`font-medium ${song.cantata ? 'line-through text-gray-500' : 'text-white'}`}>
+```
+
+TROVA:
+```jsx
+<p className="text-sm text-gray-500">Tonalità: {song.tonalita}</p>
+```
+
+CAMBIA CON:
+```jsx
+<p className="text-sm text-gray-400">Tonalità: {song.tonalita}</p>
+```
+
+=====================================
+TEMA 2: SFONDO BIANCO CON TESTO NERO
+(Già implementato di default)
+=====================================
+
+Questo è il tema attuale. Se hai fatto modifiche e vuoi tornare indietro, usa i valori:
+
+body {
+  background: #fafafa;
+  color: #1a1a1a;
+}
+
+Card backgrounds: bg-white
+Text colors: text-gray-600, text-gray-500
+Borders: border-gray-200
+
+=====================================
+PERSONALIZZAZIONE AVANZATA
+=====================================
+
+### COLORI PRINCIPALI DA CAMBIARE:
+
+1. SFONDO GENERALE
+   - body background in App.css
+   - Pagine: bg-gray-50 (chiaro) o bg-gray-900 (scuro)
+
+2. CARD/CONTAINER
+   - bg-white (chiaro) o bg-gray-800 (scuro)
+   - border-gray-200 (chiaro) o border-gray-700 (scuro)
+
+3. TESTO
+   - text-gray-600 (chiaro) o text-gray-300 (scuro) per testo normale
+   - text-gray-500 (chiaro) o text-gray-400 (scuro) per testo secondario
+
+4. GRADIENTI (BookingPage e AdminLogin)
+   CHIARO:
+   background: 'linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%)'
+   
+   SCURO:
+   background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
+
+5. PULSANTI (già colorati, non serve cambiare)
+   - I pulsanti mantengono i loro colori (blu/viola, verde, rosso)
+
+=====================================
+TABELLA CONVERSIONE COLORI RAPIDA
+=====================================
+
+ELEMENTO          | CHIARO        | SCURO
+------------------|---------------|---------------
+Sfondo pagina     | bg-gray-50    | bg-gray-900
+Card              | bg-white      | bg-gray-800
+Bordo card        | border-gray-200 | border-gray-700
+Testo principale  | text-gray-900 | text-white
+Testo secondario  | text-gray-600 | text-gray-300
+Testo terziario   | text-gray-500 | text-gray-400
+Gradiente inizio  | #f5f7fa       | #1a1a1a
+Gradiente fine    | #e8eef5       | #2d2d2d
+
+=====================================
+DOPO LE MODIFICHE
+=====================================
+
+1. Salva tutti i file modificati
+2. Il frontend ha hot-reload, vedrai i cambiamenti subito
+3. Se non vedi cambiamenti, riavvia il frontend:
+   - Premi Ctrl+C nella finestra frontend
+   - Rilancia: start-frontend.bat
+
+=====================================
+SUGGERIMENTI
+=====================================
+
+- Usa un editor con ricerca/sostituzione (VSCode, Notepad++)
+- Cerca tutte le occorrenze di una classe e sostituisci in batch
+- Testa prima su una pagina, poi applica alle altre
+- Mantieni coerenza: scegli un tema e applicalo ovunque
+
+=====================================
+
+Per domande o personalizzazioni specifiche,
+modifica i file indicati seguendo gli esempi sopra.

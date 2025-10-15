@@ -289,6 +289,19 @@ async def update_settings(settings: Settings, username: str = Depends(verify_tok
     await db.settings.update_one({}, {"$set": settings.model_dump()}, upsert=True)
     return {"success": True}
 
+@api_router.delete("/admin/reset-all")
+async def reset_all(username: str = Depends(verify_token)):
+    """Reset completo: cancella tutti i cantanti e tutte le canzoni"""
+    await db.singers.delete_many({})
+    await db.songs.delete_many({})
+    return {"success": True, "message": "Serata resettata completamente"}
+
+@api_router.delete("/admin/clear-sung")
+async def clear_sung_songs(username: str = Depends(verify_token)):
+    """Elimina solo le canzoni già cantate, mantiene i cantanti"""
+    result = await db.songs.delete_many({"cantata": True})
+    return {"success": True, "deleted_count": result.deleted_count, "message": f"{result.deleted_count} canzoni cantate eliminate"}
+
 app.include_router(api_router)
 
 app.add_middleware(

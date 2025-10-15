@@ -1,0 +1,202 @@
+# 🎉 NOVITÀ SISTEMA KARAOKE
+
+## ✨ Nuove Funzionalità Aggiunte
+
+### 1️⃣ ACCESSO REMOTO (4G/5G)
+Gli smartphone possono prenotare da QUALSIASI rete (non solo WiFi locale)!
+
+**File creati:**
+- `GUIDA-ACCESSO-REMOTO.txt` - Guida completa con 3 metodi
+- `start-online.bat` - Avvio automatico con ngrok
+
+**Come funziona:**
+1. Installa ngrok (gratuito)
+2. Avvia: `start-online.bat`
+3. Copia URL da finestra ngrok
+4. Genera QR code con quell'URL
+5. Gli smartphone scannerizzano → prenotano da ovunque!
+
+📖 **Leggi:** `GUIDA-ACCESSO-REMOTO.txt` per dettagli
+
+---
+
+### 2️⃣ PULSANTI GESTIONE SERATA
+
+Due nuovi pulsanti nella Dashboard Admin:
+
+#### 🔄 "Reset Serata" (Rosso)
+- Cancella TUTTO: cantanti e canzoni
+- Utile per iniziare una nuova serata da zero
+- Conferma richiesta prima di procedere
+
+#### 🧹 "Elimina Cantate" (Arancione)
+- Elimina solo le canzoni già cantate
+- MANTIENE i cantanti
+- Se un cantante riprenota, mantiene lo stesso ID
+
+**File modificati:**
+- `backend/server.py` - Nuovi endpoint API
+- `frontend/src/pages/AdminDashboard.jsx` - Nuovi pulsanti
+
+**Posizione:** In alto a destra nella Dashboard, accanto a "Esci"
+
+---
+
+### 3️⃣ PERSONALIZZAZIONE COLORI
+
+Cambia facilmente i colori del sistema!
+
+**File creato:**
+- `GUIDA-COLORI.txt` - Guida dettagliata
+
+**Temi disponibili:**
+1. **Sfondo Chiaro** (attuale)
+   - Sfondo bianco/grigio chiaro
+   - Testo nero/grigio scuro
+
+2. **Sfondo Scuro**
+   - Sfondo nero/grigio scuro
+   - Testo bianco/grigio chiaro
+
+**File da modificare:**
+- `frontend/src/App.css` - Colori globali
+- `frontend/src/pages/BookingPage.jsx` - Form prenotazione
+- `frontend/src/pages/AdminDashboard.jsx` - Dashboard
+
+📖 **Leggi:** `GUIDA-COLORI.txt` per istruzioni passo-passo
+
+---
+
+## 📁 Tutti i File Nuovi/Modificati
+
+### Nuovi File Guide:
+```
+GUIDA-ACCESSO-REMOTO.txt    - Come esporre a Internet
+GUIDA-COLORI.txt             - Come personalizzare colori
+NOVITA.txt                   - Questo file
+```
+
+### Nuovi Script:
+```
+start-online.bat             - Avvio automatico con ngrok
+```
+
+### File Modificati:
+```
+backend/server.py            - Nuovi endpoint API
+frontend/src/pages/AdminDashboard.jsx - Nuovi pulsanti
+```
+
+---
+
+## 🚀 Come Usare le Nuove Funzionalità
+
+### Per Accesso Remoto:
+
+1. **Installa ngrok** (una volta sola)
+   - https://ngrok.com/download
+   - Estrai in `C:\ngrok`
+   - Configura token
+
+2. **Avvia sistema online**
+   ```
+   start-online.bat
+   ```
+
+3. **Copia URL da finestra ngrok**
+   - Es: https://abc123.ngrok-free.app
+
+4. **Genera QR code**
+   - https://www.qr-code-generator.com/
+   - Incolla l'URL
+   - Stampa il QR
+
+5. **Gli ospiti scannerizzano** → prenotano!
+
+---
+
+### Per Reset/Pulizia Serata:
+
+1. Accedi alla Dashboard Admin
+2. In alto a destra, nuovi pulsanti:
+   - **Elimina Cantate** (🧹) - Pulisce canzoni cantate
+   - **Reset Serata** (🔄) - Cancella tutto
+
+---
+
+### Per Cambiare Colori:
+
+1. Apri `GUIDA-COLORI.txt`
+2. Scegli tema (chiaro o scuro)
+3. Segui le istruzioni per modificare i file
+4. Salva e ricarica → colori aggiornati!
+
+---
+
+## 📋 Checklist Rapida
+
+Prima di una serata con accesso remoto:
+
+- [ ] ngrok installato e configurato
+- [ ] Password admin cambiata
+- [ ] MongoDB avviato
+- [ ] Esegui `start-online.bat`
+- [ ] Copia URL da ngrok
+- [ ] Genera e stampa QR code
+- [ ] Testa scannerizzando con tuo telefono
+- [ ] Apri dashboard admin su PC
+
+Durante la serata:
+
+- [ ] NON chiudere le 3 finestre (backend, frontend, ngrok)
+- [ ] Dashboard admin sempre aperta sul PC
+- [ ] Gestisci prenotazioni in tempo reale
+
+Fine serata:
+
+- [ ] Usa "Elimina Cantate" per pulire
+- [ ] Oppure "Reset Serata" per cancellare tutto
+- [ ] Chiudi le finestre (Ctrl+C o X)
+
+---
+
+## 🆘 Problemi Comuni
+
+### ngrok non funziona
+- Hai installato ngrok in `C:\ngrok`?
+- Hai configurato il token?
+- Il backend è avviato?
+
+### Gli smartphone vedono errore
+- L'URL ngrok è corretto nel QR?
+- Il backend è raggiungibile?
+- Firewall Windows blocca?
+
+### Colori non cambiano
+- Hai salvato i file?
+- Hai riavviato il frontend?
+- Browser cache: Ctrl+F5 per ricaricare
+
+### Pulsanti reset non funzionano
+- Hai riavviato il backend dopo la modifica?
+- Sei loggato come admin?
+
+---
+
+## 📞 Supporto
+
+Per ulteriori dettagli, leggi:
+- `GUIDA-ACCESSO-REMOTO.txt` - Tutto sull'accesso remoto
+- `GUIDA-COLORI.txt` - Tutto sulla personalizzazione
+- `README.md` - Guida generale del sistema
+
+---
+
+## 🎊 Riepilogo
+
+**Ora il tuo sistema può:**
+✅ Essere accessibile da smartphone 4G/5G
+✅ Gestire facilmente fine serata con reset/pulizia
+✅ Essere personalizzato con i colori che preferisci
+
+**Buon divertimento con le tue serate karaoke! 🎤🎵**

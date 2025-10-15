@@ -50,10 +50,19 @@ echo.
 
 set "PROJECT_DIR=%CD%"
 
-REM Avvia backend
-start "Karaoke Backend+Frontend" cmd /k "cd /d "%PROJECT_DIR%\backend" && venv\Scripts\activate.bat && uvicorn server:app --host 0.0.0.0 --port 8001"
+REM Verifica che la cartella backend esista
+if not exist "%PROJECT_DIR%\backend" (
+    echo [ERRORE] Cartella backend non trovata!
+    echo Sei nella cartella del progetto?
+    pause
+    exit /b 1
+)
 
-echo Backend avviato
+echo Avvio backend...
+REM Avvia backend (SENZA --reload per produzione)
+start "Karaoke Server" cmd /k "cd /d "%PROJECT_DIR%\backend" && call venv\Scripts\activate.bat && echo Server avviato su porta 8001 && uvicorn server:app --host 0.0.0.0 --port 8001"
+
+echo Backend avviato nella finestra separata
 echo.
 echo Attendo 10 secondi...
 timeout /t 10 /nobreak >nul

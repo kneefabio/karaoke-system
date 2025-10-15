@@ -116,6 +116,34 @@ export default function AdminDashboard() {
     navigate("/admin/login");
   };
 
+  const handleResetAll = async () => {
+    if (!window.confirm("⚠️ ATTENZIONE! Questa azione cancellerà TUTTI i cantanti e TUTTE le canzoni. Sei sicuro?")) return;
+    
+    try {
+      await axios.delete(`${API}/admin/reset-all`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchData();
+      toast.success("Serata resettata completamente");
+    } catch (error) {
+      toast.error("Errore durante il reset");
+    }
+  };
+
+  const handleClearSung = async () => {
+    if (!window.confirm("Vuoi eliminare tutte le canzoni già cantate? I cantanti rimarranno.")) return;
+    
+    try {
+      const response = await axios.delete(`${API}/admin/clear-sung`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchData();
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error("Errore durante la pulizia");
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Caricamento...</div>;
   }

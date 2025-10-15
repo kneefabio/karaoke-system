@@ -1,0 +1,174 @@
+=====================================
+AVVIO MANUALE - PASSO PER PASSO
+Sistema Karaoke Online
+=====================================
+
+Se start-online.bat non funziona,
+usa questi file separati.
+
+=====================================
+PREPARAZIONE (una volta sola)
+=====================================
+
+1. Esegui: build-for-online.bat
+   - Aspetta che finisca
+   - Deve dire "BUILD COMPLETATO"
+
+2. Installa ngrok (se non l'hai già fatto)
+   - https://ngrok.com/download
+   - Estrai in C:\ngrok
+   - Configura token
+
+=====================================
+AVVIO (ogni volta)
+=====================================
+
+FINESTRA 1 - Backend:
+---------------------
+1. Doppio click su: start-server-online.bat
+2. Si apre una finestra
+3. Vedi scritto "Uvicorn running on..."
+4. ✅ Lascia questa finestra APERTA
+
+FINESTRA 2 - ngrok:
+-------------------
+5. Doppio click su: start-ngrok.bat
+6. Si apre una finestra
+7. Cerca la riga:
+   Forwarding: https://abc123.ngrok-free.app
+8. COPIA questo URL
+9. ✅ Lascia questa finestra APERTA
+
+GENERA QR CODE:
+---------------
+10. Vai su: https://www.qr-code-generator.com/
+11. Incolla l'URL di ngrok
+12. Genera QR
+13. Stampa
+
+TEST:
+-----
+14. Con il tuo smartphone:
+    - Scannerizza il QR
+    - Dovresti vedere il form di prenotazione
+    
+15. Dashboard Admin:
+    - Stesso URL + /admin/login
+    - Es: https://abc123.ngrok-free.app/admin/login
+
+=====================================
+TROUBLESHOOTING
+=====================================
+
+❌ Backend non si avvia:
+   → Esegui: debug-online.bat
+   → Guarda gli errori nella finestra
+   → Controlla che venv esista
+   → Controlla che build esista
+
+❌ ngrok non si avvia:
+   → Verifica che sia in C:\ngrok
+   → Verifica token configurato:
+     cd C:\ngrok
+     ngrok config check
+
+❌ Frontend non buildato:
+   → Esegui: build-for-online.bat
+   → Aspetta che finisca
+
+❌ Porta 8001 occupata:
+   → Chiudi altri programmi
+   → Riavvia il PC
+
+=====================================
+FILE DISPONIBILI
+=====================================
+
+SETUP:
+- build-for-online.bat     ← Esegui PRIMA
+
+AVVIO AUTOMATICO:
+- start-online.bat         ← Dovrebbe funzionare
+
+AVVIO MANUALE (se automatico fallisce):
+- start-server-online.bat  ← Avvia backend
+- start-ngrok.bat          ← Avvia ngrok
+
+DEBUG:
+- debug-online.bat         ← Trova errori
+
+=====================================
+VERIFICA SETUP
+=====================================
+
+Prima di avviare, verifica:
+
+□ Cartella backend/venv esiste?
+□ Cartella frontend/build esiste?
+□ File frontend/build/index.html esiste?
+□ File C:\ngrok\ngrok.exe esiste?
+
+Se manca qualcosa:
+- venv → Esegui setup.bat
+- build → Esegui build-for-online.bat
+- ngrok → Scarica e installa
+
+=====================================
+CHECKLIST VELOCE
+=====================================
+
+Per avviare:
+1. ☐ start-server-online.bat (finestra 1)
+2. ☐ start-ngrok.bat (finestra 2)
+3. ☐ Copia URL da finestra 2
+4. ☐ Genera QR con quell'URL
+5. ☐ Testa con tuo telefono
+6. ☐ Apri dashboard admin
+
+Per fermare:
+1. ☐ Ctrl+C in finestra backend
+2. ☐ Ctrl+C in finestra ngrok
+3. ☐ Chiudi finestre
+
+=====================================
+DIFFERENZE TRA SCRIPT
+=====================================
+
+start-online.bat:
+- Automatico (avvia tutto)
+- Può avere problemi su alcuni PC
+
+start-server-online.bat + start-ngrok.bat:
+- Manuale (avvii uno per uno)
+- Più affidabile
+- Vedi meglio gli errori
+
+debug-online.bat:
+- Per trovare problemi
+- Mostra cosa manca
+- Testa l'avvio
+
+=====================================
+SE NULLA FUNZIONA
+=====================================
+
+1. Esegui: debug-online.bat
+2. Copia TUTTI gli errori che vedi
+3. Manda gli errori per aiuto
+
+Possibili cause:
+- Setup non completato
+- Build non fatto
+- ngrok non configurato
+- Python/Node non installati
+
+=====================================
+
+🎯 PROCEDURA RACCOMANDATA:
+
+Se start-online.bat NON funziona:
+1. Usa start-server-online.bat
+2. Poi usa start-ngrok.bat
+3. Funzionano meglio separati!
+
+=====================================

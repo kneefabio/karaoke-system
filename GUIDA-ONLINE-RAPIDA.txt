@@ -1,0 +1,205 @@
+=====================================
+GUIDA RAPIDA - ACCESSO REMOTO
+Sistema Karaoke Online
+=====================================
+
+❌ PROBLEMA RISOLTO:
+Prima il QR code mostrava {"detail":"Not Found"}
+Ora funziona correttamente!
+
+=====================================
+SETUP INIZIALE (Una volta sola)
+=====================================
+
+PASSO 1: Installa ngrok
+------------------------
+1. Vai su: https://ngrok.com/download
+2. Scarica "Windows (64-bit)"
+3. Estrai ngrok.exe in: C:\ngrok
+4. Registrati su ngrok.com (gratuito)
+5. Copia il token dalla dashboard
+6. Apri Prompt e scrivi:
+   cd C:\ngrok
+   ngrok config add-authtoken IL_TUO_TOKEN
+
+PASSO 2: Build del Frontend
+----------------------------
+1. Nella cartella del progetto
+2. Doppio click su: build-for-online.bat
+3. Aspetta 2-3 minuti
+4. Vedrai: "BUILD COMPLETATO!"
+
+✅ Setup completato! Ora puoi usare il sistema online.
+
+=====================================
+OGNI VOLTA CHE USI IL SISTEMA
+=====================================
+
+AVVIO:
+------
+1. Doppio click su: start-online.bat
+2. Si aprono 2 finestre:
+   - Backend+Frontend (server completo)
+   - ngrok (tunnel Internet)
+
+COPIA URL:
+----------
+3. Guarda la finestra "ngrok"
+4. Troverai una riga tipo:
+   Forwarding: https://abc123.ngrok-free.app
+5. COPIA questo URL completo
+
+GENERA QR CODE:
+---------------
+6. Vai su: https://www.qr-code-generator.com/
+7. Incolla l'URL di ngrok
+8. Clicca "Create QR Code"
+9. Scarica e stampa il QR
+
+TEST:
+-----
+10. Con il TUO smartphone:
+    - Scannerizza il QR
+    - Dovresti vedere il form di prenotazione
+    - Prova a prenotare una canzone
+
+DASHBOARD ADMIN:
+----------------
+11. Sul tuo PC, apri browser:
+    - Vai su: https://abc123.ngrok-free.app/admin/login
+      (usa lo STESSO URL di ngrok!)
+    - Username: admin
+    - Password: admin123
+
+OSPITI:
+-------
+12. Gli ospiti scannerizzano il QR
+13. Vedono il form → prenotano
+14. Tu vedi tutto in tempo reale sulla dashboard
+
+=====================================
+STOP:
+=====================================
+
+1. Premi Ctrl+C nella finestra Backend
+2. Premi Ctrl+C nella finestra ngrok
+3. Chiudi le finestre
+
+=====================================
+FILE DA USARE
+=====================================
+
+SETUP (una volta):
+- build-for-online.bat    ← Esegui PRIMA, solo una volta
+
+OGNI SERA:
+- start-online.bat        ← Usa QUESTO per avviare
+
+LOCALE (senza Internet):
+- start-all.bat           ← Per uso solo WiFi locale
+
+=====================================
+DIFFERENZE
+=====================================
+
+LOCALE (start-all.bat):
+- 3 finestre aperte
+- Frontend su porta 3000
+- Backend su porta 8001
+- Solo WiFi locale
+
+ONLINE (start-online.bat):
+- 2 finestre aperte
+- TUTTO su porta 8001
+- Accessibile da Internet
+- Serve build del frontend
+
+=====================================
+TROUBLESHOOTING
+=====================================
+
+❌ "Build frontend non trovato"
+   → Esegui build-for-online.bat prima
+
+❌ QR mostra "Not Found"
+   → Hai fatto il build? (build-for-online.bat)
+   → Il backend è avviato?
+
+❌ ngrok non funziona
+   → Installato in C:\ngrok?
+   → Token configurato?
+
+❌ L'URL cambia sempre
+   → Piano gratuito fa così
+   → Passa a ngrok Pro ($8/mese) per URL fisso
+
+❌ Smartphone vede errore
+   → L'URL del QR è corretto?
+   → Riavvia backend e ngrok
+
+=====================================
+CHECKLIST VELOCE
+=====================================
+
+Prima volta:
+□ ngrok installato
+□ Token configurato
+□ build-for-online.bat eseguito ✓
+
+Ogni sera:
+□ start-online.bat eseguito
+□ URL copiato da ngrok
+□ QR generato e stampato
+□ Testato con tuo telefono
+□ Dashboard admin aperta
+
+Durante:
+□ NON chiudere le 2 finestre
+□ Gestisci dalla dashboard
+
+Fine:
+□ Ctrl+C per fermare
+□ Reset/Pulizia dalla dashboard
+
+=====================================
+COSTI
+=====================================
+
+ngrok Gratuito:
+✅ Funziona perfettamente
+❌ URL cambia ogni volta
+❌ Devi rigenerare QR ogni sera
+
+ngrok Pro ($8/mese):
+✅ URL fisso (es: tuonome.ngrok.io)
+✅ QR sempre uguale
+✅ Più affidabile
+
+=====================================
+RIEPILOGO FLUSSO
+=====================================
+
+1. build-for-online.bat (una volta)
+   ↓
+2. start-online.bat (ogni sera)
+   ↓
+3. Copia URL da ngrok
+   ↓
+4. Genera QR con quell'URL
+   ↓
+5. Stampa e appendi QR
+   ↓
+6. Ospiti scannerizzano → prenotano
+   ↓
+7. Tu gestisci da dashboard admin
+   ↓
+8. Fine: Ctrl+C per fermare
+
+=====================================
+
+🎉 Ora il sistema funziona online!
+
+Gli smartphone vedranno il form di prenotazione,
+non più l'errore "Not Found"!
+
+Buone serate karaoke! 🎤🎵

@@ -160,6 +160,27 @@ async def get_next_order():
     orders = [s['ordine_prenotazione'] for s in songs]
     return max(orders) + 1 if orders else 1
 
+def generate_license_key():
+    """Genera un codice licenza unico formato: KAR-XXXX-XXXX-XXXX"""
+    import random
+    import string
+    parts = []
+    for _ in range(3):
+        part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+        parts.append(part)
+    return f"KAR-{'-'.join(parts)}"
+
+def calculate_expiry_date(plan: str):
+    """Calcola la data di scadenza in base al piano"""
+    now = datetime.now(timezone.utc)
+    if plan == "daily":
+        return (now + timedelta(days=1)).isoformat()
+    elif plan == "monthly":
+        return (now + timedelta(days=30)).isoformat()
+    elif plan == "yearly":
+        return (now + timedelta(days=365)).isoformat()
+    return now.isoformat()
+
 # Initialize admin user and settings
 @app.on_event("startup")
 async def startup_event():

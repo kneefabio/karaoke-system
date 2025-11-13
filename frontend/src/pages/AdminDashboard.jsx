@@ -16,6 +16,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [bookingsOpen, setBookingsOpen] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("admin_token");
@@ -26,9 +27,23 @@ export default function AdminDashboard() {
       return;
     }
     fetchData();
+    checkSuperAdmin();
     const interval = setInterval(fetchData, 3000); // Poll every 3 seconds
     return () => clearInterval(interval);
   }, []);
+
+  const checkSuperAdmin = async () => {
+    try {
+      const response = await axios.get(`${API}/admin/my-license`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.unlimited && response.data.role === "super_admin") {
+        setIsSuperAdmin(true);
+      }
+    } catch (error) {
+      // Not super admin
+    }
+  };
 
   const fetchData = async () => {
     try {

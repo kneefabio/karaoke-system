@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import BookingPage from "@/pages/BookingPage";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
+import SuperAdminPanel from "@/pages/SuperAdminPanel";
 import { Toaster } from "@/components/ui/sonner";
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
           <Route path="/" element={<BookingPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/super-admin" element={<SuperAdminPanel />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

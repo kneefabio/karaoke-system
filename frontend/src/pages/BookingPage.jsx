@@ -37,6 +37,7 @@ export default function BookingPage() {
     try {
       const response = await axios.post(`${API}/book`, {
         nome: formData.nome,
+        email: formData.email || null,
         canzone: formData.canzone,
         tonalita: formData.tonalita,
         codice: formData.codice || null

@@ -13,6 +13,7 @@ const API = `${BACKEND_URL}/api`;
 export default function BookingPage() {
   const [formData, setFormData] = useState({
     nome: "",
+    email: "",
     canzone: "",
     tonalita: "",
     codice: ""

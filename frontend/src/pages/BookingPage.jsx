@@ -111,6 +111,21 @@ export default function BookingPage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">Email (opzionale)</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Per ricevere le foto della serata"
+                className="h-11"
+                data-testid="email-input"
+              />
+              <p className="text-xs text-gray-500">Riceverai le foto della serata via email</p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="canzone" className="text-sm font-medium flex items-center gap-2">
                 <Music className="w-4 h-4" />
                 Canzone *

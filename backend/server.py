@@ -59,6 +59,7 @@ class Settings(BaseModel):
 
 class BookingRequest(BaseModel):
     nome: str
+    email: Optional[str] = None
     canzone: str
     tonalita: str
     codice: Optional[str] = None

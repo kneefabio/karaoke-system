@@ -173,6 +173,17 @@ export default function AdminDashboard() {
             <p className="text-gray-600">Gestione prenotazioni karaoke</p>
           </div>
           <div className="flex gap-3">
+            {isSuperAdmin && (
+              <Button 
+                onClick={() => navigate("/super-admin")}
+                variant="outline"
+                className="flex items-center gap-2 border-purple-500 text-purple-600 hover:bg-purple-50"
+                data-testid="super-admin-btn"
+              >
+                <Shield className="w-4 h-4" />
+                Super Admin
+              </Button>
+            )}
             <Button 
               onClick={handleClearSung}
               variant="outline"

@@ -371,6 +371,270 @@ async def clear_sung_songs(username: str = Depends(verify_token)):
     result = await db.songs.delete_many({"cantata": True})
     return {"success": True, "deleted_count": result.deleted_count, "message": f"{result.deleted_count} canzoni cantate eliminate"}
 
+# ============================================
+# LICENSING SYSTEM ENDPOINTS
+# ============================================
+
+@api_router.post("/license/verify")
+async def verify_license(verify_data: LicenseVerify):
+    """Verifica se una licenza è valida"""
+    license_doc = await db.licenses.find_one({"license_key": verify_data.license_key})
+    
+    if not license_doc:
+        raise HTTPException(status_code=404, detail="Licenza non trovata")
+    
+    # Controlla se la licenza è scaduta
+    expires_at = datetime.fromisoformat(license_doc['expires_at'])
+    now = datetime.now(timezone.utc)
+    
+    if now > expires_at and license_doc['status'] == "active":
+        # Aggiorna stato a expired
+        await db.licenses.update_one(
+            {"license_key": verify_data.license_key},
+            {"$set": {"status": "expired"}}
+        )
+        raise HTTPException(status_code=403, detail="Licenza scaduta")
+    
+    if license_doc['status'] != "active":
+        raise HTTPException(status_code=403, detail=f"Licenza {license_doc['status']}")
+    
+    # Aggiorna last_check e hwid
+    update_data = {"last_check": datetime.now(timezone.utc).isoformat()}
+    if verify_data.hwid:
+        update_data["hwid"] = verify_data.hwid
+    
+    await db.licenses.update_one(
+        {"license_key": verify_data.license_key},
+        {"$set": update_data}
+    )
+    
+    return {
+        "valid": True,
+        "plan": license_doc['plan'],
+        "expires_at": license_doc['expires_at'],
+        "status": "active"
+    }
+
+# ============================================
+# SUPER ADMIN ENDPOINTS (gestione licenze)
+# ============================================
+
+async def verify_super_admin(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Verifica che l'utente sia super admin"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        # Verifica che sia super admin
+        admin = await db.admins.find_one({"username": username})
+        if not admin or admin.get("role") != "super_admin":
+            raise HTTPException(status_code=403, detail="Super admin access required")
+        
+        return username
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+@api_router.post("/super-admin/license/create")
+async def create_license(license_create: LicenseCreate, username: str = Depends(verify_super_admin)):
+    """Crea una nuova licenza (solo super admin)"""
+    license_key = generate_license_key()
+    expires_at = calculate_expiry_date(license_create.plan)
+    
+    license_doc = License(
+        license_key=license_key,
+        email=license_create.email,
+        plan=license_create.plan,
+        expires_at=expires_at
+    )
+    
+    await db.licenses.insert_one(license_doc.model_dump())
+    
+    return {
+        "success": True,
+        "license_key": license_key,
+        "expires_at": expires_at,
+        "plan": license_create.plan
+    }
+
+@api_router.get("/super-admin/licenses")
+async def get_all_licenses(username: str = Depends(verify_super_admin)):
+    """Ottieni tutte le licenze (solo super admin)"""
+    licenses = await db.licenses.find({}, {"_id": 0}).to_list(None)
+    
+    # Aggiungi informazioni su scadenza
+    for lic in licenses:
+        expires_at = datetime.fromisoformat(lic['expires_at'])
+        now = datetime.now(timezone.utc)
+        lic['days_remaining'] = (expires_at - now).days
+        lic['is_expired'] = now > expires_at
+    
+    return licenses
+
+@api_router.put("/super-admin/license/{license_key}/status")
+async def update_license_status(license_key: str, status: str, username: str = Depends(verify_super_admin)):
+    """Cambia lo stato di una licenza: active, suspended, expired"""
+    if status not in ["active", "suspended", "expired"]:
+        raise HTTPException(status_code=400, detail="Status non valido")
+    
+    result = await db.licenses.update_one(
+        {"license_key": license_key},
+        {"$set": {"status": status}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Licenza non trovata")
+    
+    return {"success": True, "license_key": license_key, "new_status": status}
+
+@api_router.delete("/super-admin/license/{license_key}")
+async def delete_license(license_key: str, username: str = Depends(verify_super_admin)):
+    """Elimina una licenza (solo super admin)"""
+    result = await db.licenses.delete_one({"license_key": license_key})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Licenza non trovata")
+    
+    return {"success": True, "message": "Licenza eliminata"}
+
+@api_router.put("/super-admin/license/{license_key}/extend")
+async def extend_license(license_key: str, days: int, username: str = Depends(verify_super_admin)):
+    """Estende una licenza di X giorni (solo super admin)"""
+    license_doc = await db.licenses.find_one({"license_key": license_key})
+    
+    if not license_doc:
+        raise HTTPException(status_code=404, detail="Licenza non trovata")
+    
+    current_expiry = datetime.fromisoformat(license_doc['expires_at'])
+    new_expiry = current_expiry + timedelta(days=days)
+    
+    await db.licenses.update_one(
+        {"license_key": license_key},
+        {"$set": {"expires_at": new_expiry.isoformat(), "status": "active"}}
+    )
+    
+    return {
+        "success": True,
+        "license_key": license_key,
+        "new_expires_at": new_expiry.isoformat(),
+        "days_added": days
+    }
+
+# ============================================
+# ADMIN CREDENTIALS MANAGEMENT
+# ============================================
+
+@api_router.put("/admin/credentials")
+async def update_admin_credentials(update: AdminUpdate, username: str = Depends(verify_token)):
+    """Permette all'admin di cambiare username e/o password"""
+    admin = await db.admins.find_one({"username": username})
+    
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin non trovato")
+    
+    # Verifica password corrente
+    if not bcrypt.checkpw(update.current_password.encode('utf-8'), admin['password'].encode('utf-8')):
+        raise HTTPException(status_code=401, detail="Password corrente non valida")
+    
+    update_data = {}
+    
+    # Aggiorna username se fornito
+    if update.new_username:
+        # Verifica che il nuovo username non sia già in uso
+        existing = await db.admins.find_one({"username": update.new_username})
+        if existing and existing['username'] != username:
+            raise HTTPException(status_code=400, detail="Username già in uso")
+        update_data['username'] = update.new_username
+    
+    # Aggiorna password se fornita
+    if update.new_password:
+        hashed_password = bcrypt.hashpw(update.new_password.encode('utf-8'), bcrypt.gensalt())
+        update_data['password'] = hashed_password.decode('utf-8')
+    
+    if update_data:
+        await db.admins.update_one({"username": username}, {"$set": update_data})
+        
+        # Genera nuovo token se username è cambiato
+        new_username = update_data.get('username', username)
+        new_token = create_access_token(data={"sub": new_username})
+        
+        return {
+            "success": True,
+            "message": "Credenziali aggiornate",
+            "new_token": new_token if update.new_username else None
+        }
+    
+    return {"success": False, "message": "Nessuna modifica richiesta"}
+
+@api_router.post("/admin/associate-license")
+async def associate_license_to_admin(license_key: str, username: str = Depends(verify_token)):
+    """Associa una licenza all'account admin corrente"""
+    # Verifica che la licenza esista ed sia valida
+    license_doc = await db.licenses.find_one({"license_key": license_key})
+    
+    if not license_doc:
+        raise HTTPException(status_code=404, detail="Licenza non trovata")
+    
+    if license_doc['status'] != "active":
+        raise HTTPException(status_code=403, detail="Licenza non attiva")
+    
+    # Verifica scadenza
+    expires_at = datetime.fromisoformat(license_doc['expires_at'])
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(status_code=403, detail="Licenza scaduta")
+    
+    # Associa licenza all'admin
+    await db.admins.update_one(
+        {"username": username},
+        {"$set": {"license_key": license_key}}
+    )
+    
+    return {
+        "success": True,
+        "message": "Licenza associata correttamente",
+        "plan": license_doc['plan'],
+        "expires_at": license_doc['expires_at']
+    }
+
+@api_router.get("/admin/my-license")
+async def get_my_license(username: str = Depends(verify_token)):
+    """Ottieni informazioni sulla propria licenza"""
+    admin = await db.admins.find_one({"username": username})
+    
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin non trovato")
+    
+    # Super admin ha accesso illimitato
+    if admin.get("role") == "super_admin":
+        return {
+            "unlimited": True,
+            "role": "super_admin"
+        }
+    
+    license_key = admin.get("license_key")
+    
+    if not license_key:
+        raise HTTPException(status_code=404, detail="Nessuna licenza associata")
+    
+    license_doc = await db.licenses.find_one({"license_key": license_key}, {"_id": 0})
+    
+    if not license_doc:
+        raise HTTPException(status_code=404, detail="Licenza non trovata")
+    
+    # Calcola giorni rimanenti
+    expires_at = datetime.fromisoformat(license_doc['expires_at'])
+    now = datetime.now(timezone.utc)
+    days_remaining = (expires_at - now).days
+    
+    return {
+        **license_doc,
+        "days_remaining": days_remaining,
+        "is_expired": now > expires_at
+    }
+
 app.include_router(api_router)
 
 # Serve static files (frontend build)

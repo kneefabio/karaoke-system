@@ -95,6 +95,34 @@ class UpdateSongRequest(BaseModel):
     cantata: Optional[bool] = None
     ordine_prenotazione: Optional[int] = None
 
+class License(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    license_key: str
+    email: str
+    plan: str  # daily, monthly, yearly
+    status: str = "active"  # active, expired, suspended
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    expires_at: str
+    hwid: Optional[str] = None
+    last_check: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class LicenseCreate(BaseModel):
+    email: str
+    plan: str  # daily, monthly, yearly
+
+class LicenseVerify(BaseModel):
+    license_key: str
+    hwid: Optional[str] = None
+
+class AdminCredentials(BaseModel):
+    username: str
+    password: str
+
+class AdminUpdate(BaseModel):
+    current_password: str
+    new_username: Optional[str] = None
+    new_password: Optional[str] = None
+
 # Helper functions
 def create_access_token(data: dict):
     to_encode = data.copy()

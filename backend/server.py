@@ -39,6 +39,7 @@ class Singer(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     nome: str
+    email: Optional[str] = None
     codice: str
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 

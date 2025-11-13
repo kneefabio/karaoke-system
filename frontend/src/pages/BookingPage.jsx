@@ -52,6 +52,7 @@ export default function BookingPage() {
       // Reset form except codice
       setFormData({
         nome: formData.nome,
+        email: formData.email,
         canzone: "",
         tonalita: "",
         codice: response.data.codice

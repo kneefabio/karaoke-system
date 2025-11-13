@@ -241,10 +241,13 @@ async def create_booking(booking: BookingRequest):
             raise HTTPException(status_code=400, detail="Il nome non corrisponde al codice inserito")
         singer_id = singer['id']
         codice = booking.codice
+        # Aggiorna email se fornita e non già presente
+        if booking.email and not singer.get('email'):
+            await db.singers.update_one({"id": singer_id}, {"$set": {"email": booking.email}})
     else:
         # Create new singer
         codice = await get_next_codice()
-        singer = Singer(nome=booking.nome, codice=codice)
+        singer = Singer(nome=booking.nome, email=booking.email, codice=codice)
         await db.singers.insert_one(singer.model_dump())
         singer_id = singer.id
         nuovo_cantante = True

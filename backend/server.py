@@ -657,6 +657,303 @@ async def get_my_license(username: str = Depends(verify_token)):
         "is_expired": now > expires_at
     }
 
+# ============================================
+# SISTEMA FOTO SERATE
+# ============================================
+
+# WebSocket manager per notifiche real-time
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: dict):
+        for connection in self.active_connections:
+            try:
+                await connection.send_json(message)
+            except:
+                pass
+
+manager = ConnectionManager()
+
+@app.websocket("/ws/photos")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Keep connection alive
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+@api_router.post("/admin/serata/create")
+async def create_serata(serata_create: SerataCreate, username: str = Depends(verify_token)):
+    """Crea una nuova serata e la cartella foto"""
+    data_oggi = datetime.now().strftime("%Y-%m-%d")
+    nome_completo = f"{serata_create.nome}_{data_oggi}"
+    
+    # Crea cartella nel PC locale
+    base_path = Path(__file__).parent.parent / "Foto_Serate"
+    base_path.mkdir(exist_ok=True)
+    
+    folder_path = base_path / nome_completo
+    if folder_path.exists():
+        raise HTTPException(status_code=400, detail="Serata già esistente per oggi")
+    
+    folder_path.mkdir(parents=True)
+    
+    serata = Serata(
+        nome=serata_create.nome,
+        data=data_oggi,
+        folder_path=str(folder_path),
+        display_time=serata_create.display_time
+    )
+    
+    await db.serate.insert_one(serata.model_dump())
+    
+    return {
+        "success": True,
+        "serata_id": serata.id,
+        "nome": nome_completo,
+        "folder_path": str(folder_path)
+    }
+
+@api_router.get("/admin/serate")
+async def get_serate(username: str = Depends(verify_token)):
+    """Ottieni tutte le serate"""
+    serate = await db.serate.find({}, {"_id": 0}).to_list(None)
+    
+    # Aggiungi conteggio foto
+    for serata in serate:
+        folder_path = Path(serata['folder_path'])
+        if folder_path.exists():
+            foto_count = len(list(folder_path.glob("*.jpg"))) + len(list(folder_path.glob("*.jpeg"))) + len(list(folder_path.glob("*.png")))
+            serata['foto_count'] = foto_count
+        else:
+            serata['foto_count'] = 0
+    
+    return serate
+
+@api_router.get("/admin/serata/{serata_id}")
+async def get_serata(serata_id: str, username: str = Depends(verify_token)):
+    """Ottieni dettagli serata"""
+    serata = await db.serate.find_one({"id": serata_id}, {"_id": 0})
+    if not serata:
+        raise HTTPException(status_code=404, detail="Serata non trovata")
+    
+    # Lista foto
+    folder_path = Path(serata['folder_path'])
+    fotos = []
+    if folder_path.exists():
+        for ext in ['*.jpg', '*.jpeg', '*.png']:
+            for foto in folder_path.glob(ext):
+                fotos.append({
+                    "filename": foto.name,
+                    "size": foto.stat().st_size,
+                    "created_at": datetime.fromtimestamp(foto.stat().st_ctime).isoformat()
+                })
+    
+    serata['fotos'] = fotos
+    return serata
+
+@api_router.post("/admin/serata/{serata_id}/upload")
+async def upload_photo(
+    serata_id: str,
+    file: UploadFile = File(...),
+    username: str = Depends(verify_token)
+):
+    """Upload foto alla serata"""
+    serata = await db.serate.find_one({"id": serata_id})
+    if not serata:
+        raise HTTPException(status_code=404, detail="Serata non trovata")
+    
+    if not serata.get('active', True):
+        raise HTTPException(status_code=400, detail="Serata non attiva")
+    
+    # Verifica tipo file
+    if not file.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="Solo immagini permesse")
+    
+    # Salva foto
+    folder_path = Path(serata['folder_path'])
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    filename = f"foto_{timestamp}_{file.filename}"
+    file_path = folder_path / filename
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Notifica via WebSocket
+    await manager.broadcast({
+        "type": "new_photo",
+        "serata_id": serata_id,
+        "filename": filename,
+        "path": str(file_path)
+    })
+    
+    return {
+        "success": True,
+        "filename": filename,
+        "path": str(file_path)
+    }
+
+@api_router.get("/serata/{serata_id}/active")
+async def get_active_serata(serata_id: str):
+    """Endpoint pubblico per camera app - verifica serata attiva"""
+    serata = await db.serate.find_one({"id": serata_id}, {"_id": 0})
+    if not serata:
+        raise HTTPException(status_code=404, detail="Serata non trovata")
+    
+    if not serata.get('active', True):
+        raise HTTPException(status_code=400, detail="Serata terminata")
+    
+    return {
+        "active": True,
+        "nome": serata['nome'],
+        "data": serata['data']
+    }
+
+@api_router.post("/serata/{serata_id}/upload-public")
+async def upload_photo_public(
+    serata_id: str,
+    file: UploadFile = File(...)
+):
+    """Upload pubblico da camera app (senza autenticazione)"""
+    serata = await db.serate.find_one({"id": serata_id})
+    if not serata:
+        raise HTTPException(status_code=404, detail="Serata non trovata")
+    
+    if not serata.get('active', True):
+        raise HTTPException(status_code=400, detail="Serata terminata")
+    
+    # Verifica tipo file
+    if not file.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="Solo immagini permesse")
+    
+    # Salva foto
+    folder_path = Path(serata['folder_path'])
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    filename = f"foto_{timestamp}_{file.filename}"
+    file_path = folder_path / filename
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Notifica via WebSocket
+    await manager.broadcast({
+        "type": "new_photo",
+        "serata_id": serata_id,
+        "filename": filename,
+        "path": str(file_path)
+    })
+    
+    return {
+        "success": True,
+        "filename": filename
+    }
+
+@api_router.put("/admin/serata/{serata_id}/close")
+async def close_serata(serata_id: str, username: str = Depends(verify_token)):
+    """Chiudi serata (non permette più upload)"""
+    result = await db.serate.update_one(
+        {"id": serata_id},
+        {"$set": {"active": False}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Serata non trovata")
+    
+    return {"success": True, "message": "Serata chiusa"}
+
+@api_router.post("/admin/serata/{serata_id}/send-emails")
+async def send_photos_email(
+    serata_id: str,
+    email_config: EmailConfig,
+    username: str = Depends(verify_token)
+):
+    """Invia foto via email a tutti i cantanti con email"""
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    from email.mime.base import MIMEBase
+    from email import encoders
+    
+    serata = await db.serate.find_one({"id": serata_id})
+    if not serata:
+        raise HTTPException(status_code=404, detail="Serata non trovata")
+    
+    # Ottieni cantanti con email
+    singers = await db.singers.find({"email": {"$exists": True, "$ne": None, "$ne": ""}}, {"_id": 0}).to_list(None)
+    
+    if not singers:
+        return {"success": True, "sent": 0, "message": "Nessun cantante con email"}
+    
+    # Lista foto
+    folder_path = Path(serata['folder_path'])
+    fotos = []
+    if folder_path.exists():
+        for ext in ['*.jpg', '*.jpeg', '*.png']:
+            fotos.extend(list(folder_path.glob(ext)))
+    
+    if not fotos:
+        return {"success": True, "sent": 0, "message": "Nessuna foto da inviare"}
+    
+    sent_count = 0
+    errors = []
+    
+    # Invia email a ogni cantante
+    for singer in singers:
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = email_config.sender_email
+            msg['To'] = singer['email']
+            msg['Subject'] = f"Foto Serata Karaoke - {serata['nome']} - {serata['data']}"
+            
+            body = f"""
+Ciao {singer['nome']}!
+
+Grazie per aver partecipato alla serata karaoke {serata['nome']} del {serata['data']}.
+
+In allegato trovi tutte le foto della serata!
+
+A presto!
+            """
+            
+            msg.attach(MIMEText(body, 'plain'))
+            
+            # Allega foto (max 10 per email per non eccedere dimensione)
+            for foto in fotos[:10]:
+                with open(foto, 'rb') as f:
+                    part = MIMEBase('application', 'octet-stream')
+                    part.set_payload(f.read())
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', f'attachment; filename={foto.name}')
+                    msg.attach(part)
+            
+            # Invia email
+            server = smtplib.SMTP(email_config.smtp_server, email_config.smtp_port)
+            server.starttls()
+            server.login(email_config.sender_email, email_config.sender_password)
+            server.send_message(msg)
+            server.quit()
+            
+            sent_count += 1
+        except Exception as e:
+            errors.append(f"{singer['email']}: {str(e)}")
+    
+    return {
+        "success": True,
+        "sent": sent_count,
+        "total": len(singers),
+        "errors": errors if errors else None
+    }
+
 app.include_router(api_router)
 
 # Serve static files (frontend build)

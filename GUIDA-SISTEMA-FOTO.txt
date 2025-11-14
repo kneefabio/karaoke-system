@@ -1,0 +1,499 @@
+# SISTEMA FOTO SERATE - GUIDA COMPLETA
+Sistema Prenotazioni Karaoke
+
+===========================================
+✅ IMPLEMENTATO
+===========================================
+
+1. ✅ Backend gestione serate (FastAPI)
+2. ✅ Upload foto da smartphone  
+3. ✅ Dashboard gestione serate
+4. ✅ Camera app responsive
+5. ✅ WebSocket real-time
+6. ✅ Invio email automatico
+7. ⏳ Electron overlay (da completare)
+
+===========================================
+ARCHITETTURA
+===========================================
+
+SMARTPHONE (4G/5G)
+    ↓ (scannerizza QR)
+    ↓ (apre camera app web)
+    ↓ (scatta e carica foto)
+ngrok → BACKEND PC (FastAPI)
+    ↓ (salva in Foto_Serate/)
+    ↓ (notifica via WebSocket)
+ELECTRON APP (overlay)
+    ↓ (mostra foto animate)
+SCHERMO KARAOKE
+
+===========================================
+COME FUNZIONA
+===========================================
+
+### FASE 1: CREA SERATA
+
+1. Admin va in Dashboard → "Foto Serate"
+2. Inserisce nome serata (es: "Karaoke Estate")
+3. Imposta tempo display (es: 5 secondi)
+4. Clicca "Crea Serata"
+
+SISTEMA CREA:
+- Cartella: /app/Foto_Serate/Karaoke_Estate_2025-01-13
+- Record database con ID serata
+- QR code per camera app
+
+### FASE 2: FOTOGRAFO SCANSIONA
+
+5. QR code appare a schermo
+6. Fotografo scannerizza con smartphone
+7. Si apre camera app nel browser
+8. Interfaccia fullscreen camera
+
+### FASE 3: SCATTA E CARICA
+
+9. Fotografo scatta foto
+10. Vede anteprima
+11. Clicca "Carica Foto"
+12. Foto va a backend via ngrok
+13. Backend salva in cartella locale
+14. Notifica WebSocket → Electron app
+
+### FASE 4: OVERLAY MOSTRA
+
+15. Electron app riceve notifica
+16. Carica foto dalla cartella
+17. Mostra con animazione casuale
+18. Durata: X secondi (configurabile)
+19. Foto sparisce con animazione
+20. Prossima foto...
+
+### FASE 5: FINE SERATA
+
+21. Admin clicca "Chiudi Serata"
+22. Non si possono più caricare foto
+23. Admin clicca "Invia Foto"
+24. Sistema manda email a tutti con email
+25. Foto restano in locale
+
+===========================================
+FILE E CARTELLE
+===========================================
+
+/app/
+├── Foto_Serate/              ← CARTELLA FOTO (creata automaticamente)
+│   ├── Karaoke_Estate_2025-01-13/
+│   │   ├── foto_20250113_203045_001.jpg
+│   │   ├── foto_20250113_203112_002.jpg
+│   │   └── ...
+│   └── Compleanno_Mario_2025-01-14/
+│       └── ...
+├── backend/
+│   └── server.py             ← Endpoint serate
+├── frontend/
+│   ├── src/pages/
+│   │   ├── GestioneSerate.jsx    ← Dashboard serate
+│   │   └── CameraApp.jsx          ← Camera smartphone
+└── electron-overlay/         ← App Electron (da creare)
+    ├── main.js
+    ├── renderer.js
+    └── package.json
+
+===========================================
+ENDPOINT API
+===========================================
+
+### ADMIN (con token):
+
+POST /api/admin/serata/create
+- Crea nuova serata
+- Body: { nome, display_time }
+- Response: { serata_id, folder_path, QR }
+
+GET /api/admin/serate
+- Lista tutte le serate
+- Response: [{ id, nome, data, foto_count, ... }]
+
+GET /api/admin/serata/{id}
+- Dettagli serata + lista foto
+- Response: { serata, fotos: [...] }
+
+PUT /api/admin/serata/{id}/close
+- Chiude serata (blocca upload)
+
+POST /api/admin/serata/{id}/send-emails
+- Invia foto via email
+- Body: { sender_email, sender_password }
+
+### PUBBLICO (senza token):
+
+GET /api/serata/{id}/active
+- Verifica serata attiva
+- Usato da camera app
+
+POST /api/serata/{id}/upload-public
+- Upload foto da camera app
+- Multipart form-data
+- File: immagine
+
+### WEBSOCKET:
+
+WS /ws/photos
+- Connessione real-time
+- Riceve: { type: "new_photo", filename, path }
+
+===========================================
+FLUSSO TECNICO DETTAGLIATO
+===========================================
+
+### CREAZIONE SERATA:
+
+1. POST /api/admin/serata/create
+   ```json
+   {
+     "nome": "Karaoke Estate",
+     "display_time": 5
+   }
+   ```
+
+2. Backend crea:
+   - Cartella: /app/Foto_Serate/Karaoke_Estate_2025-01-13
+   - Record MongoDB: { id, nome, data, folder_path, active: true }
+   - URL camera: https://your-ngrok.ngrok.io/camera/{serata_id}
+
+3. Frontend genera QR da URL camera
+
+4. Admin scarica/stampa QR
+
+### UPLOAD FOTO:
+
+1. Smartphone apre: /camera/{serata_id}
+
+2. Camera app:
+   - Richiede permesso camera
+   - Usa facingMode: "environment" (camera posteriore)
+   - Video stream in <video>
+
+3. Scatta foto:
+   - Draw video frame su <canvas>
+   - Converte a Blob JPEG
+   - Mostra anteprima
+
+4. Upload:
+   ```javascript
+   FormData:
+     file: foto_blob
+   POST /api/serata/{id}/upload-public
+   ```
+
+5. Backend:
+   - Salva in: folder_path/foto_{timestamp}_{filename}.jpg
+   - Broadcast WebSocket: { type: "new_photo", filename, path }
+
+### ELECTRON OVERLAY:
+
+1. Connessione WebSocket al backend
+
+2. Ascolta eventi "new_photo"
+
+3. Quando riceve:
+   - Legge foto da path
+   - Sceglie animazione random
+   - Mostra overlay con foto
+   - Timer: display_time secondi
+   - Nasconde con animazione
+
+4. Overlay CSS:
+   - position: fixed
+   - z-index: 9999
+   - pointer-events: none (non blocca click)
+   - Posizioni random: top-left, top-right, bottom-left, bottom-right
+   - Animazioni: fadeIn, slideIn, bounceIn, zoomIn
+
+### INVIO EMAIL:
+
+1. Admin configura SMTP in dashboard
+
+2. Clicca "Invia Foto" su serata
+
+3. Backend:
+   - Query cantanti con email ≠ null
+   - Per ogni cantante:
+     - Crea email MIME con attach
+     - Allega max 10 foto (limite dimensione)
+     - Invia via SMTP
+   - Response: { sent: N, total: M, errors: [...] }
+
+===========================================
+CONFIGURAZIONE EMAIL
+===========================================
+
+### GMAIL (raccomandato):
+
+1. Vai su: https://myaccount.google.com/apppasswords
+
+2. Accedi con tuo account Gmail
+
+3. Nome app: "Karaoke System"
+
+4. Clicca "Genera"
+
+5. Copia password (16 caratteri)
+
+6. In dashboard:
+   - Email: tua@gmail.com
+   - Password: password app generata
+
+### ALTRI PROVIDER:
+
+SMTP Settings:
+- Gmail: smtp.gmail.com:587
+- Outlook: smtp.office365.com:587
+- Yahoo: smtp.mail.yahoo.com:587
+
+===========================================
+ELECTRON APP OVERLAY
+===========================================
+
+### DA IMPLEMENTARE:
+
+Electron app separata che:
+1. Gira sul PC dove c'è schermo karaoke
+2. Finestra trasparente always-on-top
+3. Connessa a backend via WebSocket
+4. Mostra foto con animazioni
+
+### STRUTTURA:
+
+electron-overlay/
+├── package.json
+├── main.js          ← Processo principale
+├── renderer.js      ← UI overlay
+├── index.html       ← HTML overlay
+└── styles.css       ← Animazioni
+
+### TECNOLOGIE:
+
+- Electron (framework desktop)
+- WebSocket client
+- CSS animations
+- Trasparenza finestra
+
+### FUNZIONALITÀ:
+
+✅ Finestra trasparente frameless
+✅ Always on top (sopra tutto)
+✅ Click-through (non blocca mouse)
+✅ Posizionamento casuale foto
+✅ 8+ animazioni diverse
+✅ Timer configurabile
+✅ Auto-restart se crash
+
+===========================================
+COME TESTARE
+===========================================
+
+### TEST LOCALE (senza ngrok):
+
+1. Avvia backend: start-server-online.bat
+
+2. Browser: http://localhost:8001/admin/serate
+
+3. Crea serata
+
+4. Altro tab: http://localhost:8001/camera/{serata_id}
+
+5. Consenti camera
+
+6. Scatta e carica foto
+
+7. Verifica cartella: /app/Foto_Serate/
+
+### TEST REMOTO (con ngrok):
+
+1. Avvia: start-server-online.bat + start-ngrok.bat
+
+2. Copia URL ngrok
+
+3. Browser PC: https://abc123.ngrok.io/admin/serate
+
+4. Crea serata → Scarica QR
+
+5. Smartphone: Scannerizza QR
+
+6. App camera si apre
+
+7. Scatta foto
+
+8. Foto appare in cartella PC
+
+### TEST EMAIL:
+
+1. Configura Gmail app password
+
+2. Crea serata e carica 2-3 foto test
+
+3. Nel form prenotazione: inserisci TUA email
+
+4. Dashboard serate → "Invia Foto"
+
+5. Controlla tua inbox
+
+===========================================
+NGROK SETUP
+===========================================
+
+### IMPORTANTE:
+
+Per funzionare da remoto (4G/5G), serve ngrok SEMPRE attivo.
+
+### WORKFLOW:
+
+1. Avvia backend: start-server-online.bat
+
+2. Avvia ngrok: start-ngrok.bat
+
+3. Copia URL: https://abc123.ngrok-free.dev
+
+4. Dashboard serate usa automaticamente questo URL
+
+5. QR code contiene URL ngrok
+
+6. Smartphone si connette via ngrok
+
+### PIANO GRATUITO:
+
+✅ Funziona perfettamente
+❌ URL cambia ogni riavvio
+❌ Devi rigenerare QR ogni sessione
+
+### PIANO PRO ($8/mese):
+
+✅ URL fisso (es: tuonome.ngrok.io)
+✅ QR code sempre uguale
+✅ Più affidabile
+
+===========================================
+ELECTRON OVERLAY - INSTALLAZIONE
+===========================================
+
+### DOPO CHE CREO L'APP:
+
+1. Vai in cartella: electron-overlay/
+
+2. Installa:
+   ```
+   npm install
+   ```
+
+3. Avvia:
+   ```
+   npm start
+   ```
+
+4. Finestra overlay appare (trasparente)
+
+5. Testa uploadando foto
+
+6. Foto appaiono animate!
+
+### BUILD ESEGUIBILE:
+
+```
+npm run build
+```
+
+Crea file .exe (Windows) da distribuire.
+
+===========================================
+LIMITAZIONI E NOTE
+===========================================
+
+### DIMENSIONE EMAIL:
+
+- Max 10 foto per email (limite ~25MB Gmail)
+- Se > 10 foto: invia solo prime 10
+- Alternativa: link download cloud
+
+### PERFORMANCE:
+
+- Upload: ~1-2 secondi per foto (dipende da rete)
+- Display: istantaneo (legge da disco locale)
+- WebSocket: latenza <100ms
+
+### BROWSER SUPPORTATI:
+
+- ✅ Chrome/Edge (desktop + mobile)
+- ✅ Safari (iOS)
+- ❌ Browser vecchi senza getUserMedia()
+
+### REQUISITI PC:
+
+- Windows 10+ / macOS 10.14+ / Linux
+- 2GB RAM liberi
+- Electron gira in background
+
+===========================================
+TROUBLESHOOTING
+===========================================
+
+### Camera non funziona:
+
+- Controlla permessi browser
+- HTTPS obbligatorio (ngrok fornisce)
+- Prova altro browser
+
+### Foto non arrivano:
+
+- Verifica ngrok attivo
+- Check log backend
+- Firewall Windows?
+
+### Email non inviate:
+
+- Password app Gmail corretta?
+- SMTP settings giusti?
+- Check spam folder
+
+### Overlay non mostra foto:
+
+- WebSocket connesso?
+- Foto in cartella corretta?
+- Electron app avviata?
+
+===========================================
+PROSSIMI PASSI
+===========================================
+
+1. ✅ Testa creazione serata
+2. ✅ Testa upload foto (locale)
+3. ✅ Testa upload foto (remoto con ngrok)
+4. ✅ Configura email e testa invio
+5. ⏳ Creo app Electron overlay
+6. ⏳ Testa overlay con foto real-time
+7. ⏳ Build eseguibile Electron
+8. ✅ Sistema completo funzionante!
+
+===========================================
+RIEPILOGO COSTI
+===========================================
+
+GRATIS:
+- ngrok free tier (URL cambia)
+- Gmail app passwords
+- Tutto il codice
+
+OPZIONALE:
+- ngrok Pro: $8/mese (URL fisso)
+- SendGrid: $15/mese (email professionali)
+- Cloud storage: $5/mese (alternative a email)
+
+===========================================
+
+🎉 Sistema Foto Quasi Completo!
+
+Manca solo Electron overlay.
+Ti creo l'app Electron ora?
+
+Oppure testiamo prima tutto il resto?

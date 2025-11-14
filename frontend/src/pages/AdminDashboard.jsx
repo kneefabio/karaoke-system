@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Trash2, Check, X, LogOut, Users, Music, ListChecks, Clock, Shield } from "lucide-react";
+import { Trash2, Check, X, LogOut, Users, Music, ListChecks, Clock, Shield, Camera } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;

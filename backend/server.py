@@ -125,6 +125,26 @@ class AdminUpdate(BaseModel):
     new_username: Optional[str] = None
     new_password: Optional[str] = None
 
+class Serata(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    nome: str
+    data: str
+    folder_path: str
+    display_time: int = 5  # secondi per mostrare ogni foto
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    active: bool = True
+
+class SerataCreate(BaseModel):
+    nome: str
+    display_time: int = 5
+
+class EmailConfig(BaseModel):
+    smtp_server: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    sender_email: str
+    sender_password: str
+
 # Helper functions
 def create_access_token(data: dict):
     to_encode = data.copy()

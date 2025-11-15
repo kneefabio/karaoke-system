@@ -78,3 +78,4 @@ agenthub/agents/youtube/db
 
 # Mobile development
 android-sdk/ electron-overlay/node_modules/electron/dist/electron
+electron-overlay/node_modules/electron/dist/electron

@@ -218,6 +218,32 @@ export default function AdminDashboard() {
           <div>
             <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'Space Grotesk' }}>Dashboard Admin</h1>
             <p className="text-gray-600">Gestione prenotazioni karaoke</p>
+            
+            {/* License Info Badge */}
+            {licenseInfo && (
+              <div className="mt-3">
+                {licenseInfo.unlimited ? (
+                  <Badge className="bg-purple-600 text-white">
+                    ♾️ Licenza Illimitata - Super Admin
+                  </Badge>
+                ) : licenseInfo.has_license ? (
+                  <Badge 
+                    className={
+                      licenseInfo.status === "expired" ? "bg-red-600 text-white" :
+                      licenseInfo.days_remaining <= 3 ? "bg-orange-500 text-white" :
+                      "bg-green-600 text-white"
+                    }
+                  >
+                    {licenseInfo.status === "expired" ? "❌ Licenza Scaduta" :
+                     `✅ ${licenseInfo.plan} - ${licenseInfo.days_remaining} giorni rimanenti`}
+                  </Badge>
+                ) : (
+                  <Badge className="bg-gray-500 text-white">
+                    ⚠️ Nessuna licenza attiva
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex gap-3">
             <Button 

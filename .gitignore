@@ -22,6 +22,10 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
+# Lock files nella root (non necessari)
+/yarn.lock
+/package-lock.json
+
 # Python
 __pycache__/
 *.py[cod]

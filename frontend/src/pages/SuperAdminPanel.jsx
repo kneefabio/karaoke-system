@@ -21,8 +21,11 @@ const API = `${BACKEND_URL}/api`;
 
 export default function SuperAdminPanel() {
   const [licenses, setLicenses] = useState([]);
+  const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newLicense, setNewLicense] = useState({ email: "", plan: "monthly" });
+  const [newAdmin, setNewAdmin] = useState({ username: "", password: "", role: "admin" });
+  const [showAdminForm, setShowAdminForm] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("admin_token");
@@ -33,6 +36,7 @@ export default function SuperAdminPanel() {
       return;
     }
     fetchLicenses();
+    fetchAdmins();
   }, []);
 
   const fetchLicenses = async () => {

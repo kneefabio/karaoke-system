@@ -1,0 +1,14 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Lock files should not be merged
+yarn.lock binary
+package-lock.json binary
+
+# Ensure consistent line endings
+*.js text eol=lf
+*.jsx text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.txt text eol=lf

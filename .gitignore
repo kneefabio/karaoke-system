@@ -90,3 +90,7 @@ electron-overlay/node_modules/
 *.out.log
 /var/log/
 electron-overlay/node_modules/electron/dist/electron
+-e 
+# Environment files
+*.env
+*.env.*

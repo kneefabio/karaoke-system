@@ -1,0 +1,90 @@
+═══════════════════════════════════════════════════════════════
+   GUIDA: RISOLVERE ERRORE NODE VERSION SU NETLIFY
+═══════════════════════════════════════════════════════════════
+
+PROBLEMA:
+--------
+Netlify continua a usare Node v18 invece di v20, causando l'errore:
+"error react-router-dom@7.9.6: The engine "node" is incompatible with this module"
+
+
+SOLUZIONE - SEGUI QUESTI PASSI:
+--------------------------------
+
+PASSO 1: Verifica che le modifiche siano su GitHub
+---------------------------------------------------
+I file modificati sono:
+  ✓ netlify.toml (NODE_VERSION = "20.18.2")
+  ✓ .nvmrc (contiene "20")
+  ✓ frontend/.node-version (contiene "20")
+  ✓ frontend/package.json (engines.node = ">=20.0.0")
+
+Devi caricare questi file su GitHub usando la funzione "Save to Github"
+nella chat di Emergent, oppure manualmente con:
+
+  git add .
+  git commit -m "Fix: Update Node to v20 for Netlify"
+  git push origin main
+
+
+PASSO 2: Clear Cache su Netlify (IMPORTANTE!)
+----------------------------------------------
+Netlify potrebbe star usando una cache vecchia.
+
+1. Vai su https://app.netlify.com
+2. Seleziona il tuo sito
+3. Vai su "Deploys" nel menu
+4. Clicca su "Trigger deploy" (in alto a destra)
+5. Seleziona "Clear cache and deploy site"
+
+   [Trigger deploy ▼]
+     ↳ Clear cache and deploy site  <-- CLICCA QUI
+
+
+PASSO 3: Verifica la Build
+---------------------------
+Nei log di Netlify dovresti vedere:
+  ✓ "Downloading and installing node v20.18.2..." 
+  ✓ "Now using node v20.18.2 (npm v...)"
+
+Se ancora vedi "node v18.20.8", il problema è che:
+- I file non sono stati pushati su GitHub, OPPURE
+- Netlify sta leggendo da un branch diverso
+
+
+PASSO 4: Configurazione Manuale (se PASSO 2 non funziona)
+----------------------------------------------------------
+Se il clear cache non funziona, configura manualmente su Netlify:
+
+1. Vai su Site settings
+2. Build & deploy > Environment
+3. Clicca "Edit variables"
+4. Aggiungi:
+   Key: NODE_VERSION
+   Value: 20.18.2
+5. Salva e rideploya
+
+
+VERIFICA FINALE:
+----------------
+Dopo il deploy, controlla i log:
+✓ "Now using node v20.x.x" = SUCCESSO
+✗ "Now using node v18.x.x" = Riprova PASSO 4
+
+
+NOTA IMPORTANTE:
+---------------
+Netlify legge la versione di Node in questo ordine:
+1. Variabile d'ambiente nel dashboard Netlify
+2. File .nvmrc nella root
+3. File .node-version nella directory di build
+4. NODE_VERSION nel netlify.toml
+5. Default di Netlify (v18)
+
+Abbiamo configurato tutti questi file per essere sicuri!
+
+
+═══════════════════════════════════════════════════════════════
+Se il problema persiste dopo tutti questi passi, contattami
+inviando uno screenshot dei log di build di Netlify.
+═══════════════════════════════════════════════════════════════

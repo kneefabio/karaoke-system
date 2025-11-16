@@ -190,6 +190,45 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
     except jwt.JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+async def verify_token_and_license(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Verifica token JWT e validità licenza"""
+    username = await verify_token(credentials)
+    
+    # Recupera admin
+    admin = await db.admins.find_one({"username": username})
+    if not admin:
+        raise HTTPException(status_code=401, detail="Admin non trovato")
+    
+    # Super admin ha sempre accesso
+    if admin.get("role") == "super_admin":
+        return username
+    
+    # Verifica licenza
+    license_key = admin.get("license_key")
+    if not license_key:
+        raise HTTPException(status_code=403, detail="Nessuna licenza associata")
+    
+    license_doc = await db.licenses.find_one({"license_key": license_key})
+    if not license_doc:
+        raise HTTPException(status_code=403, detail="Licenza non trovata")
+    
+    # Controlla scadenza
+    expires_at = datetime.fromisoformat(license_doc['expires_at'])
+    now = datetime.now(timezone.utc)
+    
+    if now > expires_at:
+        # Aggiorna stato a expired
+        await db.licenses.update_one(
+            {"license_key": license_key},
+            {"$set": {"status": "expired"}}
+        )
+        raise HTTPException(status_code=403, detail="Licenza scaduta")
+    
+    if license_doc.get('status') != "active":
+        raise HTTPException(status_code=403, detail=f"Licenza {license_doc['status']}")
+    
+    return username
+
 async def get_next_codice():
     # Get highest code number
     singers = await db.singers.find({}).to_list(None)

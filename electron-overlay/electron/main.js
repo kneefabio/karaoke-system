@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 
 let mainWindow;
 let ws;
-let backendUrl = 'ws://127.0.0.1:8001/ws/photos'; // IPv4 esplicito
+let backendUrl = 'ws://localhost:8001/ws/photos'; // Modificabile
 
 function createWindow() {
   mainWindow = new BrowserWindow({

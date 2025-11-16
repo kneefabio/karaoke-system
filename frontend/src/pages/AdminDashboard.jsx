@@ -17,6 +17,7 @@ export default function AdminDashboard() {
   const [bookingsOpen, setBookingsOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [licenseInfo, setLicenseInfo] = useState(null);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("admin_token");
@@ -28,8 +29,13 @@ export default function AdminDashboard() {
     }
     fetchData();
     checkSuperAdmin();
+    fetchLicenseInfo();
     const interval = setInterval(fetchData, 3000); // Poll every 3 seconds
-    return () => clearInterval(interval);
+    const licenseInterval = setInterval(checkLicense, 300000); // Check license every 5 minutes
+    return () => {
+      clearInterval(interval);
+      clearInterval(licenseInterval);
+    };
   }, []);
 
   const checkSuperAdmin = async () => {

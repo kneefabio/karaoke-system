@@ -1,7 +1,8 @@
 [build]
   base = "frontend"
-  command = "yarn build"
+  command = "yarn install --frozen-lockfile && yarn build"
   publish = "build"
+  ignore = "git diff --quiet HEAD^ HEAD ./"
 
 [[redirects]]
   from = "/*"

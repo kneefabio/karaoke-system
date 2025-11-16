@@ -135,6 +135,21 @@ class AdminUpdate(BaseModel):
     new_username: Optional[str] = None
     new_password: Optional[str] = None
 
+class AdminCreate(BaseModel):
+    username: str
+    password: str
+    role: str = "admin"  # default: admin, può essere "super_admin"
+
+class LicenseInfo(BaseModel):
+    has_license: bool
+    license_key: Optional[str] = None
+    plan: Optional[str] = None
+    expires_at: Optional[str] = None
+    days_remaining: Optional[int] = None
+    status: Optional[str] = None
+    unlimited: bool = False
+    role: str = "admin"
+
 class Serata(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))

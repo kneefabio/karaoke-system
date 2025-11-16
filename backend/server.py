@@ -18,7 +18,17 @@ import shutil
 import json
 
 ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+
+# Load environment variables based on environment
+# In production (Render), use system environment variables
+# In development, load from .env file
+if os.environ.get('RENDER'):
+    # Production: Render sets this environment variable automatically
+    # Use system environment variables (configured in Render dashboard)
+    pass
+else:
+    # Development: Load from local .env file
+    load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']

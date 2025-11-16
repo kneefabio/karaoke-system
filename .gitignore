@@ -103,3 +103,7 @@ electron-overlay/node_modules/
 /var/log/
 electron-overlay/node_modules/electron/dist/electron
 -e
+-e 
+# Environment files
+*.env
+*.env.*

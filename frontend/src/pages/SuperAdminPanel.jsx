@@ -191,12 +191,104 @@ export default function SuperAdminPanel() {
             <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'Space Grotesk' }}>
               Super Admin Panel
             </h1>
-            <p className="text-gray-600">Gestione Licenze Sistema Karaoke</p>
+            <p className="text-gray-600">Gestione Admin e Licenze Sistema Karaoke</p>
           </div>
           <Button onClick={() => navigate("/admin/dashboard")} variant="outline">
             ← Torna alla Dashboard
           </Button>
         </div>
+
+        {/* Gestione Admin */}
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="flex items-center gap-2">
+                👤 Gestione Admin
+              </CardTitle>
+              <Button 
+                onClick={() => setShowAdminForm(!showAdminForm)}
+                size="sm"
+                variant={showAdminForm ? "secondary" : "default"}
+              >
+                {showAdminForm ? "Chiudi Form" : "+ Crea Admin"}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {showAdminForm && (
+              <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                <h3 className="font-semibold mb-4">Crea Nuovo Admin</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="admin-username">Username</Label>
+                    <Input
+                      id="admin-username"
+                      placeholder="username"
+                      value={newAdmin.username}
+                      onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="admin-password">Password</Label>
+                    <Input
+                      id="admin-password"
+                      type="password"
+                      placeholder="Min 6 caratteri"
+                      value={newAdmin.password}
+                      onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="admin-role">Ruolo</Label>
+                    <Select
+                      value={newAdmin.role}
+                      onValueChange={(value) => setNewAdmin({ ...newAdmin, role: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">Admin (Host)</SelectItem>
+                        <SelectItem value="super_admin">Super Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <Button onClick={createAdmin} className="mt-4">
+                  Crea Admin
+                </Button>
+              </div>
+            )}
+
+            {/* Lista Admin */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-sm text-gray-600">Admin Esistenti ({admins.length})</h3>
+              {admins.map((admin) => (
+                <div 
+                  key={admin.username} 
+                  className="flex justify-between items-center p-4 bg-white border rounded-lg hover:shadow-md transition"
+                >
+                  <div>
+                    <div className="font-semibold">{admin.username}</div>
+                    <div className="text-sm text-gray-600">
+                      Role: <Badge variant="outline">{admin.role}</Badge>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {admin.license_info}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {admin.role === "super_admin" ? (
+                      <Badge className="bg-purple-600">Super Admin</Badge>
+                    ) : (
+                      <Badge variant="secondary">Host</Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Crea Nuova Licenza */}
         <Card className="mb-8">

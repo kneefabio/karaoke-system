@@ -1,0 +1,236 @@
+# STRUTTURA PROGETTO PER GITHUB
+
+## ✅ FILE DA INCLUDERE SU GITHUB
+
+```
+karaoke-system/
+│
+├── backend/                          ✅ INCLUDERE
+│   ├── server.py                     ✅ File principale backend
+│   ├── requirements.txt              ✅ Dipendenze Python
+│   ├── .env.production               ✅ Template configurazione (senza dati sensibili)
+│   └── .env                          ❌ ESCLUSO (.gitignore)
+│
+├── frontend/                         ✅ INCLUDERE
+│   ├── src/                          ✅ Codice sorgente
+│   │   ├── pages/                    ✅ Tutte le pagine
+│   │   │   ├── BookingPage.jsx
+│   │   │   ├── AdminLogin.jsx
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   ├── SuperAdminPanel.jsx
+│   │   │   ├── GestioneSerate.jsx
+│   │   │   └── CameraApp.jsx
+│   │   ├── components/               ✅ Componenti UI
+│   │   ├── App.js                    ✅ App principale
+│   │   ├── App.css                   ✅ Stili
+│   │   └── index.js
+│   ├── public/                       ✅ Asset pubblici
+│   ├── package.json                  ✅ Dipendenze Node
+│   ├── tailwind.config.js            ✅ Config Tailwind
+│   ├── postcss.config.js             ✅ Config PostCSS
+│   ├── .env.production               ✅ Template configurazione
+│   ├── .env                          ❌ ESCLUSO (.gitignore)
+│   ├── node_modules/                 ❌ ESCLUSO (.gitignore)
+│   └── build/                        ❌ ESCLUSO (.gitignore)
+│
+├── electron-overlay/                 ✅ INCLUDERE
+│   ├── package.json                  ✅ Dipendenze Electron
+│   ├── main.js                       ✅ Main process
+│   ├── renderer.js                   ✅ Renderer process
+│   ├── index.html                    ✅ UI overlay
+│   ├── styles.css                    ✅ Stili animazioni
+│   ├── node_modules/                 ❌ ESCLUSO (.gitignore)
+│   └── dist/                         ❌ ESCLUSO (.gitignore)
+│
+├── scripts/                          ✅ INCLUDERE (script avvio)
+│   ├── start-karaoke-complete.bat    ✅ Avvio tutto
+│   ├── start-server-online.bat       ✅ Avvio backend
+│   ├── start-ngrok.bat               ✅ Avvio ngrok
+│   ├── start-overlay.bat             ✅ Avvio overlay
+│   ├── setup.bat                     ✅ Setup Windows
+│   ├── setup.sh                      ✅ Setup Linux/Mac
+│   ├── build-for-online.bat          ✅ Build produzione
+│   └── debug-online.bat              ✅ Debug
+│
+├── docs/                             ✅ INCLUDERE (documentazione)
+│   ├── README-COMPLETO.md            ✅ README principale
+│   ├── GUIDA-DEPLOY-CLOUD.txt        ✅ Deploy cloud
+│   ├── GUIDA-LICENSING.txt           ✅ Sistema licenze
+│   ├── GUIDA-SISTEMA-FOTO.txt        ✅ Sistema foto
+│   ├── GUIDA-COLORI.txt              ✅ Personalizzazione
+│   ├── GUIDA-ACCESSO-REMOTO.txt      ✅ Accesso remoto
+│   ├── GUIDA-ONLINE-RAPIDA.txt       ✅ Quick start online
+│   ├── TEST-SISTEMA-FOTO.txt         ✅ Test completo
+│   ├── AVVIO-MANUALE.txt             ✅ Avvio manuale
+│   ├── GUIDA-WINDOWS.txt             ✅ Setup Windows
+│   └── NOVITA.txt                    ✅ Changelog
+│
+├── config/                           ✅ INCLUDERE (configurazione)
+│   ├── render.yaml                   ✅ Config Render
+│   └── netlify.toml                  ✅ Config Netlify
+│
+├── .gitignore                        ✅ INCLUDERE
+├── README.md                         ✅ INCLUDERE (da creare)
+├── LICENSE                           ✅ INCLUDERE (opzionale)
+│
+├── Foto_Serate/                      ❌ ESCLUSO (dati utente)
+├── test_reports/                     ❌ ESCLUSO (test locali)
+├── venv/                             ❌ ESCLUSO (.gitignore)
+├── __pycache__/                      ❌ ESCLUSO (.gitignore)
+└── *.log                             ❌ ESCLUSO (.gitignore)
+```
+
+---
+
+## 📝 AZIONI DA FARE
+
+### 1. Riorganizzare File
+
+Sposta gli script nella cartella `scripts/`:
+
+```cmd
+mkdir scripts
+move *.bat scripts/
+move *.sh scripts/
+```
+
+Sposta le guide nella cartella `docs/`:
+
+```cmd
+mkdir docs
+move *.txt docs/
+move *.md docs/
+```
+
+Sposta config nella cartella `config/`:
+
+```cmd
+mkdir config
+move render.yaml config/
+move netlify.toml config/
+```
+
+### 2. Creare README.md Principale
+
+Un README.md breve nella root che rimanda a README-COMPLETO.md
+
+### 3. File .env Template
+
+Crea `.env.example` per backend e frontend senza dati sensibili.
+
+### 4. Pulire File Inutili
+
+Elimina eventuali:
+- File temporanei
+- Backup (.bak)
+- Log files
+- Test files non necessari
+
+---
+
+## 🚀 COMANDI GIT
+
+### Prima Volta:
+
+```bash
+# Nella cartella del progetto
+git init
+git add .
+git commit -m "Initial commit - Sistema Karaoke completo"
+git branch -M main
+git remote add origin https://github.com/TUO-USERNAME/karaoke-system.git
+git push -u origin main
+```
+
+### Aggiornamenti Successivi:
+
+```bash
+git add .
+git commit -m "Descrizione modifiche"
+git push
+```
+
+---
+
+## ✅ CHECKLIST PRE-PUSH
+
+Prima di fare push su GitHub, verifica:
+
+- [ ] .gitignore configurato correttamente
+- [ ] Nessun file .env con dati sensibili
+- [ ] Nessuna password in chiaro nel codice
+- [ ] File .env.production sono template (senza dati reali)
+- [ ] README.md presente e aggiornato
+- [ ] node_modules/ escluso
+- [ ] venv/ escluso
+- [ ] Foto_Serate/ escluso
+- [ ] build/ e dist/ esclusi
+- [ ] Documentazione completa in docs/
+- [ ] Script funzionanti in scripts/
+
+---
+
+## 📊 DIMENSIONE REPOSITORY
+
+Dopo pulizia, il repository dovrebbe essere:
+
+```
+Totale: ~5-10 MB
+
+Dettaglio:
+- Backend: ~500 KB (codice Python)
+- Frontend: ~3 MB (codice React + dipendenze package.json)
+- Electron: ~200 KB (codice JS + HTML + CSS)
+- Scripts: ~100 KB (batch files)
+- Docs: ~200 KB (guide txt/md)
+- Config: ~10 KB (yaml/toml)
+```
+
+**ESCLUSI** (non su Git):
+- node_modules: ~300-500 MB
+- venv: ~50-100 MB
+- build: ~5-10 MB
+- Foto_Serate: variabile
+
+---
+
+## 🔐 SICUREZZA
+
+### File da NON Committare MAI:
+
+❌ backend/.env (con MONGO_URL reale)
+❌ frontend/.env (con backend URL reale)
+❌ Qualsiasi file con password
+❌ Token JWT reali
+❌ API keys
+❌ Database dumps
+❌ File con dati utenti (email, foto)
+
+### File OK da Committare:
+
+✅ .env.production (template con placeholder)
+✅ .env.example (senza valori reali)
+✅ Configurazione pubblica
+✅ Codice sorgente
+✅ Documentazione
+
+---
+
+## 🎯 RISULTATO FINALE
+
+Repository GitHub conterrà:
+
+✅ Codice completo funzionante
+✅ Documentazione esauriente
+✅ Script di installazione
+✅ Configurazione deploy
+✅ Guide d'uso
+✅ Nessun dato sensibile
+✅ Nessun file inutile
+✅ Struttura pulita e professionale
+
+Dimensione: 5-10 MB (perfetto per GitHub)
+
+---
+
+Vuoi che proceda a riorganizzare i file automaticamente?

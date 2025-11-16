@@ -1,0 +1,112 @@
+═══════════════════════════════════════════════════════════════════
+           ✅ PASSWORD RESETTATE CON SUCCESSO
+═══════════════════════════════════════════════════════════════════
+
+Ho resettato la password del superadmin su MongoDB Atlas!
+
+📝 CREDENZIALI AGGIORNATE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔑 ADMIN (Host Karaoke)
+   Username: admin
+   Password: admin123
+   URL: https://astounding-buttercream-5d9ab5.netlify.app/admin/login
+
+🔑 SUPERADMIN (Gestione Licenze)
+   Username: superadmin
+   Password: superadmin123
+   URL: https://astounding-buttercream-5d9ab5.netlify.app/super-admin
+
+
+═══════════════════════════════════════════════════════════════════
+                    🧪 COME TESTARE
+═══════════════════════════════════════════════════════════════════
+
+1. Apri: https://astounding-buttercream-5d9ab5.netlify.app/super-admin
+2. Inserisci:
+   - Username: superadmin
+   - Password: superadmin123
+3. Clicca Login
+
+Se funziona: ✅ Sei dentro!
+Se NON funziona: ⬇️ Vedi troubleshooting sotto
+
+
+═══════════════════════════════════════════════════════════════════
+                 🔧 SCRIPT DISPONIBILI
+═══════════════════════════════════════════════════════════════════
+
+Ho creato 3 script per gestire le password:
+
+1. 📝 reset-password-simple.py (veloce)
+   Esegui: python3 reset-password-simple.py
+   Resetta superadmin a "superadmin123"
+
+2. 📝 reset-admin-password.py (completo)
+   Esegui: python3 reset-admin-password.py
+   Menu interattivo con più opzioni
+
+3. 📝 reset-superadmin-password.py (dettagliato)
+   Esegui: python3 reset-superadmin-password.py
+   Con log completi e verifica
+
+📖 Leggi: GUIDA-RESET-PASSWORD.md per dettagli
+
+
+═══════════════════════════════════════════════════════════════════
+              🆘 TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════
+
+❌ "Invalid credentials" o login non funziona:
+
+Causa 1: Backend non connesso a MongoDB
+   → Verifica variabili d'ambiente su Render
+   → MONGO_URL deve essere configurato
+
+Causa 2: Backend "sleeping" (free tier)
+   → Fai una richiesta al backend
+   → Attendi 30-60 secondi che si attivi
+
+Causa 3: Cache browser
+   → Apri in modalità incognito/privato
+   → Prova con CTRL+F5 per forzare refresh
+
+❌ "Network Error":
+   → Backend su Render non risponde
+   → Verifica che il servizio sia "Live" (verde)
+   → Controlla logs su Render per errori
+
+
+═══════════════════════════════════════════════════════════════════
+              ⚠️  RICORDA DI CONFIGURARE RENDER
+═══════════════════════════════════════════════════════════════════
+
+Se il login ancora non funziona, probabilmente NON hai ancora
+configurato le variabili d'ambiente su Render!
+
+➡️ Leggi: QUICK-START.txt
+➡️ Oppure: CONFIGURAZIONE-RENDER-NETLIFY.md
+
+Devi aggiungere su Render Dashboard:
+- MONGO_URL
+- DB_NAME
+- CORS_ORIGINS
+- JWT_SECRET
+
+Senza queste variabili, il backend NON può connettersi al database!
+
+
+═══════════════════════════════════════════════════════════════════
+                   🎯 PROSSIMI PASSI
+═══════════════════════════════════════════════════════════════════
+
+1. ✅ Password resettata (fatto!)
+2. 🔧 Configura Render con variabili d'ambiente
+3. 🔧 Configura Netlify con REACT_APP_BACKEND_URL
+4. 🧪 Testa il login
+5. 🎉 Sistema funzionante!
+
+
+═══════════════════════════════════════════════════════════════════
+            Data reset: $(date)
+═══════════════════════════════════════════════════════════════════

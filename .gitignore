@@ -1,8 +1,14 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# ========================================
+# KARAOKE SYSTEM - GITIGNORE
+# ========================================
+
 # IDE and editors
 .idea/
 .vscode/
+*.swp
+*.swo
 
 # Dependencies
 node_modules/
@@ -16,66 +22,71 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+venv/
+.venv/
+ENV/
+env/
+
 # Testing
 /coverage
-
-# Next.js
-/.next/
-/out/
-next-env.d.ts
-*.tsbuildinfo
+test_reports/
 
 # Production builds
 /build
+/frontend/build
 dist/
-dist
+*.tsbuildinfo
 
-# Environment files (comprehensive coverage)
-
-*token.json*
-*credentials.json*
+# Environment files (locale - NON versionare)
+backend/.env
+frontend/.env
+# I file .env.production VANNO versionati come template
 
 # Logs and debug files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-dump.rdb
+*.log
+logs/
 
 # System files
 .DS_Store
 *.pem
+Thumbs.db
 
-# Python
-__pycache__/
-*pyc*
-venv/
-.venv/
+# MongoDB local
+data/
+mongodb/
 
-# Development tools
-chainlit.md
-.chainlit
-.ipynb_checkpoints/
-.ac
+# Foto Serate (dati utente)
+Foto_Serate/
 
-# Deployment
-.vercel
+# Electron dist
+electron-overlay/dist/
+electron-overlay/out/
+electron-overlay/node_modules/
 
-# Data and databases
-agenthub/agents/youtube/db
-
-# Archive files and large assets
+# Archive files
 **/*.zip
 **/*.tar.gz
 **/*.tar
 **/*.tgz
-*.pack
-*.deb
-*.dylib
 
 # Build caches
 .cache/
 
-# Mobile development
-android-sdk/ electron-overlay/node_modules/electron/dist/electron
+# Temporary
+*.tmp
+*.temp
+
+# Supervisor logs (development)
+*.err.log
+*.out.log
+/var/log/
 electron-overlay/node_modules/electron/dist/electron

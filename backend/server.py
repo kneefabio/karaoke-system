@@ -310,7 +310,8 @@ async def admin_login(login: LoginRequest):
     if not admin:
         raise HTTPException(status_code=401, detail="Credenziali non valide")
     
-    if not bcrypt.checkpw(login.password.encode('utf-8'), admin['password'].encode('utf-8')):
+    # admin['password'] is already bytes from MongoDB, no need to encode
+    if not bcrypt.checkpw(login.password.encode('utf-8'), admin['password']):
         raise HTTPException(status_code=401, detail="Credenziali non valide")
     
     access_token = create_access_token(data={"sub": login.username})

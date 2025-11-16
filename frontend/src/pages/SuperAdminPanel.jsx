@@ -56,6 +56,44 @@ export default function SuperAdminPanel() {
     }
   };
 
+  const fetchAdmins = async () => {
+    try {
+      const response = await axios.get(`${API}/super-admin/admins`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAdmins(response.data);
+    } catch (error) {
+      console.error("Error fetching admins:", error);
+    }
+  };
+
+  const createAdmin = async () => {
+    if (!newAdmin.username || !newAdmin.password) {
+      toast.error("Inserisci username e password");
+      return;
+    }
+
+    if (newAdmin.password.length < 6) {
+      toast.error("La password deve essere almeno 6 caratteri");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${API}/super-admin/create-admin`,
+        newAdmin,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success(response.data.message);
+      setNewAdmin({ username: "", password: "", role: "admin" });
+      setShowAdminForm(false);
+      fetchAdmins();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Errore nella creazione dell'admin");
+    }
+  };
+
   const createLicense = async () => {
     if (!newLicense.email) {
       toast.error("Inserisci un'email");

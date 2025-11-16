@@ -1032,16 +1032,29 @@ async def upload_photo_public(
 
 @api_router.put("/admin/serata/{serata_id}/close")
 async def close_serata(serata_id: str, username: str = Depends(verify_token)):
-    """Chiudi serata (non permette più upload)"""
+    """Chiudi serata e pulisci i dati dei cantanti/canzoni"""
     result = await db.serate.update_one(
         {"id": serata_id},
-        {"$set": {"active": False}}
+        {"$set": {"active": False, "closed_at": datetime.now(timezone.utc).isoformat()}}
     )
     
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Serata non trovata")
     
-    return {"success": True, "message": "Serata chiusa"}
+    # Pulisci database cantanti e canzoni della serata corrente
+    # Nota: questo elimina TUTTI i cantanti/canzoni perché non c'è associazione serata_id
+    # Se vuoi mantenere storico, non eliminare
+    deleted_singers = await db.singers.delete_many({})
+    deleted_songs = await db.songs.delete_many({})
+    
+    logger.info(f"Serata {serata_id} chiusa. Eliminati {deleted_singers.deleted_count} cantanti e {deleted_songs.deleted_count} canzoni")
+    
+    return {
+        "success": True, 
+        "message": "Serata chiusa e database pulito",
+        "deleted_singers": deleted_singers.deleted_count,
+        "deleted_songs": deleted_songs.deleted_count
+    }
 
 @api_router.post("/admin/serata/{serata_id}/send-emails")
 async def send_photos_email(

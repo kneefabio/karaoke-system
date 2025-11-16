@@ -247,6 +247,13 @@ export default function AdminDashboard() {
           </div>
           <div className="flex gap-3">
             <Button 
+              onClick={openQRWindow}
+              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+              data-testid="qr-btn"
+            >
+              📱 Mostra QR Code
+            </Button>
+            <Button 
               onClick={() => navigate("/admin/serate")}
               variant="outline"
               className="flex items-center gap-2 border-blue-500 text-blue-600 hover:bg-blue-50"

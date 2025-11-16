@@ -42,10 +42,22 @@ test_reports/
 dist/
 *.tsbuildinfo
 
-# Environment files (locale - NON versionare)
+# Environment files - NON versionare i file reali
+*.env
+*.env.local
+*.env.development
+*.env.production
 backend/.env
 frontend/.env
-# I file .env.production VANNO versionati come template
+backend/.env.production
+frontend/.env.production
+
+# MA permetti i template
+!*.env.template
+!backend/.env.template
+!frontend/.env.template
+!backend/.env.production.template
+!frontend/.env.production.template
 
 # Logs and debug files
 npm-debug.log*

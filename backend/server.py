@@ -685,6 +685,111 @@ async def get_my_license(username: str = Depends(verify_token)):
         "is_expired": now > expires_at
     }
 
+@api_router.get("/admin/license-info", response_model=LicenseInfo)
+async def get_license_info(username: str = Depends(verify_token)):
+    """Ottieni informazioni dettagliate sulla licenza per la dashboard"""
+    admin = await db.admins.find_one({"username": username})
+    
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin non trovato")
+    
+    # Super admin ha accesso illimitato
+    if admin.get("role") == "super_admin":
+        return LicenseInfo(
+            has_license=True,
+            unlimited=True,
+            role="super_admin",
+            status="active"
+        )
+    
+    license_key = admin.get("license_key")
+    
+    if not license_key:
+        return LicenseInfo(
+            has_license=False,
+            role=admin.get("role", "admin")
+        )
+    
+    license_doc = await db.licenses.find_one({"license_key": license_key})
+    
+    if not license_doc:
+        return LicenseInfo(
+            has_license=False,
+            role=admin.get("role", "admin")
+        )
+    
+    # Calcola giorni rimanenti
+    expires_at = datetime.fromisoformat(license_doc['expires_at'])
+    now = datetime.now(timezone.utc)
+    days_remaining = max(0, (expires_at - now).days)
+    
+    # Verifica se scaduta
+    is_expired = now > expires_at
+    status = "expired" if is_expired else license_doc.get('status', 'active')
+    
+    return LicenseInfo(
+        has_license=True,
+        license_key=license_key,
+        plan=license_doc.get('plan'),
+        expires_at=license_doc.get('expires_at'),
+        days_remaining=days_remaining,
+        status=status,
+        unlimited=False,
+        role=admin.get("role", "admin")
+    )
+
+@api_router.post("/super-admin/create-admin")
+async def create_admin(admin_data: AdminCreate, username: str = Depends(verify_super_admin)):
+    """Crea un nuovo admin (solo super admin)"""
+    # Verifica che l'username non esista già
+    existing = await db.admins.find_one({"username": admin_data.username})
+    if existing:
+        raise HTTPException(status_code=400, detail="Username già esistente")
+    
+    # Hash password
+    hashed_password = bcrypt.hashpw(admin_data.password.encode('utf-8'), bcrypt.gensalt())
+    
+    # Crea admin
+    new_admin = {
+        "id": str(uuid.uuid4()),
+        "username": admin_data.username,
+        "password": hashed_password,
+        "role": admin_data.role,
+        "license_key": None,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.admins.insert_one(new_admin)
+    
+    return {
+        "success": True,
+        "message": f"Admin '{admin_data.username}' creato con successo",
+        "username": admin_data.username,
+        "role": admin_data.role
+    }
+
+@api_router.get("/super-admin/admins")
+async def list_admins(username: str = Depends(verify_super_admin)):
+    """Lista tutti gli admin (solo super admin)"""
+    admins = await db.admins.find({}, {"_id": 0, "password": 0}).to_list(None)
+    
+    # Aggiungi info licenza per ogni admin
+    for admin in admins:
+        if admin.get("role") == "super_admin":
+            admin["license_info"] = "Unlimited"
+        elif admin.get("license_key"):
+            license_doc = await db.licenses.find_one({"license_key": admin["license_key"]})
+            if license_doc:
+                expires_at = datetime.fromisoformat(license_doc['expires_at'])
+                days_remaining = max(0, (expires_at - datetime.now(timezone.utc)).days)
+                admin["license_info"] = f"{license_doc['plan']} - {days_remaining} giorni"
+            else:
+                admin["license_info"] = "Nessuna licenza"
+        else:
+            admin["license_info"] = "Nessuna licenza"
+    
+    return admins
+
 # ============================================
 # SISTEMA FOTO SERATE
 # ============================================

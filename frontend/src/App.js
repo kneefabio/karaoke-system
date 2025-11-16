@@ -14,13 +14,15 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<BookingPage />} />
+          <Route path="/" element={<Navigate to="/book" replace />} />
+          <Route path="/book" element={<BookingPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/serate" element={<GestioneSerate />} />
           <Route path="/super-admin" element={<SuperAdminPanel />} />
           <Route path="/camera/:serataId" element={<CameraApp />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/qrcode" element={<QRCodeWindow />} />
+          <Route path="*" element={<Navigate to="/book" replace />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-center" />

@@ -1260,7 +1260,7 @@ async def upload_photo(
     username: str = Depends(verify_token_and_license)
 ):
     """Upload foto alla serata"""
-    serata = await db.serate.find_one({"id": serata_id})
+    serata = await db.serate.find_one({"id": serata_id, "admin_username": username})
     if not serata:
         raise HTTPException(status_code=404, detail="Serata non trovata")
     
@@ -1280,10 +1280,11 @@ async def upload_photo(
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    # Notifica via WebSocket
+    # Notifica via WebSocket con admin_username per filtraggio
     await manager.broadcast({
         "type": "new_photo",
         "serata_id": serata_id,
+        "admin_username": username,
         "filename": filename,
         "path": str(file_path)
     })

@@ -456,7 +456,8 @@ async def update_song(song_id: str, update: UpdateSongRequest, username: str = D
 
 @api_router.delete("/admin/song/{song_id}")
 async def delete_song(song_id: str, username: str = Depends(verify_token_and_license)):
-    result = await db.songs.delete_one({"id": song_id})
+    # Elimina solo se la canzone appartiene a questo admin
+    result = await db.songs.delete_one({"id": song_id, "admin_username": username})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Canzone non trovata")
     return {"success": True}

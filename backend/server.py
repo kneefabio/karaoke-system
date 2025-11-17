@@ -69,6 +69,7 @@ class Song(BaseModel):
 
 class Settings(BaseModel):
     model_config = ConfigDict(extra="ignore")
+    admin_username: str  # Settings per ogni admin
     prenotazioni_aperte: bool = True
 
 class BookingRequest(BaseModel):

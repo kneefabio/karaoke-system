@@ -88,14 +88,15 @@ body {
   color: white;
 }
 
-/* Photo container */
+/* Photo container - click-through */
 #photo-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none;
+  pointer-events: none; /* Click-through per le foto */
+  z-index: 9999;
 }
 
 .photo-overlay {

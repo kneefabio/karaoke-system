@@ -787,8 +787,8 @@ async def update_admin_credentials(update: AdminUpdate, username: str = Depends(
         raise HTTPException(status_code=404, detail="Admin non trovato")
     
     # Verifica password corrente
-    # admin['password'] is already bytes from MongoDB
-    if not bcrypt.checkpw(update.current_password.encode('utf-8'), admin['password']):
+    # admin['password'] is stored as string, need to encode it
+    if not bcrypt.checkpw(update.current_password.encode('utf-8'), admin['password'].encode('utf-8')):
         raise HTTPException(status_code=401, detail="Password corrente non valida")
     
     update_data = {}

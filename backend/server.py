@@ -527,6 +527,47 @@ async def get_stats(username: str = Depends(verify_token_and_license)):
         totale_cantanti=totale_cantanti
     )
 
+@api_router.post("/admin/booking-session-token")
+async def generate_booking_session_token(username: str = Depends(verify_token_and_license)):
+    """Genera un nuovo token di sessione per le prenotazioni dell'admin"""
+    
+    # Invalida eventuali token attivi precedenti per questo admin
+    await db.booking_sessions.update_many(
+        {"admin_username": username, "active": True},
+        {"$set": {"active": False}}
+    )
+    
+    # Crea nuovo token di sessione
+    session = BookingSession(
+        admin_username=username
+    )
+    
+    await db.booking_sessions.insert_one(session.model_dump())
+    
+    return {
+        "success": True,
+        "token": session.token,
+        "admin_username": username
+    }
+
+@api_router.get("/booking-session/validate/{token}")
+async def validate_booking_session_token(token: str):
+    """Valida un token di sessione e restituisce l'admin_username associato"""
+    
+    session = await db.booking_sessions.find_one({
+        "token": token,
+        "active": True
+    })
+    
+    if not session:
+        raise HTTPException(status_code=404, detail="Token non valido o scaduto")
+    
+    return {
+        "success": True,
+        "admin_username": session['admin_username'],
+        "token": token
+    }
+
 @api_router.put("/admin/song/{song_id}")
 async def update_song(song_id: str, update: UpdateSongRequest, username: str = Depends(verify_token_and_license)):
     # Verifica che la canzone appartenga a questo admin

@@ -1126,7 +1126,7 @@ async def close_serata(serata_id: str, username: str = Depends(verify_token_and_
 async def send_photos_email(
     serata_id: str,
     email_config: EmailConfig,
-    username: str = Depends(verify_token)
+    username: str = Depends(verify_token_and_license)
 ):
     """Invia foto via email a tutti i cantanti con email"""
     import smtplib

@@ -1,0 +1,46 @@
+{
+  "timestamp": "2025-11-17T21:14:46.595912",
+  "success": true,
+  "results": [
+    {
+      "step": 1,
+      "success": true,
+      "details": "Admin login successful, JWT token obtained"
+    },
+    {
+      "step": 2,
+      "success": true,
+      "details": "Session token generated: 5974bb09..., admin: superadmin"
+    },
+    {
+      "step": 3,
+      "success": true,
+      "details": "Token validation successful: admin=superadmin, token=5974bb09..."
+    },
+    {
+      "step": "3b",
+      "success": true,
+      "details": "Invalid token correctly rejected with 404"
+    },
+    {
+      "step": 4,
+      "success": true,
+      "details": "Booking successful with session token, codice: 002"
+    },
+    {
+      "step": "5a",
+      "success": true,
+      "details": "Serata created: TestSerata_211446_2025-11-17"
+    },
+    {
+      "step": 5,
+      "success": true,
+      "details": "Serata closed successfully and session token invalidated (active=false)"
+    },
+    {
+      "step": "Legacy",
+      "success": true,
+      "details": "Legacy admin_username system still works, codice: 001"
+    }
+  ]
+}

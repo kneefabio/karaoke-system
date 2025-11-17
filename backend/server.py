@@ -316,18 +316,31 @@ async def get_settings():
 
 @api_router.post("/book", response_model=BookingResponse)
 async def create_booking(booking: BookingRequest):
-    # Check if bookings are open
-    settings = await db.settings.find_one({})
-    if settings and not settings.get('prenotazioni_aperte', True):
-        raise HTTPException(status_code=400, detail="Le prenotazioni sono finite")
+    # Admin username è OBBLIGATORIO per separare le sessioni
+    if not booking.admin_username:
+        raise HTTPException(status_code=400, detail="Admin username richiesto")
+    
+    # Check if bookings are open per questo admin
+    settings = await db.settings.find_one({"admin_username": booking.admin_username})
+    if not settings:
+        # Crea settings default per questo admin
+        await db.settings.insert_one({
+            "admin_username": booking.admin_username,
+            "prenotazioni_aperte": True
+        })
+    elif not settings.get('prenotazioni_aperte', True):
+        raise HTTPException(status_code=400, detail="Le prenotazioni sono chiuse per questo host")
     
     nuovo_cantante = False
     
-    # If codice provided, verify it
+    # If codice provided, verify it (solo per questo admin)
     if booking.codice:
-        singer = await db.singers.find_one({"codice": booking.codice})
+        singer = await db.singers.find_one({
+            "codice": booking.codice,
+            "admin_username": booking.admin_username
+        })
         if not singer:
-            raise HTTPException(status_code=400, detail="Codice non trovato")
+            raise HTTPException(status_code=400, detail="Codice non trovato per questo host")
         if singer['nome'].lower() != booking.nome.lower():
             raise HTTPException(status_code=400, detail="Il nome non corrisponde al codice inserito")
         singer_id = singer['id']
@@ -336,20 +349,26 @@ async def create_booking(booking: BookingRequest):
         if booking.email and not singer.get('email'):
             await db.singers.update_one({"id": singer_id}, {"$set": {"email": booking.email}})
     else:
-        # Create new singer
+        # Create new singer per questo admin
         codice = await get_next_codice()
-        singer = Singer(nome=booking.nome, email=booking.email, codice=codice)
+        singer = Singer(
+            nome=booking.nome, 
+            email=booking.email, 
+            codice=codice,
+            admin_username=booking.admin_username
+        )
         await db.singers.insert_one(singer.model_dump())
         singer_id = singer.id
         nuovo_cantante = True
     
-    # Create song booking
+    # Create song booking per questo admin
     ordine = await get_next_order()
     song = Song(
         singer_id=singer_id,
         canzone=booking.canzone,
         tonalita=booking.tonalita,
-        ordine_prenotazione=ordine
+        ordine_prenotazione=ordine,
+        admin_username=booking.admin_username
     )
     await db.songs.insert_one(song.model_dump())
     

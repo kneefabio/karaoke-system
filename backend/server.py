@@ -585,6 +585,63 @@ async def validate_booking_session_token(token: str):
         "token": token
     }
 
+@api_router.post("/admin/serata/{serata_id}/generate-token")
+async def generate_serata_token(serata_id: str, username: str = Depends(verify_token_and_license)):
+    """Genera un token per la camera app per questa serata"""
+    
+    # Verifica che la serata appartenga all'admin
+    serata = await db.serate.find_one({"id": serata_id, "admin_username": username})
+    if not serata:
+        raise HTTPException(status_code=404, detail="Serata non trovata")
+    
+    if not serata.get('active', True):
+        raise HTTPException(status_code=400, detail="Serata non attiva")
+    
+    # Invalida eventuali token precedenti per questa serata
+    await db.serata_tokens.update_many(
+        {"serata_id": serata_id, "active": True},
+        {"$set": {"active": False}}
+    )
+    
+    # Crea nuovo token
+    serata_token = SerataToken(
+        serata_id=serata_id,
+        admin_username=username
+    )
+    
+    await db.serata_tokens.insert_one(serata_token.model_dump())
+    
+    return {
+        "success": True,
+        "token": serata_token.token,
+        "serata_id": serata_id,
+        "admin_username": username
+    }
+
+@api_router.get("/serata-token/validate/{token}")
+async def validate_serata_token(token: str):
+    """Valida un token serata e restituisce serata_id e admin_username"""
+    
+    serata_token = await db.serata_tokens.find_one({
+        "token": token,
+        "active": True
+    })
+    
+    if not serata_token:
+        raise HTTPException(status_code=404, detail="Token non valido o scaduto")
+    
+    # Verifica che la serata sia ancora attiva
+    serata = await db.serate.find_one({"id": serata_token['serata_id']})
+    if not serata or not serata.get('active', True):
+        raise HTTPException(status_code=400, detail="Serata terminata")
+    
+    return {
+        "success": True,
+        "serata_id": serata_token['serata_id'],
+        "admin_username": serata_token['admin_username'],
+        "token": token
+    }
+
 @api_router.put("/admin/song/{song_id}")
 async def update_song(song_id: str, update: UpdateSongRequest, username: str = Depends(verify_token_and_license)):
     # Verifica che la canzone appartenga a questo admin

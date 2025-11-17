@@ -13,7 +13,9 @@ const API = `${BACKEND_URL}/api`;
 
 export default function BookingPage() {
   const [searchParams] = useSearchParams();
+  const [sessionToken, setSessionToken] = useState(null);
   const [adminUsername, setAdminUsername] = useState(null);
+  const [tokenValid, setTokenValid] = useState(false);
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
@@ -24,12 +26,35 @@ export default function BookingPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Ottieni admin username dal parametro URL
-    const admin = searchParams.get('admin');
-    if (!admin) {
-      toast.error("Link non valido: manca l'identificativo del host");
-    }
-    setAdminUsername(admin);
+    const validateToken = async () => {
+      // Prova prima con il token
+      const token = searchParams.get('token');
+      
+      if (token) {
+        try {
+          // Valida il token con il backend
+          const response = await axios.get(`${API}/booking-session/validate/${token}`);
+          setSessionToken(token);
+          setAdminUsername(response.data.admin_username);
+          setTokenValid(true);
+        } catch (error) {
+          toast.error("Token di sessione non valido o scaduto");
+          setTokenValid(false);
+        }
+      } else {
+        // Fallback al vecchio sistema con admin username (per compatibilità)
+        const admin = searchParams.get('admin');
+        if (admin) {
+          setAdminUsername(admin);
+          setTokenValid(true);
+        } else {
+          toast.error("Link non valido: manca l'identificativo del host");
+          setTokenValid(false);
+        }
+      }
+    };
+    
+    validateToken();
   }, []);
 
   const handleChange = (e) => {

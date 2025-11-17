@@ -27,9 +27,16 @@ export default function AdminDashboard() {
       navigate("/admin/login");
       return;
     }
-    fetchData();
-    checkSuperAdmin();
-    fetchLicenseInfo();
+    
+    // Prima verifica la licenza, poi carica i dati
+    const initDashboard = async () => {
+      await fetchLicenseInfo();
+      await checkSuperAdmin();
+      await fetchData();
+    };
+    
+    initDashboard();
+    
     const interval = setInterval(fetchData, 3000); // Poll every 3 seconds
     const licenseInterval = setInterval(checkLicense, 300000); // Check license every 5 minutes
     return () => {

@@ -118,11 +118,23 @@ export default function AdminDashboard() {
     }
   };
 
-  const openQRWindow = () => {
-    // Decodifica username dal token per passarlo al QR
-    const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-    const username = tokenPayload.sub;
-    window.open(`/qrcode?admin=${encodeURIComponent(username)}`, 'QRCode', 'width=800,height=900,resizable=yes,scrollbars=no');
+  const openQRWindow = async () => {
+    try {
+      // Genera un nuovo token di sessione dal backend
+      const response = await axios.post(`${API}/admin/booking-session-token`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const sessionToken = response.data.token;
+      
+      // Apri finestra QR con il token di sessione
+      window.open(`/qrcode?token=${encodeURIComponent(sessionToken)}`, 'QRCode', 'width=800,height=900,resizable=yes,scrollbars=no');
+      
+      toast.success("QR Code generato! Token valido fino alla chiusura della serata.");
+    } catch (error) {
+      console.error("Error generating session token:", error);
+      toast.error("Errore nella generazione del token di sessione");
+    }
   };
 
   const fetchData = async () => {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +10,9 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export default function CameraApp() {
-  const { serataId } = useParams();
-  const [serata, setSerata] = useState(null);
+  const [searchParams] = useSearchParams();
+  const [token, setToken] = useState(null);
+  const [serataInfo, setSerataInfo] = useState(null);
   const [stream, setStream] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -19,8 +20,14 @@ export default function CameraApp() {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    checkSerata();
-    startCamera();
+    const urlToken = searchParams.get('token');
+    if (urlToken) {
+      setToken(urlToken);
+      validateToken(urlToken);
+      startCamera();
+    } else {
+      toast.error("Token mancante nell'URL");
+    }
 
     return () => {
       if (stream) {
@@ -29,12 +36,13 @@ export default function CameraApp() {
     };
   }, []);
 
-  const checkSerata = async () => {
+  const validateToken = async (tkn) => {
     try {
-      const response = await axios.get(`${API}/serata/${serataId}/active`);
-      setSerata(response.data);
+      const response = await axios.get(`${API}/serata-token/validate/${tkn}`);
+      setSerataInfo(response.data);
+      toast.success("Camera pronta! 📸");
     } catch (error) {
-      toast.error("Serata non trovata o terminata");
+      toast.error("Token non valido o serata terminata");
     }
   };
 

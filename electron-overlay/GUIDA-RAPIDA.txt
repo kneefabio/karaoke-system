@@ -70,8 +70,11 @@ Se il server è su un ALTRO PC:
 └────────────────────────────────────────────────────────────────┘
 
 C = Apri/Chiudi Configurazione
+H = Nascondi/Mostra Barra di Controllo
 Q = Chiudi Overlay
 T = Test (per sviluppatori)
+
+🖱️ TRASCINA la barra superiore per spostare su altro schermo!
 
 
 ┌────────────────────────────────────────────────────────────────┐

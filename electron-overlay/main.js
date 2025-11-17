@@ -31,6 +31,12 @@ function createWindow() {
 }
 
 function connectWebSocket() {
+  if (!backendUrl) {
+    console.log('⚠️  Backend URL not configured. Press C to configure.');
+    mainWindow.webContents.send('websocket-status', 'disconnected');
+    return;
+  }
+  
   console.log('Connecting to WebSocket:', backendUrl);
   
   ws = new WebSocket(backendUrl);

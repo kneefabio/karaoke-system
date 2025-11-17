@@ -142,6 +142,211 @@ class KaraokeAPITester:
             self.log_test("Booking Wrong Name for Code", False, str(e))
             return False
 
+    def test_create_admin_if_needed(self):
+        """Create testadmin if it doesn't exist"""
+        if not self.token:
+            self.log_test("Create Admin", False, "No super admin token available")
+            return False
+            
+        try:
+            headers = {"Authorization": f"Bearer {self.token}"}
+            admin_data = {
+                "username": "testadmin",
+                "password": "testpassword",
+                "role": "admin"
+            }
+            
+            response = requests.post(f"{self.api_url}/super-admin/create-admin", json=admin_data, headers=headers, timeout=10)
+            
+            # Success if created (201) or already exists (400)
+            success = response.status_code in [200, 400]
+            
+            if response.status_code == 200:
+                details = "testadmin created successfully"
+            elif response.status_code == 400:
+                details = "testadmin already exists"
+            else:
+                details = f"Status: {response.status_code}, Response: {response.text}"
+                
+            self.log_test("Create Test Admin", success, details)
+            return success
+            
+        except Exception as e:
+            self.log_test("Create Test Admin", False, str(e))
+            return False
+
+    def test_generate_booking_session_token(self):
+        """Test POST /api/admin/booking-session-token"""
+        if not self.token:
+            self.log_test("Generate Session Token", False, "No admin token available")
+            return False
+            
+        try:
+            headers = {"Authorization": f"Bearer {self.token}"}
+            response = requests.post(f"{self.api_url}/admin/booking-session-token", headers=headers, timeout=10)
+            success = response.status_code == 200
+            
+            if success:
+                data = response.json()
+                required_fields = ['success', 'token', 'admin_username']
+                success = (data.get('success') == True and 
+                          all(field in data for field in required_fields))
+                if success:
+                    self.session_token = data['token']
+                details = f"Session token generated: {data}"
+            else:
+                details = f"Status: {response.status_code}, Response: {response.text}"
+                
+            self.log_test("Generate Session Token", success, details)
+            return success
+            
+        except Exception as e:
+            self.log_test("Generate Session Token", False, str(e))
+            return False
+
+    def test_validate_booking_session_token(self):
+        """Test GET /api/booking-session/validate/{token}"""
+        if not self.session_token:
+            self.log_test("Validate Session Token", False, "No session token available")
+            return False
+            
+        try:
+            response = requests.get(f"{self.api_url}/booking-session/validate/{self.session_token}", timeout=10)
+            success = response.status_code == 200
+            
+            if success:
+                data = response.json()
+                required_fields = ['success', 'admin_username', 'token']
+                success = (data.get('success') == True and 
+                          all(field in data for field in required_fields))
+                details = f"Token validation successful: {data}"
+            else:
+                details = f"Status: {response.status_code}, Response: {response.text}"
+                
+            self.log_test("Validate Session Token", success, details)
+            return success
+            
+        except Exception as e:
+            self.log_test("Validate Session Token", False, str(e))
+            return False
+
+    def test_validate_invalid_token(self):
+        """Test validation with invalid token"""
+        try:
+            invalid_token = "invalid-token-12345"
+            response = requests.get(f"{self.api_url}/booking-session/validate/{invalid_token}", timeout=10)
+            success = response.status_code == 404  # Should return 404 for invalid token
+            
+            if success:
+                details = "Invalid token correctly rejected with 404"
+            else:
+                details = f"Status: {response.status_code}, Expected 404"
+                
+            self.log_test("Validate Invalid Token", success, details)
+            return success
+            
+        except Exception as e:
+            self.log_test("Validate Invalid Token", False, str(e))
+            return False
+
+    def test_booking_with_session_token(self):
+        """Test POST /api/book with session_token"""
+        if not self.session_token:
+            self.log_test("Booking with Session Token", False, "No session token available")
+            return False
+            
+        try:
+            booking_data = {
+                "nome": "Mario Rossi",
+                "canzone": "Volare",
+                "tonalita": "Do",
+                "session_token": self.session_token
+            }
+            
+            response = requests.post(f"{self.api_url}/book", json=booking_data, timeout=10)
+            success = response.status_code == 200
+            
+            if success:
+                data = response.json()
+                success = (data.get('success') == True and 
+                          'codice' in data)
+                details = f"Booking with session token successful: {data}"
+            else:
+                details = f"Status: {response.status_code}, Response: {response.text}"
+                
+            self.log_test("Booking with Session Token", success, details)
+            return success
+            
+        except Exception as e:
+            self.log_test("Booking with Session Token", False, str(e))
+            return False
+
+    def test_create_serata(self):
+        """Create a test serata for closing test"""
+        if not self.token:
+            self.log_test("Create Serata", False, "No admin token available")
+            return False
+            
+        try:
+            headers = {"Authorization": f"Bearer {self.token}"}
+            serata_data = {
+                "nome": f"TestSerata_{datetime.now().strftime('%H%M%S')}",
+                "display_time": 5
+            }
+            
+            response = requests.post(f"{self.api_url}/admin/serata/create", json=serata_data, headers=headers, timeout=10)
+            success = response.status_code == 200
+            
+            if success:
+                data = response.json()
+                success = data.get('success') == True and 'serata_id' in data
+                if success:
+                    self.serata_id = data['serata_id']
+                details = f"Serata created: {data}"
+            else:
+                details = f"Status: {response.status_code}, Response: {response.text}"
+                
+            self.log_test("Create Serata", success, details)
+            return success
+            
+        except Exception as e:
+            self.log_test("Create Serata", False, str(e))
+            return False
+
+    def test_close_serata_and_invalidate_tokens(self):
+        """Test PUT /api/admin/serata/{serata_id}/close and verify token invalidation"""
+        if not self.token or not self.serata_id:
+            self.log_test("Close Serata & Invalidate Tokens", False, "No admin token or serata_id available")
+            return False
+            
+        try:
+            headers = {"Authorization": f"Bearer {self.token}"}
+            
+            # Close the serata
+            response = requests.put(f"{self.api_url}/admin/serata/{self.serata_id}/close", headers=headers, timeout=10)
+            success = response.status_code == 200
+            
+            if success:
+                data = response.json()
+                success = data.get('success') == True
+                
+                # Now verify that the session token is invalidated
+                if success and self.session_token:
+                    validate_response = requests.get(f"{self.api_url}/booking-session/validate/{self.session_token}", timeout=10)
+                    token_invalidated = validate_response.status_code == 404
+                    success = success and token_invalidated
+                    
+                details = f"Serata closed: {data}, Token invalidated: {token_invalidated if 'token_invalidated' in locals() else 'N/A'}"
+            else:
+                details = f"Status: {response.status_code}, Response: {response.text}"
+                
+            self.log_test("Close Serata & Invalidate Tokens", success, details)
+            return success
+            
+        except Exception as e:
+            self.log_test("Close Serata & Invalidate Tokens", False, str(e))
+            return False
+
     def test_admin_login(self, username="superadmin", password="superpassword123"):
         """Test admin login with specified credentials"""
         try:

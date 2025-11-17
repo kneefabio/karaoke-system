@@ -30,7 +30,10 @@ export default function AdminDashboard() {
     
     // Prima verifica la licenza, poi carica i dati
     const initDashboard = async () => {
-      await fetchLicenseInfo();
+      const hasValidLicense = await fetchLicenseInfo();
+      if (!hasValidLicense) {
+        return; // Stop qui se non ha licenza valida
+      }
       await checkSuperAdmin();
       await fetchData();
     };

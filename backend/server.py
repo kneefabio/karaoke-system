@@ -474,7 +474,14 @@ async def delete_singer(singer_id: str, username: str = Depends(verify_token_and
 
 @api_router.put("/admin/settings")
 async def update_settings(settings: Settings, username: str = Depends(verify_token_and_license)):
-    await db.settings.update_one({}, {"$set": settings.model_dump()}, upsert=True)
+    # Aggiorna le impostazioni per questo admin specifico
+    settings_data = settings.model_dump()
+    settings_data["admin_username"] = username
+    await db.settings.update_one(
+        {"admin_username": username}, 
+        {"$set": settings_data}, 
+        upsert=True
+    )
     return {"success": True}
 
 @api_router.delete("/admin/reset-all")

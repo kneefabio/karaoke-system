@@ -107,63 +107,78 @@ user_problem_statement: "Implementare sistema di token sicuri per QR code delle 
 backend:
   - task: "Creare modello BookingSession per token di sessione"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Modello BookingSession creato con token (UUID), admin_username, created_at, active"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: BookingSession model working correctly. Token generation creates UUID, stores admin_username, created_at timestamp, and active=true flag. Database operations successful."
 
   - task: "Endpoint POST /api/admin/booking-session-token per generare token"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Endpoint creato. Invalida token precedenti e genera nuovo token. Richiede autenticazione admin"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Endpoint working perfectly. Requires JWT authentication, invalidates previous tokens for same admin, generates new UUID token, returns {success: true, token: 'uuid', admin_username: 'xxx'}. Tested with superadmin credentials."
 
   - task: "Endpoint GET /api/booking-session/validate/{token} per validare token"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Endpoint pubblico che valida token e restituisce admin_username associato"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Public endpoint working correctly. Valid tokens return {success: true, admin_username: 'xxx', token: 'xxx'}. Invalid tokens correctly return 404 status. No authentication required as expected."
 
   - task: "Modificare endpoint POST /api/book per accettare session_token"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Endpoint modificato per accettare session_token e validarlo. Mantiene compatibilità con admin_username per retrocompatibilità"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Booking endpoint working with session_token. Successfully validates token, resolves admin_username, creates booking and returns codice cantante. Backward compatibility with admin_username maintained. Fixed admin_username resolution bug during testing."
 
   - task: "Modificare endpoint PUT /api/admin/serata/{serata_id}/close per invalidare token"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Endpoint modificato per invalidare tutti i token attivi dell'admin quando chiude la serata"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Serata closure working correctly. Successfully closes serata, cleans database (singers/songs), and invalidates all active tokens for the admin (sets active=false). Verified token becomes invalid (404) after serata closure."
 
 frontend:
   - task: "Modificare AdminDashboard.jsx per generare token quando si apre QR"

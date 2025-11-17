@@ -1097,7 +1097,7 @@ async def upload_photo_public(
     }
 
 @api_router.put("/admin/serata/{serata_id}/close")
-async def close_serata(serata_id: str, username: str = Depends(verify_token)):
+async def close_serata(serata_id: str, username: str = Depends(verify_token_and_license)):
     """Chiudi serata e pulisci i dati dei cantanti/canzoni"""
     result = await db.serate.update_one(
         {"id": serata_id},

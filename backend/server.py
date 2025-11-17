@@ -192,6 +192,15 @@ class EmailConfig(BaseModel):
     sender_email: str
     sender_password: str
 
+class AdminEmailConfig(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    admin_username: str
+    smtp_server: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    sender_email: str
+    sender_password: str  # Encrypted in production
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
 # Helper functions
 def create_access_token(data: dict):
     to_encode = data.copy()

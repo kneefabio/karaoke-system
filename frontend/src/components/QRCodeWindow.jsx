@@ -3,7 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Printer, Download } from "lucide-react";
 
 const QRCodeWindow = () => {
-  const bookingUrl = `${window.location.origin}/book`;
+  // Ottieni username admin dal localStorage o URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const adminUsername = urlParams.get('admin') || localStorage.getItem('admin_username') || 'admin';
+  
+  const bookingUrl = `${window.location.origin}/book?admin=${encodeURIComponent(adminUsername)}`;
 
   const handlePrint = () => {
     window.print();

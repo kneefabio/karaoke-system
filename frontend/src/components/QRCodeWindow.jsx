@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Printer, Download } from "lucide-react";
 
 const QRCodeWindow = () => {
-  // Ottieni username admin dal localStorage o URL
+  // Ottieni token di sessione dall'URL
   const urlParams = new URLSearchParams(window.location.search);
-  const adminUsername = urlParams.get('admin') || localStorage.getItem('admin_username') || 'admin';
+  const sessionToken = urlParams.get('token');
   
-  const bookingUrl = `${window.location.origin}/book?admin=${encodeURIComponent(adminUsername)}`;
+  const bookingUrl = `${window.location.origin}/book?token=${encodeURIComponent(sessionToken)}`;
 
   const handlePrint = () => {
     window.print();

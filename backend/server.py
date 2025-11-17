@@ -79,6 +79,14 @@ class BookingRequest(BaseModel):
     tonalita: str
     codice: Optional[str] = None
     admin_username: Optional[str] = None  # Admin target per questa prenotazione
+    session_token: Optional[str] = None  # Token di sessione alternativo
+
+class BookingSession(BaseModel):
+    token: str
+    admin_username: str
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    expires_at: str  # Token valido per 24 ore
+    active: bool = True
 
 class BookingResponse(BaseModel):
     success: bool

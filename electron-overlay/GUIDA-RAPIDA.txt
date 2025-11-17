@@ -1,0 +1,127 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║        🎤 KARAOKE PHOTO OVERLAY - GUIDA RAPIDA 🎤             ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+┌────────────────────────────────────────────────────────────────┐
+│  PASSO 1: COPIA LA CARTELLA                                    │
+└────────────────────────────────────────────────────────────────┘
+
+Copia l'intera cartella "electron-overlay" sul PC dove vuoi 
+mostrare le foto (può essere lo stesso PC del server o un altro).
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  PASSO 2: INSTALLA NODE.JS (se non ce l'hai)                  │
+└────────────────────────────────────────────────────────────────┘
+
+Scarica da: https://nodejs.org/
+Installa la versione LTS (Long Term Support)
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  PASSO 3: PRIMA INSTALLAZIONE                                  │
+└────────────────────────────────────────────────────────────────┘
+
+Windows:  Doppio click su "install-and-start.bat"
+Mac/Linux: Apri terminale e scrivi "./install-and-start.sh"
+
+Aspetta 1-2 minuti per l'installazione.
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  PASSO 4: CONFIGURAZIONE                                       │
+└────────────────────────────────────────────────────────────────┘
+
+1. Si apre una finestra fullscreen trasparente
+2. Premi "C" sulla tastiera
+3. Inserisci il TUO USERNAME ADMIN (es: admin1)
+4. Backend URL: ws://INDIRIZZO-SERVER:8001/ws/photos
+   (se il server è sullo stesso PC: ws://127.0.0.1:8001/ws/photos)
+5. Clicca "Salva"
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  PASSO 5: AVVII SUCCESSIVI (dopo la prima installazione)      │
+└────────────────────────────────────────────────────────────────┘
+
+Windows:  Doppio click su "start-overlay.bat"
+Mac/Linux: "./start-overlay.sh"
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  📱 CONFIGURAZIONE BACKEND (importante!)                       │
+└────────────────────────────────────────────────────────────────┘
+
+Se il server è su un ALTRO PC:
+
+1. Trova l'indirizzo IP del server
+   Windows: apri cmd e scrivi "ipconfig"
+   Mac/Linux: scrivi "ifconfig" o "ip addr"
+   
+2. Nell'overlay, Backend URL diventa:
+   ws://192.168.X.X:8001/ws/photos
+   (sostituisci 192.168.X.X con l'IP del server)
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  🎮 COMANDI TASTIERA                                           │
+└────────────────────────────────────────────────────────────────┘
+
+C = Apri/Chiudi Configurazione
+Q = Chiudi Overlay
+T = Test (per sviluppatori)
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  ✅ VERIFICA CHE FUNZIONI                                      │
+└────────────────────────────────────────────────────────────────┘
+
+1. Vai sulla dashboard admin
+2. Crea una serata in "Foto Serate"
+3. Scansiona il QR code con lo smartphone
+4. Scatta una foto dalla camera app
+5. La foto dovrebbe apparire nell'overlay dopo 1-2 secondi!
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  ⚠️ TROUBLESHOOTING                                            │
+└────────────────────────────────────────────────────────────────┘
+
+❌ "Non si connette"
+   → Verifica che il backend sia avviato
+   → Controlla l'IP del server
+   → Controlla il firewall di Windows (porta 8001)
+
+❌ "Non vedo le foto"
+   → Premi C e verifica di aver inserito il TUO username
+   → L'username deve essere ESATTAMENTE quello del login
+
+❌ "Vedo le foto di altri admin"
+   → Non hai inserito l'username nella configurazione!
+   → Premi C e inseriscilo
+
+❌ "Errore all'avvio"
+   → Node.js non installato o versione vecchia
+   → Usa "install-and-start.bat" per reinstallare
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  💡 CONSIGLI                                                   │
+└────────────────────────────────────────────────────────────────┘
+
+✓ Usa un secondo monitor per l'overlay
+✓ Proietta lo schermo con l'overlay sul muro
+✓ Le foto appaiono in posizioni casuali con animazioni
+✓ L'overlay è "click-through" (non blocca il mouse)
+✓ Ogni foto appare per 5 secondi (configurabile)
+
+
+════════════════════════════════════════════════════════════════
+
+🎉 Buon divertimento con le tue serate karaoke! 🎉
+
+Per supporto, leggi README.md o contatta l'amministratore.
+
+════════════════════════════════════════════════════════════════

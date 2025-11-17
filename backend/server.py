@@ -829,6 +829,72 @@ async def list_admins(username: str = Depends(verify_super_admin)):
     
     return admins
 
+@api_router.post("/super-admin/assign-license")
+async def assign_license(
+    admin_username: str,
+    license_key: str,
+    username: str = Depends(verify_super_admin)
+):
+    """Assegna una licenza a un admin (solo super admin)"""
+    # Verifica che l'admin esista
+    admin = await db.admins.find_one({"username": admin_username})
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin non trovato")
+    
+    # Verifica che la licenza esista ed è disponibile
+    license_doc = await db.licenses.find_one({"license_key": license_key})
+    if not license_doc:
+        raise HTTPException(status_code=404, detail="Licenza non trovata")
+    
+    # Verifica che la licenza non sia già assegnata
+    existing_admin = await db.admins.find_one({"license_key": license_key})
+    if existing_admin and existing_admin["username"] != admin_username:
+        raise HTTPException(status_code=400, detail=f"Licenza già assegnata a {existing_admin['username']}")
+    
+    # Assegna licenza all'admin
+    await db.admins.update_one(
+        {"username": admin_username},
+        {"$set": {"license_key": license_key}}
+    )
+    
+    # Aggiorna la licenza con l'email dell'admin se disponibile
+    await db.licenses.update_one(
+        {"license_key": license_key},
+        {"$set": {"assigned_to": admin_username}}
+    )
+    
+    return {
+        "success": True,
+        "message": f"Licenza {license_key} assegnata a {admin_username}"
+    }
+
+@api_router.delete("/super-admin/unassign-license/{admin_username}")
+async def unassign_license(admin_username: str, username: str = Depends(verify_super_admin)):
+    """Rimuove la licenza da un admin (solo super admin)"""
+    admin = await db.admins.find_one({"username": admin_username})
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin non trovato")
+    
+    old_license = admin.get("license_key")
+    
+    # Rimuovi licenza dall'admin
+    await db.admins.update_one(
+        {"username": admin_username},
+        {"$set": {"license_key": None}}
+    )
+    
+    # Aggiorna la licenza
+    if old_license:
+        await db.licenses.update_one(
+            {"license_key": old_license},
+            {"$set": {"assigned_to": None}}
+        )
+    
+    return {
+        "success": True,
+        "message": f"Licenza rimossa da {admin_username}"
+    }
+
 # ============================================
 # SISTEMA FOTO SERATE
 # ============================================

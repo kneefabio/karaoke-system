@@ -1361,34 +1361,49 @@ async def upload_photo_with_token(
 
 @api_router.put("/admin/serata/{serata_id}/close")
 async def close_serata(serata_id: str, username: str = Depends(verify_token_and_license)):
-    """Chiudi serata e pulisci i dati dei cantanti/canzoni"""
-    result = await db.serate.update_one(
-        {"id": serata_id},
-        {"$set": {"active": False, "closed_at": datetime.now(timezone.utc).isoformat()}}
-    )
-    
-    if result.matched_count == 0:
+    """Chiudi serata e pulisci tutti i dati (cantanti, canzoni, foto, serata)"""
+    # Verifica ownership della serata
+    serata = await db.serate.find_one({"id": serata_id, "admin_username": username})
+    if not serata:
         raise HTTPException(status_code=404, detail="Serata non trovata")
     
-    # Pulisci database cantanti e canzoni della serata corrente per questo admin
-    # Nota: elimina solo i cantanti/canzoni di questo admin
-    # Se vuoi mantenere storico, non eliminare
+    # Elimina foto dal disco
+    folder_path = Path(serata['folder_path'])
+    deleted_photos = 0
+    if folder_path.exists():
+        for foto_file in folder_path.iterdir():
+            if foto_file.is_file():
+                foto_file.unlink()
+                deleted_photos += 1
+        folder_path.rmdir()  # Elimina cartella
+    
+    # Elimina serata dal database
+    await db.serate.delete_one({"id": serata_id})
+    
+    # Pulisci database cantanti e canzoni per questo admin
     deleted_singers = await db.singers.delete_many({"admin_username": username})
     deleted_songs = await db.songs.delete_many({"admin_username": username})
     
-    # Invalida tutti i token di sessione attivi per questo admin
+    # Invalida tutti i token di sessione booking attivi per questo admin
     await db.booking_sessions.update_many(
         {"admin_username": username, "active": True},
         {"$set": {"active": False}}
     )
     
-    logger.info(f"Serata {serata_id} chiusa. Eliminati {deleted_singers.deleted_count} cantanti e {deleted_songs.deleted_count} canzoni")
+    # Invalida token serata
+    await db.serata_tokens.update_many(
+        {"serata_id": serata_id, "active": True},
+        {"$set": {"active": False}}
+    )
+    
+    logger.info(f"Serata {serata_id} chiusa e eliminata. Eliminati {deleted_singers.deleted_count} cantanti, {deleted_songs.deleted_count} canzoni, {deleted_photos} foto")
     
     return {
         "success": True, 
-        "message": "Serata chiusa e database pulito",
+        "message": "Serata chiusa, dati e foto eliminati",
         "deleted_singers": deleted_singers.deleted_count,
-        "deleted_songs": deleted_songs.deleted_count
+        "deleted_songs": deleted_songs.deleted_count,
+        "deleted_photos": deleted_photos
     }
 
 @api_router.post("/admin/serata/{serata_id}/send-emails")

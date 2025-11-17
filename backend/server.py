@@ -790,9 +790,12 @@ async def update_admin_credentials(update: AdminUpdate, username: str = Depends(
     if not admin:
         raise HTTPException(status_code=404, detail="Admin non trovato")
     
-    # Verifica password corrente
-    # admin['password'] is stored as string, need to encode it
-    if not bcrypt.checkpw(update.current_password.encode('utf-8'), admin['password'].encode('utf-8')):
+    # Verifica password corrente - gestisce sia string che bytes
+    stored_password = admin['password']
+    if isinstance(stored_password, str):
+        stored_password = stored_password.encode('utf-8')
+    
+    if not bcrypt.checkpw(update.current_password.encode('utf-8'), stored_password):
         raise HTTPException(status_code=401, detail="Password corrente non valida")
     
     update_data = {}

@@ -392,7 +392,7 @@ async def get_singers(username: str = Depends(verify_token_and_license)):
     return result
 
 @api_router.get("/admin/stats", response_model=Stats)
-async def get_stats(username: str = Depends(verify_token)):
+async def get_stats(username: str = Depends(verify_token_and_license)):
     songs = await db.songs.find({}, {"_id": 0}).to_list(None)
     singers = await db.singers.find({}, {"_id": 0}).to_list(None)
     

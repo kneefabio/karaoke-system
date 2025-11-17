@@ -65,16 +65,38 @@ export default function CameraApp() {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
-    if (video && canvas) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0);
+    console.log('📸 Taking photo...', { video, canvas });
 
-      canvas.toBlob((blob) => {
-        setPhoto(blob);
-      }, "image/jpeg");
+    if (!video) {
+      toast.error("Video non disponibile");
+      console.error('Video ref is null');
+      return;
     }
+
+    if (!canvas) {
+      toast.error("Canvas non disponibile");
+      console.error('Canvas ref is null');
+      return;
+    }
+
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      toast.error("Video non ancora caricato, riprova");
+      console.error('Video dimensions are 0', { width: video.videoWidth, height: video.videoHeight });
+      return;
+    }
+
+    console.log('Setting canvas dimensions:', { width: video.videoWidth, height: video.videoHeight });
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+
+    canvas.toBlob((blob) => {
+      console.log('✅ Photo blob created:', blob);
+      setPhoto(blob);
+      toast.success("Foto scattata! 📸");
+    }, "image/jpeg");
   };
 
   const uploadPhoto = async () => {

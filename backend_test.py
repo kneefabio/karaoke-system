@@ -142,12 +142,12 @@ class KaraokeAPITester:
             self.log_test("Booking Wrong Name for Code", False, str(e))
             return False
 
-    def test_admin_login(self):
-        """Test admin login"""
+    def test_admin_login(self, username="superadmin", password="superpassword123"):
+        """Test admin login with specified credentials"""
         try:
             login_data = {
-                "username": "admin",
-                "password": "admin123"
+                "username": username,
+                "password": password
             }
             
             response = requests.post(f"{self.api_url}/admin/login", json=login_data, timeout=10)
@@ -158,15 +158,15 @@ class KaraokeAPITester:
                 success = 'access_token' in data
                 if success:
                     self.token = data['access_token']
-                details = f"Login successful, token received"
+                details = f"Login successful for {username}, token received"
             else:
                 details = f"Status: {response.status_code}, Response: {response.text}"
                 
-            self.log_test("Admin Login", success, details)
+            self.log_test(f"Admin Login ({username})", success, details)
             return success
             
         except Exception as e:
-            self.log_test("Admin Login", False, str(e))
+            self.log_test(f"Admin Login ({username})", False, str(e))
             return False
 
     def test_admin_singers_list(self):

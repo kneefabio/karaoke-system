@@ -298,7 +298,7 @@ async def startup_event():
     # Create super admin if not exists (TUO account con accesso illimitato)
     super_admin = await db.admins.find_one({"role": "super_admin"})
     if not super_admin:
-        hashed_password = bcrypt.hashpw("superadmin123".encode('utf-8'), bcrypt.gensalt())
+        hashed_password = bcrypt.hashpw("superpassword123".encode('utf-8'), bcrypt.gensalt())
         await db.admins.insert_one({
             "username": "superadmin",
             "password": hashed_password.decode('utf-8'),

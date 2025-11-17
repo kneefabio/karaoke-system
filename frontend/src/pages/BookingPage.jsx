@@ -69,22 +69,30 @@ export default function BookingPage() {
       return;
     }
 
-    if (!adminUsername) {
-      toast.error("Errore: host non identificato");
+    if (!tokenValid) {
+      toast.error("Sessione non valida");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API}/book`, {
+      const bookingData = {
         nome: formData.nome,
         email: formData.email || null,
         canzone: formData.canzone,
         tonalita: formData.tonalita,
-        codice: formData.codice || null,
-        admin_username: adminUsername  // Parametro critico per la sessione
-      });
+        codice: formData.codice || null
+      };
+      
+      // Usa il token di sessione se disponibile, altrimenti admin_username (per compatibilità)
+      if (sessionToken) {
+        bookingData.session_token = sessionToken;
+      } else {
+        bookingData.admin_username = adminUsername;
+      }
+      
+      const response = await axios.post(`${API}/book`, bookingData);
 
       if (response.data.nuovo_cantante) {
         toast.success(response.data.message, { duration: 6000 });

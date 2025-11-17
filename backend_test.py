@@ -440,7 +440,7 @@ class KaraokeAPITester:
             # First close bookings
             response = requests.put(
                 f"{self.api_url}/admin/settings", 
-                json={"prenotazioni_aperte": False}, 
+                json={"prenotazioni_aperte": False, "admin_username": "superadmin"}, 
                 headers=headers, 
                 timeout=10
             )

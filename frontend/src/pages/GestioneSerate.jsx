@@ -104,16 +104,10 @@ export default function GestioneSerate() {
   };
 
   const sendEmails = async (serataId) => {
-    if (!emailConfig.sender_email || !emailConfig.sender_password) {
-      toast.error("Configura email prima di inviare");
-      setShowEmailForm(true);
-      return;
-    }
-
     try {
       const response = await axios.post(
         `${API}/admin/serata/${serataId}/send-emails`,
-        emailConfig,
+        {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -124,10 +118,12 @@ export default function GestioneSerate() {
       } else {
         toast.success(`${response.data.sent} email inviate con successo!`);
       }
-
-      setShowEmailForm(false);
     } catch (error) {
-      toast.error("Errore nell'invio email");
+      if (error.response?.status === 400 && error.response?.data?.detail?.includes("Configurazione email")) {
+        toast.error("Configura prima le tue credenziali SMTP nelle impostazioni");
+        navigate("/admin/email-config");
+      } else {
+        toast.error("Errore nell'invio email");
     }
   };
 

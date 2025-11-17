@@ -17,11 +17,18 @@
 
   <!-- Config (hidden, press C to toggle) -->
   <div id="config" style="display: none;">
-    <h3>Configurazione</h3>
-    <label>Backend URL:</label>
-    <input type="text" id="backend-url" value="ws://127.0.0.1:8001/ws/photos">
-    <button id="save-config">Salva</button>
-    <button id="close-config">Chiudi</button>
+    <h3>🎯 Configurazione Overlay</h3>
+    <div class="config-field">
+      <label>Username Admin (per filtrare foto):</label>
+      <input type="text" id="admin-username" placeholder="es: admin1">
+      <p class="help-text">Inserisci il tuo username admin per vedere solo le tue foto</p>
+    </div>
+    <div class="config-field">
+      <label>Backend URL:</label>
+      <input type="text" id="backend-url" value="ws://127.0.0.1:8001/ws/photos">
+    </div>
+    <button id="save-config">💾 Salva</button>
+    <button id="close-config">❌ Chiudi</button>
   </div>
 
   <script src="renderer.js"></script>

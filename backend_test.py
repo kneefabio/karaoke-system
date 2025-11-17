@@ -451,7 +451,8 @@ class KaraokeAPITester:
                 booking_data = {
                     "nome": "TestClosedBooking",
                     "canzone": "Test Song",
-                    "tonalita": "Do"
+                    "tonalita": "Do",
+                    "admin_username": "superadmin"
                 }
                 
                 booking_response = requests.post(f"{self.api_url}/book", json=booking_data, timeout=10)

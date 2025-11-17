@@ -5,6 +5,7 @@ const WebSocket = require('ws');
 let mainWindow;
 let ws;
 let backendUrl = 'ws://127.0.0.1:8001/ws/photos'; // IPv4 esplicito
+let adminUsername = ''; // Username admin da filtrare
 
 function createWindow() {
   mainWindow = new BrowserWindow({

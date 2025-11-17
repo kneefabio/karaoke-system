@@ -440,7 +440,8 @@ async def get_stats(username: str = Depends(verify_token_and_license)):
 
 @api_router.put("/admin/song/{song_id}")
 async def update_song(song_id: str, update: UpdateSongRequest, username: str = Depends(verify_token_and_license)):
-    song = await db.songs.find_one({"id": song_id})
+    # Verifica che la canzone appartenga a questo admin
+    song = await db.songs.find_one({"id": song_id, "admin_username": username})
     if not song:
         raise HTTPException(status_code=404, detail="Canzone non trovata")
     
@@ -450,7 +451,7 @@ async def update_song(song_id: str, update: UpdateSongRequest, username: str = D
     if update.ordine_prenotazione is not None:
         update_data['ordine_prenotazione'] = update.ordine_prenotazione
     
-    await db.songs.update_one({"id": song_id}, {"$set": update_data})
+    await db.songs.update_one({"id": song_id, "admin_username": username}, {"$set": update_data})
     return {"success": True}
 
 @api_router.delete("/admin/song/{song_id}")

@@ -396,12 +396,7 @@ async def create_booking(booking: BookingRequest):
         })
         
         if not session:
-            raise HTTPException(status_code=400, detail="Token di sessione non valido")
-        
-        # Verifica scadenza
-        expires_at = datetime.fromisoformat(session['expires_at'])
-        if datetime.now(timezone.utc) > expires_at:
-            raise HTTPException(status_code=410, detail="Token di sessione scaduto")
+            raise HTTPException(status_code=400, detail="Token di sessione non valido o scaduto")
         
         admin_username = session['admin_username']
     

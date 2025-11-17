@@ -23,7 +23,7 @@ function App() {
           <Route path="/admin/serate" element={<GestioneSerate />} />
           <Route path="/admin/email-config" element={<EmailConfig />} />
           <Route path="/super-admin" element={<SuperAdminPanel />} />
-          <Route path="/camera/:serataId" element={<CameraApp />} />
+          <Route path="/camera" element={<CameraApp />} />
           <Route path="/qrcode" element={<QRCodeWindow />} />
           <Route path="/no-license" element={<NoLicensePage />} />
           <Route path="*" element={<Navigate to="/book" replace />} />

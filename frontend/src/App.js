@@ -21,6 +21,7 @@ function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/serate" element={<GestioneSerate />} />
+          <Route path="/admin/email-config" element={<EmailConfig />} />
           <Route path="/super-admin" element={<SuperAdminPanel />} />
           <Route path="/camera/:serataId" element={<CameraApp />} />
           <Route path="/qrcode" element={<QRCodeWindow />} />

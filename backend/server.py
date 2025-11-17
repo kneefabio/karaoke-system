@@ -1282,6 +1282,12 @@ async def close_serata(serata_id: str, username: str = Depends(verify_token_and_
     deleted_singers = await db.singers.delete_many({"admin_username": username})
     deleted_songs = await db.songs.delete_many({"admin_username": username})
     
+    # Invalida tutti i token di sessione attivi per questo admin
+    await db.booking_sessions.update_many(
+        {"admin_username": username, "active": True},
+        {"$set": {"active": False}}
+    )
+    
     logger.info(f"Serata {serata_id} chiusa. Eliminati {deleted_singers.deleted_count} cantanti e {deleted_songs.deleted_count} canzoni")
     
     return {

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,8 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export default function BookingPage() {
+  const [searchParams] = useSearchParams();
+  const [adminUsername, setAdminUsername] = useState(null);
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
@@ -19,6 +22,15 @@ export default function BookingPage() {
     codice: ""
   });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Ottieni admin username dal parametro URL
+    const admin = searchParams.get('admin');
+    if (!admin) {
+      toast.error("Link non valido: manca l'identificativo del host");
+    }
+    setAdminUsername(admin);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

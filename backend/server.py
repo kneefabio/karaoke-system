@@ -464,10 +464,10 @@ async def delete_song(song_id: str, username: str = Depends(verify_token_and_lic
 
 @api_router.delete("/admin/singer/{singer_id}")
 async def delete_singer(singer_id: str, username: str = Depends(verify_token_and_license)):
-    # Delete all songs for this singer
-    await db.songs.delete_many({"singer_id": singer_id})
-    # Delete singer
-    result = await db.singers.delete_one({"id": singer_id})
+    # Elimina solo le canzoni di questo cantante che appartengono a questo admin
+    await db.songs.delete_many({"singer_id": singer_id, "admin_username": username})
+    # Elimina il cantante solo se appartiene a questo admin
+    result = await db.singers.delete_one({"id": singer_id, "admin_username": username})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Cantante non trovato")
     return {"success": True}

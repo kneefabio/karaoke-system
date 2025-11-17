@@ -7,12 +7,24 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Barra di controllo trascinabile -->
+  <div id="control-bar" class="control-bar">
+    <div class="drag-handle">
+      <span>🎤 Karaoke Overlay - Trascina per spostare</span>
+    </div>
+    <div class="control-buttons">
+      <button id="minimize-btn" class="control-btn" title="Nascondi barra">➖</button>
+      <button id="config-btn" class="control-btn" title="Configurazione (C)">⚙️</button>
+      <button id="close-btn" class="control-btn close" title="Chiudi (Q)">❌</button>
+    </div>
+  </div>
+
   <!-- Status indicator -->
   <div id="status" class="status disconnected">
     <span id="status-text">Connecting...</span>
   </div>
 
-  <!-- Photo container -->
+  <!-- Photo container (click-through) -->
   <div id="photo-container"></div>
 
   <!-- Config (hidden, press C to toggle) -->

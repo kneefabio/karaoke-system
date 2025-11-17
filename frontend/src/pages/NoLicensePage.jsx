@@ -1,10 +1,12 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, Mail, Phone, MessageCircle, LogOut } from "lucide-react";
 
-export default function NoLicensePage({ reason = "missing" }) {
+export default function NoLicensePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const reason = searchParams.get("reason") || "missing";
 
   const handleLogout = () => {
     localStorage.removeItem("admin_token");

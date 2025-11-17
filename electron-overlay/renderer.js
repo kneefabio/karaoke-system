@@ -121,9 +121,22 @@ document.addEventListener('keydown', (e) => {
 // Config save
 document.getElementById('save-config').addEventListener('click', () => {
   const url = document.getElementById('backend-url').value;
+  const username = document.getElementById('admin-username').value;
+  
+  if (!username) {
+    alert('⚠️ Inserisci il tuo username admin per filtrare le foto!');
+    return;
+  }
+  
   ipcRenderer.send('set-backend-url', url);
+  ipcRenderer.send('set-admin-username', username);
   configPanel.style.display = 'none';
-  alert('Configurazione salvata! Riconnessione...');
+});
+
+// Config saved confirmation
+ipcRenderer.on('config-saved', (event, data) => {
+  console.log('✅ Config saved:', data);
+  alert(`Configurazione salvata!\nFiltraggio foto per: ${data.admin_username}`);
 });
 
 document.getElementById('close-config').addEventListener('click', () => {

@@ -324,6 +324,58 @@ async def startup_event():
 async def root():
     return {"message": "Karaoke Booking System"}
 
+@api_router.post("/admin/create-booking-session")
+async def create_booking_session(username: str = Depends(verify_token_and_license)):
+    """Crea un token di sessione per le prenotazioni (valido 24 ore)"""
+    import secrets
+    
+    # Genera token sicuro
+    token = secrets.token_urlsafe(32)
+    
+    # Scadenza 24 ore
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+    
+    # Salva nel database
+    session = BookingSession(
+        token=token,
+        admin_username=username,
+        expires_at=expires_at.isoformat()
+    )
+    
+    await db.booking_sessions.insert_one(session.model_dump())
+    
+    return {
+        "token": token,
+        "expires_at": expires_at.isoformat(),
+        "booking_url": f"/book?session={token}"
+    }
+
+@api_router.get("/validate-session/{token}")
+async def validate_booking_session(token: str):
+    """Valida un token di sessione e restituisce l'admin username"""
+    session = await db.booking_sessions.find_one({"token": token, "active": True})
+    
+    if not session:
+        raise HTTPException(status_code=404, detail="Token non valido")
+    
+    # Controlla scadenza
+    expires_at = datetime.fromisoformat(session['expires_at'])
+    now = datetime.now(timezone.utc)
+    
+    if now > expires_at:
+        # Disattiva token scaduto
+        await db.booking_sessions.update_one(
+            {"token": token},
+            {"$set": {"active": False}}
+        )
+        raise HTTPException(status_code=410, detail="Token scaduto")
+    
+    return {
+        "valid": True,
+        "admin_username": session['admin_username'],
+        "expires_at": session['expires_at']
+    }
+
 @api_router.get("/settings")
 async def get_settings(admin_username: str = None):
     if admin_username:

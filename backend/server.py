@@ -78,6 +78,7 @@ class BookingRequest(BaseModel):
     canzone: str
     tonalita: str
     codice: Optional[str] = None
+    admin_username: Optional[str] = None  # Admin target per questa prenotazione
 
 class BookingResponse(BaseModel):
     success: bool

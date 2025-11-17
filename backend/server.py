@@ -372,7 +372,7 @@ async def admin_login(login: LoginRequest):
     return LoginResponse(access_token=access_token)
 
 @api_router.get("/admin/singers", response_model=List[SingerWithSongs])
-async def get_singers(username: str = Depends(verify_token)):
+async def get_singers(username: str = Depends(verify_token_and_license)):
     singers = await db.singers.find({}, {"_id": 0}).to_list(None)
     result = []
     

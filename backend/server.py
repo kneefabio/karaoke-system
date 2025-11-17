@@ -82,18 +82,10 @@ class BookingRequest(BaseModel):
     session_token: Optional[str] = None  # Token di sessione alternativo
 
 class BookingSession(BaseModel):
-    token: str
+    model_config = ConfigDict(extra="ignore")
+    token: str = Field(default_factory=lambda: str(uuid.uuid4()))
     admin_username: str
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    expires_at: str  # Token valido per 24 ore
-    active: bool = True
-    session_token: Optional[str] = None  # Token di sessione alternativo
-
-class BookingSession(BaseModel):
-    token: str
-    admin_username: str
-    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    expires_at: str  # Token valido per 24 ore
     active: bool = True
 
 class BookingResponse(BaseModel):

@@ -178,5 +178,7 @@ document.getElementById('close-config').addEventListener('click', () => {
 // Log di avvio
 console.log('🎉 Karaoke Photo Overlay Started!');
 console.log('📍 Press C for config');
+console.log('📍 Press H to hide/show control bar');
 console.log('📍 Press T for test');
 console.log('📍 Press Q to quit');
+console.log('💡 Drag the top bar to move to another screen');

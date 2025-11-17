@@ -244,8 +244,9 @@ async def get_next_codice(admin_username: str):
         return "001"
     return str(max(codes) + 1).zfill(3)
 
-async def get_next_order():
-    songs = await db.songs.find({}).to_list(None)
+async def get_next_order(admin_username: str):
+    # Get next order number per questo admin
+    songs = await db.songs.find({"admin_username": admin_username}).to_list(None)
     if not songs:
         return 1
     orders = [s['ordine_prenotazione'] for s in songs]

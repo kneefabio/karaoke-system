@@ -486,8 +486,8 @@ async def reset_all(username: str = Depends(verify_token_and_license)):
 
 @api_router.delete("/admin/clear-sung")
 async def clear_sung_songs(username: str = Depends(verify_token_and_license)):
-    """Elimina solo le canzoni già cantate, mantiene i cantanti"""
-    result = await db.songs.delete_many({"cantata": True})
+    """Elimina solo le canzoni già cantate di questo admin, mantiene i cantanti"""
+    result = await db.songs.delete_many({"cantata": True, "admin_username": username})
     return {"success": True, "deleted_count": result.deleted_count, "message": f"{result.deleted_count} canzoni cantate eliminate"}
 
 # ============================================

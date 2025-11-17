@@ -461,7 +461,7 @@ class KaraokeAPITester:
                 # Reopen bookings
                 reopen_response = requests.put(
                     f"{self.api_url}/admin/settings", 
-                    json={"prenotazioni_aperte": True}, 
+                    json={"prenotazioni_aperte": True, "admin_username": "superadmin"}, 
                     headers=headers, 
                     timeout=10
                 )

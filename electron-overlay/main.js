@@ -40,9 +40,16 @@ function connectWebSocket() {
   ws.on('message', (data) => {
     try {
       const message = JSON.parse(data);
-      console.log('📸 New photo received:', message);
+      console.log('📸 Photo received:', message);
       
       if (message.type === 'new_photo') {
+        // Filtra solo foto del proprio admin
+        if (adminUsername && message.admin_username !== adminUsername) {
+          console.log(`⏭️  Skipping photo from ${message.admin_username} (filtering for ${adminUsername})`);
+          return;
+        }
+        
+        console.log(`✅ Showing photo from ${message.admin_username}`);
         mainWindow.webContents.send('new-photo', {
           filename: message.filename,
           path: message.path

@@ -95,7 +95,8 @@ class KaraokeAPITester:
                 "nome": nome,
                 "canzone": "Second Test Song",
                 "tonalita": "Re",
-                "codice": codice
+                "codice": codice,
+                "admin_username": "superadmin"
             }
             
             response = requests.post(f"{self.api_url}/book", json=booking_data, timeout=10)

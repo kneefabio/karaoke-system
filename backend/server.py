@@ -1177,7 +1177,7 @@ async def get_serate(username: str = Depends(verify_token_and_license)):
 @api_router.get("/admin/serata/{serata_id}")
 async def get_serata(serata_id: str, username: str = Depends(verify_token_and_license)):
     """Ottieni dettagli serata"""
-    serata = await db.serate.find_one({"id": serata_id}, {"_id": 0})
+    serata = await db.serate.find_one({"id": serata_id, "admin_username": username}, {"_id": 0})
     if not serata:
         raise HTTPException(status_code=404, detail="Serata non trovata")
     

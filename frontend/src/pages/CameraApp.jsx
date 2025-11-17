@@ -151,6 +151,9 @@ export default function CameraApp() {
         <p className="text-sm text-gray-400 text-center">Admin: {serataInfo.admin_username}</p>
       </div>
 
+      {/* Hidden canvas for photo capture */}
+      <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+
       {/* Camera View */}
       <div className="flex-1 flex flex-col items-center justify-center p-4">
         {!photo ? (
@@ -176,10 +179,11 @@ export default function CameraApp() {
                 <CardTitle className="text-white">Anteprima Foto</CardTitle>
               </CardHeader>
               <CardContent>
-                <canvas
-                  ref={canvasRef}
+                <img
+                  src={photo ? URL.createObjectURL(photo) : ''}
+                  alt="Preview"
                   className="w-full rounded-lg mb-4"
-                ></canvas>
+                />
                 <div className="flex gap-3">
                   <Button
                     onClick={uploadPhoto}

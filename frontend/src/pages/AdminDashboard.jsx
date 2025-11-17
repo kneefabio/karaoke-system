@@ -69,10 +69,11 @@ export default function AdminDashboard() {
       });
       
       if (!response.data.has_license || response.data.status === "expired") {
-        toast.error("Licenza scaduta! Effettua il logout.");
+        toast.error("Licenza scaduta! Reindirizzamento...");
         setTimeout(() => {
-          handleLogout();
-        }, 3000);
+          const reason = response.data.status === "expired" ? "expired" : "missing";
+          navigate(`/no-license?reason=${reason}`);
+        }, 2000);
       } else if (response.data.days_remaining <= 3 && response.data.days_remaining > 0) {
         toast.warning(`Attenzione: La licenza scade tra ${response.data.days_remaining} giorni!`);
       }
@@ -80,10 +81,10 @@ export default function AdminDashboard() {
       setLicenseInfo(response.data);
     } catch (error) {
       if (error.response?.status === 403) {
-        toast.error("Licenza non valida! Effettua il logout.");
+        toast.error("Licenza non valida! Reindirizzamento...");
         setTimeout(() => {
-          handleLogout();
-        }, 2000);
+          navigate("/no-license?reason=suspended");
+        }, 1500);
       }
     }
   };

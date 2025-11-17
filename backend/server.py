@@ -363,7 +363,7 @@ async def create_booking(booking: BookingRequest):
         nuovo_cantante = True
     
     # Create song booking per questo admin
-    ordine = await get_next_order()
+    ordine = await get_next_order(booking.admin_username)
     song = Song(
         singer_id=singer_id,
         canzone=booking.canzone,

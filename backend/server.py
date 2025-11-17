@@ -421,7 +421,7 @@ async def create_booking(booking: BookingRequest):
     if booking.codice:
         singer = await db.singers.find_one({
             "codice": booking.codice,
-            "admin_username": booking.admin_username
+            "admin_username": admin_username
         })
         if not singer:
             raise HTTPException(status_code=400, detail="Codice non trovato per questo host")
@@ -434,25 +434,25 @@ async def create_booking(booking: BookingRequest):
             await db.singers.update_one({"id": singer_id}, {"$set": {"email": booking.email}})
     else:
         # Create new singer per questo admin
-        codice = await get_next_codice(booking.admin_username)
+        codice = await get_next_codice(admin_username)
         singer = Singer(
             nome=booking.nome, 
             email=booking.email, 
             codice=codice,
-            admin_username=booking.admin_username
+            admin_username=admin_username
         )
         await db.singers.insert_one(singer.model_dump())
         singer_id = singer.id
         nuovo_cantante = True
     
     # Create song booking per questo admin
-    ordine = await get_next_order(booking.admin_username)
+    ordine = await get_next_order(admin_username)
     song = Song(
         singer_id=singer_id,
         canzone=booking.canzone,
         tonalita=booking.tonalita,
         ordine_prenotazione=ordine,
-        admin_username=booking.admin_username
+        admin_username=admin_username
     )
     await db.songs.insert_one(song.model_dump())
     

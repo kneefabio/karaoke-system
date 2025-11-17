@@ -424,14 +424,14 @@ async def update_song(song_id: str, update: UpdateSongRequest, username: str = D
     return {"success": True}
 
 @api_router.delete("/admin/song/{song_id}")
-async def delete_song(song_id: str, username: str = Depends(verify_token)):
+async def delete_song(song_id: str, username: str = Depends(verify_token_and_license)):
     result = await db.songs.delete_one({"id": song_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Canzone non trovata")
     return {"success": True}
 
 @api_router.delete("/admin/singer/{singer_id}")
-async def delete_singer(singer_id: str, username: str = Depends(verify_token)):
+async def delete_singer(singer_id: str, username: str = Depends(verify_token_and_license)):
     # Delete all songs for this singer
     await db.songs.delete_many({"singer_id": singer_id})
     # Delete singer
@@ -441,19 +441,19 @@ async def delete_singer(singer_id: str, username: str = Depends(verify_token)):
     return {"success": True}
 
 @api_router.put("/admin/settings")
-async def update_settings(settings: Settings, username: str = Depends(verify_token)):
+async def update_settings(settings: Settings, username: str = Depends(verify_token_and_license)):
     await db.settings.update_one({}, {"$set": settings.model_dump()}, upsert=True)
     return {"success": True}
 
 @api_router.delete("/admin/reset-all")
-async def reset_all(username: str = Depends(verify_token)):
+async def reset_all(username: str = Depends(verify_token_and_license)):
     """Reset completo: cancella tutti i cantanti e tutte le canzoni"""
     await db.singers.delete_many({})
     await db.songs.delete_many({})
     return {"success": True, "message": "Serata resettata completamente"}
 
 @api_router.delete("/admin/clear-sung")
-async def clear_sung_songs(username: str = Depends(verify_token)):
+async def clear_sung_songs(username: str = Depends(verify_token_and_license)):
     """Elimina solo le canzoni già cantate, mantiene i cantanti"""
     result = await db.songs.delete_many({"cantata": True})
     return {"success": True, "deleted_count": result.deleted_count, "message": f"{result.deleted_count} canzoni cantate eliminate"}

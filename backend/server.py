@@ -479,9 +479,9 @@ async def update_settings(settings: Settings, username: str = Depends(verify_tok
 
 @api_router.delete("/admin/reset-all")
 async def reset_all(username: str = Depends(verify_token_and_license)):
-    """Reset completo: cancella tutti i cantanti e tutte le canzoni"""
-    await db.singers.delete_many({})
-    await db.songs.delete_many({})
+    """Reset completo: cancella tutti i cantanti e tutte le canzoni di questo admin"""
+    await db.singers.delete_many({"admin_username": username})
+    await db.songs.delete_many({"admin_username": username})
     return {"success": True, "message": "Serata resettata completamente"}
 
 @api_router.delete("/admin/clear-sung")

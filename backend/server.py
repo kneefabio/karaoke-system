@@ -351,7 +351,7 @@ async def create_booking(booking: BookingRequest):
             await db.singers.update_one({"id": singer_id}, {"$set": {"email": booking.email}})
     else:
         # Create new singer per questo admin
-        codice = await get_next_codice()
+        codice = await get_next_codice(booking.admin_username)
         singer = Singer(
             nome=booking.nome, 
             email=booking.email, 

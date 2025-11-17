@@ -116,6 +116,7 @@ class License(BaseModel):
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     expires_at: str
     hwid: Optional[str] = None
+    assigned_to: Optional[str] = None  # username dell'admin a cui è assegnata
     last_check: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class LicenseCreate(BaseModel):

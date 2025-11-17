@@ -1511,6 +1511,17 @@ A presto!
 
 app.include_router(api_router)
 
+# WebSocket endpoint (deve essere PRIMA del catch-all route)
+@app.websocket("/ws/photos")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Keep connection alive
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
 # Serve static files (frontend build)
 frontend_build_path = Path(__file__).parent.parent / "frontend" / "build"
 if frontend_build_path.exists():

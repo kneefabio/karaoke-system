@@ -1311,12 +1311,20 @@ async def get_active_serata(serata_id: str):
         "data": serata['data']
     }
 
-@api_router.post("/serata/{serata_id}/upload-public")
-async def upload_photo_public(
-    serata_id: str,
+@api_router.post("/serata-token/upload")
+async def upload_photo_with_token(
+    token: str,
     file: UploadFile = File(...)
 ):
-    """Upload pubblico da camera app (senza autenticazione)"""
+    """Upload pubblico da camera app usando token"""
+    # Valida token
+    serata_token = await db.serata_tokens.find_one({"token": token, "active": True})
+    if not serata_token:
+        raise HTTPException(status_code=401, detail="Token non valido o scaduto")
+    
+    serata_id = serata_token['serata_id']
+    admin_username = serata_token['admin_username']
+    
     serata = await db.serate.find_one({"id": serata_id})
     if not serata:
         raise HTTPException(status_code=404, detail="Serata non trovata")
@@ -1337,10 +1345,11 @@ async def upload_photo_public(
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    # Notifica via WebSocket
+    # Notifica via WebSocket con admin_username per filtraggio
     await manager.broadcast({
         "type": "new_photo",
         "serata_id": serata_id,
+        "admin_username": admin_username,
         "filename": filename,
         "path": str(file_path)
     })

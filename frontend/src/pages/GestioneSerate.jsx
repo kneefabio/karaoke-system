@@ -157,13 +157,23 @@ export default function GestioneSerate() {
             </h1>
             <p className="text-gray-600">Crea serate e gestisci le foto</p>
           </div>
-          <Button
-            onClick={() => navigate("/admin/dashboard")}
-            variant="outline"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Dashboard
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => navigate("/admin/email-config")}
+              variant="outline"
+              className="border-purple-500 text-purple-600 hover:bg-purple-50"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Config Email
+            </Button>
+            <Button
+              onClick={() => navigate("/admin/dashboard")}
+              variant="outline"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Dashboard
+            </Button>
+          </div>
         </div>
 
         {/* Crea Nuova Serata */}

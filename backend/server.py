@@ -409,7 +409,7 @@ async def get_stats(username: str = Depends(verify_token_and_license)):
     )
 
 @api_router.put("/admin/song/{song_id}")
-async def update_song(song_id: str, update: UpdateSongRequest, username: str = Depends(verify_token)):
+async def update_song(song_id: str, update: UpdateSongRequest, username: str = Depends(verify_token_and_license)):
     song = await db.songs.find_one({"id": song_id})
     if not song:
         raise HTTPException(status_code=404, detail="Canzone non trovata")

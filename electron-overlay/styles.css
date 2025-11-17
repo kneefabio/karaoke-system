@@ -239,19 +239,39 @@ body {
 
 #config h3 {
   margin-top: 0;
+  color: #1f2937;
+  font-size: 20px;
+}
+
+.config-field {
+  margin-bottom: 20px;
 }
 
 #config label {
   display: block;
-  margin: 10px 0 5px;
+  margin: 0 0 5px 0;
+  font-weight: bold;
+  color: #374151;
 }
 
 #config input {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
+  padding: 10px;
+  border: 2px solid #d1d5db;
   border-radius: 5px;
   font-size: 14px;
+  box-sizing: border-box;
+}
+
+#config input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.help-text {
+  margin: 5px 0 0 0;
+  font-size: 12px;
+  color: #6b7280;
 }
 
 #config button {

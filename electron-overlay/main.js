@@ -101,3 +101,9 @@ ipcMain.on('set-backend-url', (event, url) => {
   }
   setTimeout(connectWebSocket, 1000);
 });
+
+ipcMain.on('set-admin-username', (event, username) => {
+  adminUsername = username;
+  console.log(`🎯 Filtering photos for admin: ${adminUsername}`);
+  event.sender.send('config-saved', { admin_username: adminUsername });
+});

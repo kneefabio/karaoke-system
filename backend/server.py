@@ -422,8 +422,9 @@ async def get_singers(username: str = Depends(verify_token_and_license)):
 
 @api_router.get("/admin/stats", response_model=Stats)
 async def get_stats(username: str = Depends(verify_token_and_license)):
-    songs = await db.songs.find({}, {"_id": 0}).to_list(None)
-    singers = await db.singers.find({}, {"_id": 0}).to_list(None)
+    # Filtra solo le canzoni e cantanti di questo admin
+    songs = await db.songs.find({"admin_username": username}, {"_id": 0}).to_list(None)
+    singers = await db.singers.find({"admin_username": username}, {"_id": 0}).to_list(None)
     
     totale_prenotazioni = len(songs)
     canzoni_cantate = sum(1 for song in songs if song.get('cantata', False))

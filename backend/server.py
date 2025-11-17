@@ -1171,16 +1171,6 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-@app.websocket("/ws/photos")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            # Keep connection alive
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-
 @api_router.post("/admin/serata/create")
 async def create_serata(serata_create: SerataCreate, username: str = Depends(verify_token_and_license)):
     """Crea una nuova serata e la cartella foto"""

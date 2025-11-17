@@ -97,6 +97,26 @@ function showPhoto(photoPath) {
   }, displayTime);
 }
 
+// Control bar buttons
+document.getElementById('minimize-btn').addEventListener('click', () => {
+  barVisible = !barVisible;
+  if (barVisible) {
+    controlBar.classList.remove('hidden');
+  } else {
+    controlBar.classList.add('hidden');
+  }
+});
+
+document.getElementById('config-btn').addEventListener('click', () => {
+  configPanel.style.display = configPanel.style.display === 'none' ? 'block' : 'none';
+});
+
+document.getElementById('close-btn').addEventListener('click', () => {
+  if (confirm('Chiudere l\'overlay?')) {
+    window.close();
+  }
+});
+
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
   // C = Config
@@ -108,6 +128,16 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'q' || e.key === 'Q') {
     if (confirm('Chiudere l\'overlay?')) {
       window.close();
+    }
+  }
+
+  // H = Hide/Show control bar
+  if (e.key === 'h' || e.key === 'H') {
+    barVisible = !barVisible;
+    if (barVisible) {
+      controlBar.classList.remove('hidden');
+    } else {
+      controlBar.classList.add('hidden');
     }
   }
 

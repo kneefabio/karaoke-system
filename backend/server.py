@@ -53,6 +53,7 @@ class Singer(BaseModel):
     nome: str
     email: Optional[str] = None
     codice: str
+    admin_username: str  # Username dell'admin che gestisce questo cantante
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class Song(BaseModel):
@@ -63,6 +64,7 @@ class Song(BaseModel):
     tonalita: str
     ordine_prenotazione: int
     cantata: bool = False
+    admin_username: str  # Username dell'admin che gestisce questa canzone
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class Settings(BaseModel):

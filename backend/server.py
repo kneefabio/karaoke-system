@@ -1160,8 +1160,8 @@ async def create_serata(serata_create: SerataCreate, username: str = Depends(ver
 
 @api_router.get("/admin/serate")
 async def get_serate(username: str = Depends(verify_token_and_license)):
-    """Ottieni tutte le serate"""
-    serate = await db.serate.find({}, {"_id": 0}).to_list(None)
+    """Ottieni tutte le serate dell'admin"""
+    serate = await db.serate.find({"admin_username": username}, {"_id": 0}).to_list(None)
     
     # Aggiungi conteggio foto
     for serata in serate:

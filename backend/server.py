@@ -1361,21 +1361,18 @@ async def upload_photo_with_token(
 
 @api_router.put("/admin/serata/{serata_id}/close")
 async def close_serata(serata_id: str, username: str = Depends(verify_token_and_license)):
-    """Chiudi serata e pulisci tutti i dati (cantanti, canzoni, foto, serata)"""
+    """Chiudi serata e pulisci tutti i dati dal database (le foto rimangono sul PC)"""
     # Verifica ownership della serata
     serata = await db.serate.find_one({"id": serata_id, "admin_username": username})
     if not serata:
         raise HTTPException(status_code=404, detail="Serata non trovata")
     
-    # Elimina foto dal disco
+    # LE FOTO RIMANGONO SUL PC - non eliminiamo dal disco
+    # Contiamo solo quante foto ci sono per info
     folder_path = Path(serata['folder_path'])
-    deleted_photos = 0
+    foto_count = 0
     if folder_path.exists():
-        for foto_file in folder_path.iterdir():
-            if foto_file.is_file():
-                foto_file.unlink()
-                deleted_photos += 1
-        folder_path.rmdir()  # Elimina cartella
+        foto_count = len([f for f in folder_path.iterdir() if f.is_file()])
     
     # Elimina serata dal database
     await db.serate.delete_one({"id": serata_id})
@@ -1396,14 +1393,15 @@ async def close_serata(serata_id: str, username: str = Depends(verify_token_and_
         {"$set": {"active": False}}
     )
     
-    logger.info(f"Serata {serata_id} chiusa e eliminata. Eliminati {deleted_singers.deleted_count} cantanti, {deleted_songs.deleted_count} canzoni, {deleted_photos} foto")
+    logger.info(f"Serata {serata_id} chiusa e eliminata dal DB. Eliminati {deleted_singers.deleted_count} cantanti, {deleted_songs.deleted_count} canzoni. {foto_count} foto rimangono sul PC.")
     
     return {
         "success": True, 
-        "message": "Serata chiusa, dati e foto eliminati",
+        "message": f"Serata chiusa. Database pulito, {foto_count} foto conservate sul PC",
         "deleted_singers": deleted_singers.deleted_count,
         "deleted_songs": deleted_songs.deleted_count,
-        "deleted_photos": deleted_photos
+        "foto_salvate": foto_count,
+        "folder_path": str(folder_path)
     }
 
 @api_router.post("/admin/email-config")

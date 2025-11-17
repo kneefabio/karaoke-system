@@ -44,11 +44,19 @@ chmod +x install-and-start.sh
 ## ⚙️ Configurazione
 
 ### Prima Apertura:
-1. L'overlay si apre in **fullscreen trasparente**
-2. Premi **C** per aprire il pannello di configurazione
+1. L'overlay si apre con una **barra di controllo trasparente**
+2. Premi **C** (o clicca ⚙️) per aprire il pannello di configurazione
 3. **Inserisci il tuo Username Admin** (es: `admin1`, `testadmin`)
-4. Verifica il Backend URL (default: `ws://127.0.0.1:8001/ws/photos`)
+4. **Configura Backend URL:**
+   - **Render**: `wss://tuo-backend.onrender.com/ws/photos` (WSS!)
+   - **Locale**: `ws://127.0.0.1:8001/ws/photos`
+   - **Rete locale**: `ws://192.168.X.X:8001/ws/photos`
 5. Clicca **Salva**
+
+### ⚠️ ATTENZIONE - Backend su Render:
+- Usa **WSS** (non WS) per connessione sicura
+- Trova l'URL su render.com → tuo servizio → copia URL
+- Esempio: `wss://karaoke-xyz.onrender.com/ws/photos`
 
 ### ⚠️ IMPORTANTE:
 - Devi inserire lo stesso **username** che usi per fare login nell'admin dashboard

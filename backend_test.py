@@ -475,9 +475,10 @@ class KaraokeAPITester:
             return False
 
     def run_all_tests(self):
-        """Run all backend tests"""
+        """Run all backend tests including secure token system"""
         print("🎤 Starting Karaoke Backend API Tests...")
-        print("=" * 50)
+        print("🔐 Testing Secure Token System for QR Codes")
+        print("=" * 60)
         
         # Basic connectivity
         if not self.test_api_health():
@@ -487,22 +488,71 @@ class KaraokeAPITester:
         # Settings endpoint
         settings_success, settings_data = self.test_settings_endpoint()
         
-        # Booking tests
+        # SECURE TOKEN SYSTEM TESTS (Main Focus)
+        print("\n🔐 SECURE TOKEN SYSTEM TESTS")
+        print("-" * 40)
+        
+        # 1. Admin login (super admin)
+        if not self.test_admin_login("superadmin", "superpassword123"):
+            print("❌ Super admin login failed, trying with testadmin")
+            if not self.test_admin_login("testadmin", "testpassword"):
+                print("❌ Both admin logins failed, stopping token tests")
+                return False
+        
+        # Create testadmin if needed (only if we're logged in as super admin)
+        self.test_create_admin_if_needed()
+        
+        # 2. Generate booking session token
+        if not self.test_generate_booking_session_token():
+            print("❌ Token generation failed, stopping token tests")
+            return False
+        
+        # 3. Validate the generated token
+        if not self.test_validate_booking_session_token():
+            print("❌ Token validation failed")
+        
+        # 4. Test invalid token validation
+        self.test_validate_invalid_token()
+        
+        # 5. Test booking with session token
+        if not self.test_booking_with_session_token():
+            print("❌ Booking with session token failed")
+        
+        # 6. Create serata for closing test
+        if self.test_create_serata():
+            # 7. Close serata and verify token invalidation
+            self.test_close_serata_and_invalidate_tokens()
+        
+        # LEGACY BOOKING TESTS
+        print("\n📝 LEGACY BOOKING SYSTEM TESTS")
+        print("-" * 40)
+        
+        # Booking tests (legacy system with admin_username)
         booking_success, codice, nome = self.test_booking_new_singer()
         if booking_success and codice:
             self.test_booking_existing_singer(codice, nome)
             self.test_booking_wrong_name_for_code(codice)
         
-        # Admin tests
-        if self.test_admin_login():
+        # ADMIN FUNCTIONALITY TESTS
+        print("\n👤 ADMIN FUNCTIONALITY TESTS")
+        print("-" * 40)
+        
+        # Admin tests (if we have a token)
+        if self.token:
             self.test_admin_singers_list()
             self.test_admin_stats()
             self.test_toggle_bookings()
         
         # Print summary
-        print("\n" + "=" * 50)
+        print("\n" + "=" * 60)
         print(f"📊 Test Results: {self.tests_passed}/{self.tests_run} passed")
         print(f"Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
+        
+        # Highlight critical token system results
+        token_tests = [r for r in self.test_results if any(keyword in r['test'].lower() 
+                      for keyword in ['session token', 'validate', 'booking with', 'close serata'])]
+        
+        print(f"\n🔐 Token System Tests: {len([t for t in token_tests if t['success']])}/{len(token_tests)} passed")
         
         return self.tests_passed == self.tests_run
 

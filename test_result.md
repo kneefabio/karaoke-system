@@ -224,11 +224,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Endpoint POST /api/admin/booking-session-token per generare token"
-    - "Endpoint GET /api/booking-session/validate/{token} per validare token"
-    - "Endpoint POST /api/book con session_token"
-    - "Endpoint PUT /api/admin/serata/{serata_id}/close invalida token"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -236,3 +232,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Ho implementato il sistema completo di token sicuri per QR code. Backend: 3 nuovi endpoint (generate token, validate token, modificato book per usare token). Frontend: modificato AdminDashboard per generare token, QRCodeWindow per mostrare URL con token, BookingPage per validare e usare token. Il sistema invalida automaticamente i token quando si chiude la serata. Pronto per testing backend."
+  - agent: "testing"
+    message: "✅ BACKEND TESTING COMPLETATO - Tutti i test del sistema di token sicuri SUPERATI (8/8 - 100%). Sequenza testata: 1) Login admin JWT ✅ 2) Generazione token sessione ✅ 3) Validazione token ✅ 4) Prenotazione con token ✅ 5) Chiusura serata e invalidazione token ✅. Sistema retrocompatibile con admin_username. RISOLTO: bug password hashing e admin_username resolution. Sistema pronto per produzione."

@@ -44,6 +44,11 @@ export default function BookingPage() {
       return;
     }
 
+    if (!adminUsername) {
+      toast.error("Errore: host non identificato");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -52,7 +57,8 @@ export default function BookingPage() {
         email: formData.email || null,
         canzone: formData.canzone,
         tonalita: formData.tonalita,
-        codice: formData.codice || null
+        codice: formData.codice || null,
+        admin_username: adminUsername  // Parametro critico per la sessione
       });
 
       if (response.data.nuovo_cantante) {

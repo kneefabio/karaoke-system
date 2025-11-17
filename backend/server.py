@@ -1192,8 +1192,11 @@ async def send_photos_email(
     if not serata:
         raise HTTPException(status_code=404, detail="Serata non trovata")
     
-    # Ottieni cantanti con email
-    singers = await db.singers.find({"email": {"$exists": True, "$ne": None, "$ne": ""}}, {"_id": 0}).to_list(None)
+    # Ottieni cantanti con email per questo admin
+    singers = await db.singers.find({
+        "admin_username": username,
+        "email": {"$exists": True, "$ne": None, "$ne": ""}
+    }, {"_id": 0}).to_list(None)
     
     if not singers:
         return {"success": True, "sent": 0, "message": "Nessun cantante con email"}

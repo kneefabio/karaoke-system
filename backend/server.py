@@ -963,7 +963,7 @@ async def create_serata(serata_create: SerataCreate, username: str = Depends(ver
     }
 
 @api_router.get("/admin/serate")
-async def get_serate(username: str = Depends(verify_token)):
+async def get_serate(username: str = Depends(verify_token_and_license)):
     """Ottieni tutte le serate"""
     serate = await db.serate.find({}, {"_id": 0}).to_list(None)
     

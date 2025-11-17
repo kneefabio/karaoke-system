@@ -7,6 +7,7 @@ import SuperAdminPanel from "@/pages/SuperAdminPanel";
 import GestioneSerate from "@/pages/GestioneSerate";
 import CameraApp from "@/pages/CameraApp";
 import QRCodeWindow from "@/components/QRCodeWindow";
+import NoLicensePage from "@/pages/NoLicensePage";
 import { Toaster } from "@/components/ui/sonner";
 
 function App() {

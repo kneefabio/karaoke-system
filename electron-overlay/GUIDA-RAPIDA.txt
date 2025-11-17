@@ -34,11 +34,18 @@ Aspetta 1-2 minuti per l'installazione.
 │  PASSO 4: CONFIGURAZIONE                                       │
 └────────────────────────────────────────────────────────────────┘
 
-1. Si apre una finestra fullscreen trasparente
-2. Premi "C" sulla tastiera
+1. Si apre una finestra trasparente con barra di controllo
+2. Premi "C" sulla tastiera (o clicca ⚙️)
 3. Inserisci il TUO USERNAME ADMIN (es: admin1)
-4. Backend URL: ws://INDIRIZZO-SERVER:8001/ws/photos
-   (se il server è sullo stesso PC: ws://127.0.0.1:8001/ws/photos)
+4. Backend URL (WebSocket):
+   
+   ⚠️ SE IL BACKEND È SU RENDER:
+   wss://tuo-backend.onrender.com/ws/photos
+   (nota: WSS non WS!)
+   
+   ⚠️ SE IL BACKEND È IN LOCALE:
+   ws://127.0.0.1:8001/ws/photos
+
 5. Clicca "Salva"
 
 

@@ -1160,11 +1160,11 @@ async def close_serata(serata_id: str, username: str = Depends(verify_token_and_
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Serata non trovata")
     
-    # Pulisci database cantanti e canzoni della serata corrente
-    # Nota: questo elimina TUTTI i cantanti/canzoni perché non c'è associazione serata_id
+    # Pulisci database cantanti e canzoni della serata corrente per questo admin
+    # Nota: elimina solo i cantanti/canzoni di questo admin
     # Se vuoi mantenere storico, non eliminare
-    deleted_singers = await db.singers.delete_many({})
-    deleted_songs = await db.songs.delete_many({})
+    deleted_singers = await db.singers.delete_many({"admin_username": username})
+    deleted_songs = await db.songs.delete_many({"admin_username": username})
     
     logger.info(f"Serata {serata_id} chiusa. Eliminati {deleted_singers.deleted_count} cantanti e {deleted_songs.deleted_count} canzoni")
     

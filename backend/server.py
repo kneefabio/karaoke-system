@@ -1128,11 +1128,11 @@ async def websocket_endpoint(websocket: WebSocket):
 async def create_serata(serata_create: SerataCreate, username: str = Depends(verify_token_and_license)):
     """Crea una nuova serata e la cartella foto"""
     data_oggi = datetime.now().strftime("%Y-%m-%d")
-    nome_completo = f"{serata_create.nome}_{data_oggi}"
+    nome_completo = f"{username}_{serata_create.nome}_{data_oggi}"
     
-    # Crea cartella nel PC locale
-    base_path = Path(__file__).parent.parent / "Foto_Serate"
-    base_path.mkdir(exist_ok=True)
+    # Crea cartella nel PC locale separata per admin
+    base_path = Path(__file__).parent.parent / "Foto_Serate" / username
+    base_path.mkdir(parents=True, exist_ok=True)
     
     folder_path = base_path / nome_completo
     if folder_path.exists():
@@ -1144,6 +1144,7 @@ async def create_serata(serata_create: SerataCreate, username: str = Depends(ver
         nome=serata_create.nome,
         data=data_oggi,
         folder_path=str(folder_path),
+        admin_username=username,
         display_time=serata_create.display_time
     )
     
@@ -1153,7 +1154,8 @@ async def create_serata(serata_create: SerataCreate, username: str = Depends(ver
         "success": True,
         "serata_id": serata.id,
         "nome": nome_completo,
-        "folder_path": str(folder_path)
+        "folder_path": str(folder_path),
+        "admin_username": username
     }
 
 @api_router.get("/admin/serate")

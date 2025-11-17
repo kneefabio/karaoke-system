@@ -1443,7 +1443,12 @@ async def send_photos_email(
     from email.mime.base import MIMEBase
     from email import encoders
     
-    serata = await db.serate.find_one({"id": serata_id})
+    # Ottieni configurazione email dell'admin
+    email_config_doc = await db.admin_email_configs.find_one({"admin_username": username})
+    if not email_config_doc:
+        raise HTTPException(status_code=400, detail="Configurazione email non trovata. Configura prima le credenziali SMTP.")
+    
+    serata = await db.serate.find_one({"id": serata_id, "admin_username": username})
     if not serata:
         raise HTTPException(status_code=404, detail="Serata non trovata")
     
@@ -1473,7 +1478,7 @@ async def send_photos_email(
     for singer in singers:
         try:
             msg = MIMEMultipart()
-            msg['From'] = email_config.sender_email
+            msg['From'] = email_config_doc['sender_email']
             msg['To'] = singer['email']
             msg['Subject'] = f"Foto Serata Karaoke - {serata['nome']} - {serata['data']}"
             
@@ -1499,9 +1504,9 @@ A presto!
                     msg.attach(part)
             
             # Invia email
-            server = smtplib.SMTP(email_config.smtp_server, email_config.smtp_port)
+            server = smtplib.SMTP(email_config_doc['smtp_server'], email_config_doc['smtp_port'])
             server.starttls()
-            server.login(email_config.sender_email, email_config.sender_password)
+            server.login(email_config_doc['sender_email'], email_config_doc['sender_password'])
             server.send_message(msg)
             server.quit()
             

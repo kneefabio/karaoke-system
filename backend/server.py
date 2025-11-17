@@ -393,9 +393,29 @@ async def get_settings(admin_username: str = None):
 
 @api_router.post("/book", response_model=BookingResponse)
 async def create_booking(booking: BookingRequest):
+    # Determina admin_username da token o da username diretto
+    admin_username = booking.admin_username
+    
+    if booking.session_token:
+        # Valida token e ottieni admin_username
+        session = await db.booking_sessions.find_one({
+            "token": booking.session_token,
+            "active": True
+        })
+        
+        if not session:
+            raise HTTPException(status_code=400, detail="Token di sessione non valido")
+        
+        # Verifica scadenza
+        expires_at = datetime.fromisoformat(session['expires_at'])
+        if datetime.now(timezone.utc) > expires_at:
+            raise HTTPException(status_code=410, detail="Token di sessione scaduto")
+        
+        admin_username = session['admin_username']
+    
     # Admin username è OBBLIGATORIO per separare le sessioni
-    if not booking.admin_username:
-        raise HTTPException(status_code=400, detail="Admin username richiesto")
+    if not admin_username:
+        raise HTTPException(status_code=400, detail="Token o admin username richiesto")
     
     # Check if bookings are open per questo admin
     settings = await db.settings.find_one({"admin_username": booking.admin_username})

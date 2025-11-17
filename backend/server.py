@@ -169,6 +169,7 @@ class Serata(BaseModel):
     nome: str
     data: str
     folder_path: str
+    admin_username: str  # Admin che ha creato questa serata
     display_time: int = 5  # secondi per mostrare ogni foto
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     active: bool = True
@@ -176,6 +177,14 @@ class Serata(BaseModel):
 class SerataCreate(BaseModel):
     nome: str
     display_time: int = 5
+
+class SerataToken(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    token: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    serata_id: str
+    admin_username: str
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    active: bool = True
 
 class EmailConfig(BaseModel):
     smtp_server: str = "smtp.gmail.com"

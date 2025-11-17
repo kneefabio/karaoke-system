@@ -78,7 +78,7 @@ export default function CameraApp() {
   };
 
   const uploadPhoto = async () => {
-    if (!photo) return;
+    if (!photo || !token) return;
 
     setUploading(true);
 
@@ -87,7 +87,7 @@ export default function CameraApp() {
       formData.append("file", photo, `foto_${Date.now()}.jpg`);
 
       await axios.post(
-        `${API}/serata/${serataId}/upload-public`,
+        `${API}/serata-token/upload?token=${token}`,
         formData,
         {
           headers: {

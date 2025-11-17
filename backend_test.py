@@ -8,6 +8,8 @@ class KaraokeAPITester:
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.token = None
+        self.session_token = None
+        self.serata_id = None
         self.tests_run = 0
         self.tests_passed = 0
         self.test_results = []

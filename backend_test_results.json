@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-11-17T21:11:49.613483",
-  "total_tests": 4,
-  "passed_tests": 2,
-  "success_rate": 50.0,
+  "timestamp": "2025-11-17T21:12:20.653709",
+  "total_tests": 14,
+  "passed_tests": 11,
+  "success_rate": 78.57142857142857,
   "results": [
     {
       "test": "API Health Check",
@@ -16,13 +16,63 @@
     },
     {
       "test": "Admin Login (superadmin)",
-      "success": false,
-      "details": "Status: 401, Response: {\"detail\":\"Credenziali non valide\"}"
+      "success": true,
+      "details": "Login successful for superadmin, token received"
     },
     {
-      "test": "Admin Login (testadmin)",
+      "test": "Create Test Admin",
+      "success": true,
+      "details": "testadmin created successfully"
+    },
+    {
+      "test": "Generate Session Token",
+      "success": true,
+      "details": "Session token generated: {'success': True, 'token': '969264fc-1bc8-4e49-b1df-1bf38dc1116c', 'admin_username': 'superadmin'}"
+    },
+    {
+      "test": "Validate Session Token",
+      "success": true,
+      "details": "Token validation successful: {'success': True, 'admin_username': 'superadmin', 'token': '969264fc-1bc8-4e49-b1df-1bf38dc1116c'}"
+    },
+    {
+      "test": "Validate Invalid Token",
+      "success": true,
+      "details": "Invalid token correctly rejected with 404"
+    },
+    {
+      "test": "Booking with Session Token",
       "success": false,
-      "details": "Status: 401, Response: {\"detail\":\"Credenziali non valide\"}"
+      "details": "Status: 500, Response: Internal Server Error"
+    },
+    {
+      "test": "Create Serata",
+      "success": true,
+      "details": "Serata created: {'success': True, 'serata_id': 'b9c45332-9f2d-41fc-9d9a-0b01f3fcf19b', 'nome': 'TestSerata_211220_2025-11-17', 'folder_path': '/app/Foto_Serate/TestSerata_211220_2025-11-17'}"
+    },
+    {
+      "test": "Close Serata & Invalidate Tokens",
+      "success": true,
+      "details": "Serata closed: {'success': True, 'message': 'Serata chiusa e database pulito', 'deleted_singers': 0, 'deleted_songs': 0}, Token invalidated: True"
+    },
+    {
+      "test": "Booking New Singer",
+      "success": false,
+      "details": "Status: 400, Response: {\"detail\":\"Token o admin username richiesto\"}"
+    },
+    {
+      "test": "Admin Singers List",
+      "success": true,
+      "details": "Found 0 singers"
+    },
+    {
+      "test": "Admin Stats",
+      "success": true,
+      "details": "Stats: {'totale_prenotazioni': 0, 'canzoni_cantate': 0, 'in_attesa': 0, 'totale_cantanti': 0}"
+    },
+    {
+      "test": "Toggle Bookings",
+      "success": false,
+      "details": "Status: 422, Response: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"admin_username\"],\"msg\":\"Field required\",\"input\":{\"prenotazioni_aperte\":false},\"url\":\"https://errors.pydantic.dev/2.12/v/missing\"}]}"
     }
   ]
 }

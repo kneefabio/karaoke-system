@@ -1406,13 +1406,37 @@ async def close_serata(serata_id: str, username: str = Depends(verify_token_and_
         "deleted_photos": deleted_photos
     }
 
+@api_router.post("/admin/email-config")
+async def save_email_config(config: AdminEmailConfig, username: str = Depends(verify_token_and_license)):
+    """Salva configurazione email SMTP per l'admin"""
+    config.admin_username = username
+    
+    # Upsert configurazione
+    await db.admin_email_configs.update_one(
+        {"admin_username": username},
+        {"$set": config.model_dump()},
+        upsert=True
+    )
+    
+    return {"success": True, "message": "Configurazione email salvata"}
+
+@api_router.get("/admin/email-config")
+async def get_email_config(username: str = Depends(verify_token_and_license)):
+    """Ottieni configurazione email dell'admin"""
+    config = await db.admin_email_configs.find_one({"admin_username": username}, {"_id": 0})
+    if not config:
+        return {"success": False, "message": "Configurazione email non trovata"}
+    
+    # Non restituire la password per sicurezza
+    config['sender_password'] = "********"
+    return config
+
 @api_router.post("/admin/serata/{serata_id}/send-emails")
 async def send_photos_email(
     serata_id: str,
-    email_config: EmailConfig,
     username: str = Depends(verify_token_and_license)
 ):
-    """Invia foto via email a tutti i cantanti con email"""
+    """Invia foto via email a tutti i cantanti con email usando configurazione salvata"""
     import smtplib
     from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText

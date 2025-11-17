@@ -220,42 +220,63 @@ export default function GestioneSerate() {
               </div>
             </div>
 
-            {/* QR Code */}
-            {qrCode && (
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="font-semibold mb-3 text-blue-900">
-                  QR Code Camera App
-                </h3>
-                <div className="flex items-start gap-4">
-                  <img
-                    src={qrCode}
-                    alt="QR Code"
-                    className="w-48 h-48 border-4 border-white shadow-lg"
-                  />
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-700 mb-3">
-                      <strong>Istruzioni:</strong>
-                    </p>
-                    <ol className="text-sm text-gray-600 space-y-2 list-decimal list-inside">
-                      <li>Scannerizza questo QR con il tuo smartphone</li>
-                      <li>Si aprirà la camera app</li>
-                      <li>Scatta foto durante la serata</li>
-                      <li>Le foto vengono salvate automaticamente sul PC</li>
-                      <li>Appaiono sull'overlay in tempo reale</li>
-                    </ol>
-                    <div className="mt-4 space-x-2">
-                      <Button onClick={downloadQR} size="sm">
-                        <QrCode className="w-4 h-4 mr-2" />
-                        Scarica QR
-                      </Button>
-                      <Button
-                        onClick={() => setQrCode(null)}
-                        variant="outline"
-                        size="sm"
-                      >
-                        <X className="w-4 h-4 mr-2" />
-                        Chiudi
-                      </Button>
+            {/* QR Code e Info Serata */}
+            {qrCode && selectedSerata && (
+              <div className="mt-6 space-y-4">
+                {/* Serata ID evidenziato */}
+                <div className="p-4 bg-green-50 border-2 border-green-400 rounded-lg">
+                  <h3 className="font-bold text-green-900 mb-2 flex items-center gap-2">
+                    🎯 ID Serata per Overlay Electron
+                  </h3>
+                  <div className="bg-white p-3 rounded border-2 border-green-300">
+                    <code className="text-lg font-mono font-bold text-green-700">
+                      {selectedSerata.id}
+                    </code>
+                  </div>
+                  <p className="text-sm text-green-700 mt-2">
+                    👆 Copia questo ID e inseriscilo nell'overlay Electron per vedere le foto in tempo reale!
+                  </p>
+                </div>
+
+                {/* QR Code Camera */}
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h3 className="font-semibold mb-3 text-blue-900">
+                    📱 QR Code Camera App
+                  </h3>
+                  <div className="flex items-start gap-4">
+                    <img
+                      src={qrCode}
+                      alt="QR Code"
+                      className="w-48 h-48 border-4 border-white shadow-lg"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-700 mb-3">
+                        <strong>Istruzioni:</strong>
+                      </p>
+                      <ol className="text-sm text-gray-600 space-y-2 list-decimal list-inside">
+                        <li>Scansiona questo QR con il tuo smartphone</li>
+                        <li>Si aprirà la camera app</li>
+                        <li>Scatta foto durante la serata</li>
+                        <li>Le foto vengono salvate automaticamente sul PC</li>
+                        <li>Appaiono sull'overlay in tempo reale</li>
+                      </ol>
+                      <div className="mt-4 space-x-2">
+                        <Button onClick={downloadQR} size="sm">
+                          <QrCode className="w-4 h-4 mr-2" />
+                          Scarica QR
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setQrCode(null);
+                            setSelectedSerata(null);
+                          }}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Chiudi
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -119,7 +119,10 @@ export default function AdminDashboard() {
   };
 
   const openQRWindow = () => {
-    window.open('/qrcode', 'QRCode', 'width=800,height=900,resizable=yes,scrollbars=no');
+    // Decodifica username dal token per passarlo al QR
+    const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+    const username = tokenPayload.sub;
+    window.open(`/qrcode?admin=${encodeURIComponent(username)}`, 'QRCode', 'width=800,height=900,resizable=yes,scrollbars=no');
   };
 
   const fetchData = async () => {

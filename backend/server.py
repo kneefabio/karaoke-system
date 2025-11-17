@@ -405,11 +405,11 @@ async def create_booking(booking: BookingRequest):
         raise HTTPException(status_code=400, detail="Token o admin username richiesto")
     
     # Check if bookings are open per questo admin
-    settings = await db.settings.find_one({"admin_username": booking.admin_username})
+    settings = await db.settings.find_one({"admin_username": admin_username})
     if not settings:
         # Crea settings default per questo admin
         await db.settings.insert_one({
-            "admin_username": booking.admin_username,
+            "admin_username": admin_username,
             "prenotazioni_aperte": True
         })
     elif not settings.get('prenotazioni_aperte', True):

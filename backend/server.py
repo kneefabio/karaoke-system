@@ -931,7 +931,7 @@ async def websocket_endpoint(websocket: WebSocket):
         manager.disconnect(websocket)
 
 @api_router.post("/admin/serata/create")
-async def create_serata(serata_create: SerataCreate, username: str = Depends(verify_token)):
+async def create_serata(serata_create: SerataCreate, username: str = Depends(verify_token_and_license)):
     """Crea una nuova serata e la cartella foto"""
     data_oggi = datetime.now().strftime("%Y-%m-%d")
     nome_completo = f"{serata_create.nome}_{data_oggi}"

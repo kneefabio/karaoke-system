@@ -309,11 +309,19 @@ async def root():
     return {"message": "Karaoke Booking System"}
 
 @api_router.get("/settings")
-async def get_settings():
-    settings = await db.settings.find_one({}, {"_id": 0})
-    if not settings:
-        return {"prenotazioni_aperte": True}
-    return settings
+async def get_settings(admin_username: str = None):
+    if admin_username:
+        # Ottieni settings per admin specifico
+        settings = await db.settings.find_one({"admin_username": admin_username}, {"_id": 0})
+        if not settings:
+            return {"prenotazioni_aperte": True, "admin_username": admin_username}
+        return settings
+    else:
+        # Fallback per compatibilità - restituisce settings generali
+        settings = await db.settings.find_one({}, {"_id": 0})
+        if not settings:
+            return {"prenotazioni_aperte": True}
+        return settings
 
 @api_router.post("/book", response_model=BookingResponse)
 async def create_booking(booking: BookingRequest):

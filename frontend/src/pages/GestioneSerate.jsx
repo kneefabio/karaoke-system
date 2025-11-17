@@ -63,11 +63,21 @@ export default function GestioneSerate() {
 
       toast.success("Serata creata!");
 
-      // Genera QR code per camera app
-      const cameraUrl = `${BACKEND_URL}/camera/${response.data.serata_id}`;
+      // Genera token per camera app
+      const tokenResponse = await axios.post(
+        `${API}/admin/serata/${response.data.serata_id}/generate-token`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Genera QR code con token
+      const cameraUrl = `${window.location.origin}/camera?token=${tokenResponse.data.token}`;
       const qr = await QRCodeLib.toDataURL(cameraUrl);
       setQrCode(qr);
-      setSelectedSerata(response.data.serata_id);
+      setSelectedSerata({
+        id: response.data.serata_id,
+        token: tokenResponse.data.token
+      });
 
       setNewSerata({ nome: "", display_time: 5 });
       fetchSerate();

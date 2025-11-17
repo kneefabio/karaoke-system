@@ -64,8 +64,27 @@ export default function AdminDashboard() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setLicenseInfo(response.data);
+      
+      // Se non ha licenza e non è super admin, blocca subito
+      if (!response.data.has_license && !response.data.unlimited) {
+        navigate("/no-license?reason=missing");
+        return false;
+      }
+      
+      // Se ha licenza ma è scaduta
+      if (response.data.has_license && response.data.status === "expired") {
+        navigate("/no-license?reason=expired");
+        return false;
+      }
+      
+      return true;
     } catch (error) {
       console.error("Error fetching license info:", error);
+      if (error.response?.status === 403) {
+        navigate("/no-license?reason=suspended");
+        return false;
+      }
+      return true; // In caso di errore, lascia proseguire
     }
   };
 

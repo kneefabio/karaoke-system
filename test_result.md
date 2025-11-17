@@ -101,3 +101,123 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Implementare sistema di token sicuri per QR code delle prenotazioni. Il token deve durare fino alla chiusura della serata (invece di usare admin_username nel QR code URL). Un solo token per sessione, può essere usato da più persone contemporaneamente."
+
+backend:
+  - task: "Creare modello BookingSession per token di sessione"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Modello BookingSession creato con token (UUID), admin_username, created_at, active"
+
+  - task: "Endpoint POST /api/admin/booking-session-token per generare token"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Endpoint creato. Invalida token precedenti e genera nuovo token. Richiede autenticazione admin"
+
+  - task: "Endpoint GET /api/booking-session/validate/{token} per validare token"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Endpoint pubblico che valida token e restituisce admin_username associato"
+
+  - task: "Modificare endpoint POST /api/book per accettare session_token"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Endpoint modificato per accettare session_token e validarlo. Mantiene compatibilità con admin_username per retrocompatibilità"
+
+  - task: "Modificare endpoint PUT /api/admin/serata/{serata_id}/close per invalidare token"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Endpoint modificato per invalidare tutti i token attivi dell'admin quando chiude la serata"
+
+frontend:
+  - task: "Modificare AdminDashboard.jsx per generare token quando si apre QR"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/AdminDashboard.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Funzione openQRWindow modificata per chiamare POST /api/admin/booking-session-token e aprire finestra QR con token"
+
+  - task: "Modificare QRCodeWindow.jsx per usare token nell'URL"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/QRCodeWindow.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "QRCodeWindow legge token dal parametro URL e genera QR code con URL /book?token=xxx"
+
+  - task: "Modificare BookingPage.jsx per validare token e usarlo per booking"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/BookingPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "BookingPage valida token all'avvio chiamando GET /api/booking-session/validate/{token} e usa session_token nel POST /api/book. Mantiene compatibilità con vecchio sistema admin_username"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Endpoint POST /api/admin/booking-session-token per generare token"
+    - "Endpoint GET /api/booking-session/validate/{token} per validare token"
+    - "Endpoint POST /api/book con session_token"
+    - "Endpoint PUT /api/admin/serata/{serata_id}/close invalida token"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Ho implementato il sistema completo di token sicuri per QR code. Backend: 3 nuovi endpoint (generate token, validate token, modificato book per usare token). Frontend: modificato AdminDashboard per generare token, QRCodeWindow per mostrare URL con token, BookingPage per validare e usare token. Il sistema invalida automaticamente i token quando si chiude la serata. Pronto per testing backend."

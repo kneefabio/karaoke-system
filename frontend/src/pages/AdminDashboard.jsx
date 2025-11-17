@@ -112,6 +112,16 @@ export default function AdminDashboard() {
       if (error.response?.status === 401) {
         localStorage.removeItem("admin_token");
         navigate("/admin/login");
+      } else if (error.response?.status === 403) {
+        // Licenza mancante o scaduta
+        const message = error.response?.data?.detail || "";
+        if (message.includes("Nessuna licenza")) {
+          navigate("/no-license?reason=missing");
+        } else if (message.includes("scaduta")) {
+          navigate("/no-license?reason=expired");
+        } else {
+          navigate("/no-license?reason=suspended");
+        }
       }
       console.error("Error fetching data:", error);
     }

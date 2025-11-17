@@ -5,6 +5,7 @@ import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import SuperAdminPanel from "@/pages/SuperAdminPanel";
 import GestioneSerate from "@/pages/GestioneSerate";
+import EmailConfig from "@/pages/EmailConfig";
 import CameraApp from "@/pages/CameraApp";
 import QRCodeWindow from "@/components/QRCodeWindow";
 import NoLicensePage from "@/pages/NoLicensePage";

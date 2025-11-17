@@ -60,8 +60,15 @@ chmod +x install-and-start.sh
 ## 🎮 Comandi Tastiera
 
 - **C** = Apri/Chiudi Configurazione
+- **H** = Nascondi/Mostra Barra di Controllo
 - **T** = Test (debug)
 - **Q** = Chiudi Overlay
+
+## 🖱️ Spostare l'Overlay
+
+- **Trascina la barra superiore** per spostare la finestra su un altro schermo
+- Usa il pulsante **➖** per nascondere la barra quando non serve
+- Premi **H** per mostrare/nascondere velocemente la barra
 
 ---
 

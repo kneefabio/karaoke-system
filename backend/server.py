@@ -472,8 +472,12 @@ async def admin_login(login: LoginRequest):
     if not admin:
         raise HTTPException(status_code=401, detail="Credenziali non valide")
     
-    # admin['password'] is stored as string, need to encode it
-    if not bcrypt.checkpw(login.password.encode('utf-8'), admin['password'].encode('utf-8')):
+    # Gestisce sia password come string che come bytes
+    stored_password = admin['password']
+    if isinstance(stored_password, str):
+        stored_password = stored_password.encode('utf-8')
+    
+    if not bcrypt.checkpw(login.password.encode('utf-8'), stored_password):
         raise HTTPException(status_code=401, detail="Credenziali non valide")
     
     access_token = create_access_token(data={"sub": login.username})

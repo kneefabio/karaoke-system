@@ -397,11 +397,16 @@ async def admin_login(login: LoginRequest):
 
 @api_router.get("/admin/singers", response_model=List[SingerWithSongs])
 async def get_singers(username: str = Depends(verify_token_and_license)):
-    singers = await db.singers.find({}, {"_id": 0}).to_list(None)
+    # Filtra solo i cantanti di questo admin
+    singers = await db.singers.find({"admin_username": username}, {"_id": 0}).to_list(None)
     result = []
     
     for singer in singers:
-        songs = await db.songs.find({"singer_id": singer['id']}, {"_id": 0}).to_list(None)
+        # Filtra anche le canzoni per questo admin
+        songs = await db.songs.find({
+            "singer_id": singer['id'],
+            "admin_username": username
+        }, {"_id": 0}).to_list(None)
         songs_sorted = sorted(songs, key=lambda x: x['ordine_prenotazione'])
         result.append(SingerWithSongs(
             id=singer['id'],

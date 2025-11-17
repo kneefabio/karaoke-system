@@ -58,10 +58,27 @@ Mac/Linux: "./start-overlay.sh"
 
 
 ┌────────────────────────────────────────────────────────────────┐
-│  📱 CONFIGURAZIONE BACKEND (importante!)                       │
+│  📱 CONFIGURAZIONE BACKEND (IMPORTANTE!)                       │
 └────────────────────────────────────────────────────────────────┘
 
-Se il server è su un ALTRO PC:
+🌐 BACKEND SU RENDER (caso più comune):
+
+1. Vai su render.com e fai login
+2. Clicca sul tuo servizio backend
+3. Copia l'URL (es: https://karaoke-backend-xyz.onrender.com)
+4. Nell'overlay usa:
+   wss://karaoke-backend-xyz.onrender.com/ws/photos
+   
+   ⚠️ IMPORTANTE:
+   - Usa WSS (non WS) per Render
+   - Aggiungi /ws/photos alla fine
+   - Non aggiungere :8001 (Render usa porta standard)
+
+💻 BACKEND IN LOCALE (stesso PC):
+
+   ws://127.0.0.1:8001/ws/photos
+
+🏠 BACKEND SU RETE LOCALE (altro PC in casa):
 
 1. Trova l'indirizzo IP del server
    Windows: apri cmd e scrivi "ipconfig"

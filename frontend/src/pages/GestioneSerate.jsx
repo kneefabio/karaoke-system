@@ -124,6 +124,7 @@ export default function GestioneSerate() {
         navigate("/admin/email-config");
       } else {
         toast.error("Errore nell'invio email");
+      }
     }
   };
 

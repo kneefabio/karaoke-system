@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-17T21:10:30.461331",
+  "timestamp": "2025-11-17T21:11:14.079564",
   "total_tests": 4,
   "passed_tests": 2,
   "success_rate": 50.0,
@@ -17,7 +17,7 @@
     {
       "test": "Admin Login (superadmin)",
       "success": false,
-      "details": "Status: 500, Response: Internal Server Error"
+      "details": "Status: 401, Response: {\"detail\":\"Credenziali non valide\"}"
     },
     {
       "test": "Admin Login (testadmin)",

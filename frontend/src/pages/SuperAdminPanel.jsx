@@ -94,6 +94,39 @@ export default function SuperAdminPanel() {
     }
   };
 
+  const assignLicense = async (adminUsername, licenseKey) => {
+    try {
+      const response = await axios.post(
+        `${API}/super-admin/assign-license`,
+        { admin_username: adminUsername, license_key: licenseKey },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success(response.data.message);
+      fetchAdmins();
+      fetchLicenses();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Errore nell'assegnazione");
+    }
+  };
+
+  const unassignLicense = async (adminUsername) => {
+    if (!window.confirm(`Rimuovere licenza da ${adminUsername}?`)) return;
+
+    try {
+      const response = await axios.delete(
+        `${API}/super-admin/unassign-license/${adminUsername}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success(response.data.message);
+      fetchAdmins();
+      fetchLicenses();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Errore nella rimozione");
+    }
+  };
+
   const createLicense = async () => {
     if (!newLicense.email) {
       toast.error("Inserisci un'email");

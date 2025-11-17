@@ -301,20 +301,51 @@ export default function SuperAdminPanel() {
                   key={admin.username} 
                   className="flex justify-between items-center p-4 bg-white border rounded-lg hover:shadow-md transition"
                 >
-                  <div>
+                  <div className="flex-1">
                     <div className="font-semibold">{admin.username}</div>
                     <div className="text-sm text-gray-600">
                       Role: <Badge variant="outline">{admin.role}</Badge>
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      {admin.license_info}
+                      {admin.license_key ? (
+                        <>
+                          🔑 Licenza: {admin.license_key.substring(0, 15)}... - {admin.license_info}
+                        </>
+                      ) : (
+                        "⚠️ Nessuna licenza"
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2">
                     {admin.role === "super_admin" ? (
                       <Badge className="bg-purple-600">Super Admin</Badge>
                     ) : (
-                      <Badge variant="secondary">Host</Badge>
+                      <>
+                        {admin.license_key ? (
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => unassignLicense(admin.username)}
+                          >
+                            Rimuovi Licenza
+                          </Button>
+                        ) : (
+                          <Select onValueChange={(licenseKey) => assignLicense(admin.username, licenseKey)}>
+                            <SelectTrigger className="w-[200px]">
+                              <SelectValue placeholder="Assegna Licenza" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {licenses
+                                .filter(l => !l.assigned_to || l.assigned_to === admin.username)
+                                .map(license => (
+                                  <SelectItem key={license.license_key} value={license.license_key}>
+                                    {license.plan} - {license.license_key.substring(0, 10)}...
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

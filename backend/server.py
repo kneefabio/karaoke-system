@@ -830,13 +830,18 @@ async def list_admins(username: str = Depends(verify_super_admin)):
     
     return admins
 
+class AssignLicenseRequest(BaseModel):
+    admin_username: str
+    license_key: str
+
 @api_router.post("/super-admin/assign-license")
 async def assign_license(
-    admin_username: str,
-    license_key: str,
+    request: AssignLicenseRequest,
     username: str = Depends(verify_super_admin)
 ):
     """Assegna una licenza a un admin (solo super admin)"""
+    admin_username = request.admin_username
+    license_key = request.license_key
     # Verifica che l'admin esista
     admin = await db.admins.find_one({"username": admin_username})
     if not admin:

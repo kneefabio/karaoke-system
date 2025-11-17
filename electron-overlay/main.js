@@ -9,11 +9,12 @@ let adminUsername = ''; // Username admin da filtrare
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    fullscreen: true,
+    width: 1920,
+    height: 1080,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
-    skipTaskbar: true,
+    skipTaskbar: false, // Mostra in taskbar per gestirlo meglio
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
@@ -21,7 +22,9 @@ function createWindow() {
   });
 
   mainWindow.loadFile('index.html');
-  mainWindow.setIgnoreMouseEvents(true); // Click-through
+  
+  // NON usare setIgnoreMouseEvents - deve essere trascinabile!
+  // Il click-through sarà gestito solo per il contenitore foto
   
   // Dev tools (commentare in produzione)
   // mainWindow.webContents.openDevTools();

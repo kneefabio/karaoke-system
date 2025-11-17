@@ -1522,22 +1522,24 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
-# Serve static files (frontend build)
-frontend_build_path = Path(__file__).parent.parent / "frontend" / "build"
-if frontend_build_path.exists():
-    app.mount("/static", StaticFiles(directory=str(frontend_build_path / "static")), name="static")
-    
-    @app.get("/{full_path:path}")
-    async def serve_frontend(full_path: str):
-        # Non intercettare WebSocket e API
-        if full_path.startswith("api") or full_path.startswith("ws"):
-            raise HTTPException(status_code=404, detail="Not Found")
+# Serve static files (frontend build) - solo in locale, non su Render
+# Su Render/produzione il frontend è su Netlify
+if not os.environ.get('RENDER'):
+    frontend_build_path = Path(__file__).parent.parent / "frontend" / "build"
+    if frontend_build_path.exists():
+        app.mount("/static", StaticFiles(directory=str(frontend_build_path / "static")), name="static")
         
-        # Serve index.html per tutte le altre route
-        index_file = frontend_build_path / "index.html"
-        if index_file.exists():
-            return FileResponse(index_file)
-        raise HTTPException(status_code=404, detail="Not Found")
+        @app.get("/{full_path:path}")
+        async def serve_frontend(full_path: str):
+            # Non intercettare WebSocket e API
+            if full_path.startswith("api") or full_path.startswith("ws"):
+                raise HTTPException(status_code=404, detail="Not Found")
+            
+            # Serve index.html per tutte le altre route
+            index_file = frontend_build_path / "index.html"
+            if index_file.exists():
+                return FileResponse(index_file)
+            raise HTTPException(status_code=404, detail="Not Found")
 
 app.add_middleware(
     CORSMiddleware,

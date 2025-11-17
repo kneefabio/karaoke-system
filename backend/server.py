@@ -234,9 +234,9 @@ async def verify_token_and_license(credentials: HTTPAuthorizationCredentials = D
     
     return username
 
-async def get_next_codice():
-    # Get highest code number
-    singers = await db.singers.find({}).to_list(None)
+async def get_next_codice(admin_username: str):
+    # Get highest code number per questo admin
+    singers = await db.singers.find({"admin_username": admin_username}).to_list(None)
     if not singers:
         return "001"
     codes = [int(s['codice']) for s in singers if s['codice'].isdigit()]

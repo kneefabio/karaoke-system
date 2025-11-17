@@ -36,8 +36,12 @@
       <p class="help-text">Inserisci il tuo username admin per vedere solo le tue foto</p>
     </div>
     <div class="config-field">
-      <label>Backend URL:</label>
-      <input type="text" id="backend-url" value="ws://127.0.0.1:8001/ws/photos">
+      <label>Backend URL (WebSocket):</label>
+      <input type="text" id="backend-url" placeholder="wss://tuo-backend.onrender.com/ws/photos">
+      <p class="help-text">
+        ⚠️ Server LOCALE: ws://127.0.0.1:8001/ws/photos<br>
+        ⚠️ Server RENDER: wss://tuo-backend.onrender.com/ws/photos
+      </p>
     </div>
     <button id="save-config">💾 Salva</button>
     <button id="close-config">❌ Chiudi</button>

@@ -1004,7 +1004,7 @@ async def get_serata(serata_id: str, username: str = Depends(verify_token_and_li
 async def upload_photo(
     serata_id: str,
     file: UploadFile = File(...),
-    username: str = Depends(verify_token)
+    username: str = Depends(verify_token_and_license)
 ):
     """Upload foto alla serata"""
     serata = await db.serate.find_one({"id": serata_id})

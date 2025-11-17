@@ -493,7 +493,7 @@ class KaraokeAPITester:
         print("-" * 40)
         
         # 1. Admin login (super admin)
-        if not self.test_admin_login("superadmin", "superpassword123"):
+        if not self.test_admin_login("superadmin", "superadmin123"):
             print("❌ Super admin login failed, trying with testadmin")
             if not self.test_admin_login("testadmin", "testpassword"):
                 print("❌ Both admin logins failed, stopping token tests")

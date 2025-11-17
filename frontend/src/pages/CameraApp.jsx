@@ -109,10 +109,14 @@ export default function CameraApp() {
     setPhoto(null);
   };
 
-  if (!serata) {
+  if (!serataInfo) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black text-white">
-        <p>Verifica serata...</p>
+        <div className="text-center">
+          <p className="text-xl mb-2">📸 Camera App</p>
+          <p className="text-sm text-gray-400">Validazione token in corso...</p>
+          {token && <p className="text-xs text-gray-500 mt-2">Token: {token.substring(0, 8)}...</p>}
+        </div>
       </div>
     );
   }
@@ -121,8 +125,8 @@ export default function CameraApp() {
     <div className="min-h-screen bg-black text-white flex flex-col">
       {/* Header */}
       <div className="p-4 bg-gray-900">
-        <h1 className="text-xl font-bold text-center">{serata.nome}</h1>
-        <p className="text-sm text-gray-400 text-center">{serata.data}</p>
+        <h1 className="text-xl font-bold text-center">📸 Serata Foto</h1>
+        <p className="text-sm text-gray-400 text-center">Admin: {serataInfo.admin_username}</p>
       </div>
 
       {/* Camera View */}

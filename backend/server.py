@@ -186,19 +186,21 @@ class SerataToken(BaseModel):
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     active: bool = True
 
-class EmailConfig(BaseModel):
+# Modello per INPUT (senza admin_username)
+class EmailConfigInput(BaseModel):
     smtp_server: str = "smtp.gmail.com"
     smtp_port: int = 587
     sender_email: str
     sender_password: str
 
+# Modello completo per DB (con admin_username)
 class AdminEmailConfig(BaseModel):
     model_config = ConfigDict(extra="ignore")
     admin_username: str
     smtp_server: str = "smtp.gmail.com"
     smtp_port: int = 587
     sender_email: str
-    sender_password: str  # Encrypted in production
+    sender_password: str
     updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 # Helper functions
@@ -1437,14 +1439,22 @@ async def close_serata(serata_id: str, username: str = Depends(verify_token_and_
     }
 
 @api_router.post("/admin/email-config")
-async def save_email_config(config: AdminEmailConfig, username: str = Depends(verify_token_and_license)):
+async def save_email_config(config: EmailConfigInput, username: str = Depends(verify_token_and_license)):
     """Salva configurazione email SMTP per l'admin"""
-    config.admin_username = username
+    
+    # Crea oggetto completo con admin_username
+    full_config = AdminEmailConfig(
+        admin_username=username,
+        smtp_server=config.smtp_server,
+        smtp_port=config.smtp_port,
+        sender_email=config.sender_email,
+        sender_password=config.sender_password
+    )
     
     # Upsert configurazione
     await db.admin_email_configs.update_one(
         {"admin_username": username},
-        {"$set": config.model_dump()},
+        {"$set": full_config.model_dump()},
         upsert=True
     )
     

@@ -60,9 +60,14 @@ function connectWebSocket() {
         }
         
         console.log(`✅ Showing photo from ${message.admin_username}`);
+        
+        // Costruisci URL completo della foto
+        const photoUrl = `${backendHttpUrl}${message.url}`;
+        console.log(`📷 Photo URL: ${photoUrl}`);
+        
         mainWindow.webContents.send('new-photo', {
           filename: message.filename,
-          path: message.path
+          url: photoUrl
         });
       }
     } catch (error) {

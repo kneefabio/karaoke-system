@@ -36,6 +36,15 @@ export default function CameraApp() {
     };
   }, []);
 
+  // ✅ NUOVO: useEffect che riattiva la camera se necessario dopo upload
+  useEffect(() => {
+    // Se non c'è una foto in preview E il video non ha stream, riavvia
+    if (!photo && videoRef.current && !videoRef.current.srcObject) {
+      console.log('🔄 Re-initializing camera after photo clear...');
+      startCamera();
+    }
+  }, [photo]);
+
   const validateToken = async (tkn) => {
     try {
       const response = await axios.get(`${API}/serata-token/validate/${tkn}`);
@@ -46,18 +55,41 @@ export default function CameraApp() {
     }
   };
 
+  // ✅ MIGLIORATO: Gestione migliore dello stream
   const startCamera = async () => {
     try {
+      // Stoppa eventuali stream precedenti
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+      
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }, // Usa camera posteriore
+        video: { 
+          facingMode: "environment", // Usa camera posteriore
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        },
         audio: false,
       });
+      
       setStream(mediaStream);
+      
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        
+        // ✅ NUOVO: Assicurati che il video sia in play
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play().catch(err => {
+            console.error('Error playing video:', err);
+            toast.error("Errore nell'avvio del video");
+          });
+        };
       }
+      
+      console.log('✅ Camera started successfully');
     } catch (error) {
-      toast.error("Impossibile accedere alla fotocamera");
+      console.error('❌ Camera error:', error);
+      toast.error("Impossibile accedere alla fotocamera. Verifica i permessi.");
     }
   };
 
@@ -99,6 +131,7 @@ export default function CameraApp() {
     }, "image/jpeg");
   };
 
+  // ✅ CORRETTO: Non stoppa lo stream dopo upload
   const uploadPhoto = async () => {
     if (!photo || !token) {
       console.error('Upload failed - missing data:', { photo, token });
@@ -126,13 +159,19 @@ export default function CameraApp() {
 
       console.log('✅ Upload successful:', response.data);
       toast.success("Foto caricata! ✨");
+      
+      // ✅ FIX PRINCIPALE: Resetta solo la foto, lo stream rimane attivo!
       setPhoto(null);
       
-      // Assicurati che il video stream sia ancora attivo
-      if (videoRef.current && (!videoRef.current.srcObject || !stream)) {
-        console.log('🔄 Restarting camera...');
-        startCamera();
-      }
+      // ❌ NON fare nulla con lo stream - il video continua da solo
+      // Il videoRef.current.srcObject è già impostato e rimane attivo
+      // Non serve riavviare startCamera() qui!
+      
+      console.log('📹 Video stream status:', {
+        hasStream: !!videoRef.current?.srcObject,
+        isPlaying: !videoRef.current?.paused
+      });
+      
     } catch (error) {
       console.error('❌ Upload error:', error);
       console.error('Error details:', error.response?.data);
@@ -144,6 +183,7 @@ export default function CameraApp() {
 
   const cancelPhoto = () => {
     setPhoto(null);
+    // Lo stream rimane attivo, torna subito alla modalità scatta foto
   };
 
   if (!serataInfo) {

@@ -61,25 +61,40 @@ ipcRenderer.on('websocket-status', (event, status) => {
 
 // Nuova foto ricevuta
 ipcRenderer.on('new-photo', (event, data) => {
-  console.log('📸 Showing photo:', data.filename, 'from URL:', data.url);
-  showPhoto(data.url);
+  console.log('📸 New photo:', data.filename, 'from URL:', data.url);
+  
+  // Scarica e salva localmente, poi mostra
+  downloadAndSavePhoto(data.url, data.filename);
 });
 
-function showPhoto(photoUrl) {
-  console.log('🖼️  Loading photo from:', photoUrl);
+function downloadAndSavePhoto(photoUrl, filename) {
+  console.log('⬇️  Downloading photo:', photoUrl);
+  
+  // Richiedi il path per salvare la foto
+  ipcRenderer.send('download-photo', { url: photoUrl, filename: filename });
+}
+
+// Foto scaricata e salvata
+ipcRenderer.on('photo-saved', (event, data) => {
+  console.log('💾 Photo saved locally:', data.localPath);
+  showPhoto(data.localPath);
+});
+
+function showPhoto(photoPath) {
+  console.log('🖼️  Showing photo from:', photoPath);
 
   // Crea elemento img
   const img = document.createElement('img');
-  img.src = photoUrl;  // URL HTTP invece di file://
+  img.src = `file://${photoPath}`;  // Usa file:// per path locale
   img.className = 'photo-overlay';
   
   // Gestisci errori di caricamento
   img.onerror = () => {
-    console.error('❌ Failed to load photo:', photoUrl);
+    console.error('❌ Failed to load photo:', photoPath);
   };
   
   img.onload = () => {
-    console.log('✅ Photo loaded successfully');
+    console.log('✅ Photo loaded and displayed');
   };
 
   // Random position

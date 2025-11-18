@@ -289,12 +289,15 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
+  background: rgba(30, 30, 30, 0.98);
   padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  z-index: 10001;
-  pointer-events: auto;
+  border-radius: 15px;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+  z-index: 10003;  /* Sopra tutto ma non blocca la barra */
+  min-width: 400px;
+  max-width: 500px;
+  color: white;
+  pointer-events: auto;  /* Solo il pannello riceve eventi */
 }
 
 #config h3 {

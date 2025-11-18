@@ -1221,6 +1221,21 @@ async def get_serate(username: str = Depends(verify_token_and_license)):
     
     return serate
 
+@api_router.get("/serata/{serata_id}/photo/{filename}")
+async def serve_photo(serata_id: str, filename: str):
+    """Serve una foto della serata (endpoint pubblico per overlay)"""
+    serata = await db.serate.find_one({"id": serata_id})
+    if not serata:
+        raise HTTPException(status_code=404, detail="Serata non trovata")
+    
+    folder_path = Path(serata['folder_path'])
+    file_path = folder_path / filename
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Foto non trovata")
+    
+    return FileResponse(file_path, media_type="image/jpeg")
+
 @api_router.get("/admin/serata/{serata_id}")
 async def get_serata(serata_id: str, username: str = Depends(verify_token_and_license)):
     """Ottieni dettagli serata"""

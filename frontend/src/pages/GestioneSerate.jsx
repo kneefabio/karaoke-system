@@ -19,7 +19,6 @@ export default function GestioneSerate() {
   const [newSerata, setNewSerata] = useState({ nome: "", display_time: 5 });
   const [qrCode, setQrCode] = useState(null);
   const [selectedSerata, setSelectedSerata] = useState(null);
-  // ❌ RIMUOVI emailConfig e showEmailForm - non servono più!
   const navigate = useNavigate();
 
   const token = localStorage.getItem("admin_token");
@@ -99,7 +98,6 @@ export default function GestioneSerate() {
     }
   };
 
-  // ✅ NUOVA FUNZIONE CORRETTA - Controlla configurazione email prima di inviare
   const sendEmails = async (serataId) => {
     try {
       // Prima controlla se esiste una configurazione email
@@ -122,9 +120,11 @@ export default function GestioneSerate() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.errors && response.data.errors.length > 0) {
+      if (response.data.sent === 0) {
+        toast.warning("⚠️ Nessuna email inviata. Verifica che ci siano cantanti con email e foto disponibili.");
+      } else if (response.data.errors && response.data.errors.length > 0) {
         toast.warning(
-          `Inviate ${response.data.sent}/${response.data.total} email. Alcuni errori: ${response.data.errors.join(', ')}`
+          `📧 Inviate ${response.data.sent}/${response.data.total} email. Alcuni errori: ${response.data.errors.join(', ')}`
         );
       } else {
         toast.success(`✅ ${response.data.sent} email inviate con successo!`);
@@ -307,8 +307,6 @@ export default function GestioneSerate() {
           </CardContent>
         </Card>
 
-        {/* ❌ RIMOSSO: Card Configurazione Email - ora si fa solo da /admin/email-config */}
-
         {/* Lista Serate */}
         <Card>
           <CardHeader>
@@ -375,15 +373,15 @@ export default function GestioneSerate() {
                             </Button>
                           </>
                         )}
-                        {/* ✅ Pulsante Invia Email con controllo configurazione */}
+                        {/* ✅ MODIFICATO: Rimossa la disabilitazione, aggiunto conteggio foto */}
                         <Button
                           onClick={() => sendEmails(serata.id)}
                           size="sm"
                           className="bg-purple-600 hover:bg-purple-700"
-                          disabled={serata.foto_count === 0}
+                          title={serata.foto_count === 0 ? "Nessuna foto disponibile, ma puoi comunque provare" : `Invia ${serata.foto_count} foto via email`}
                         >
                           <Mail className="w-4 h-4 mr-2" />
-                          Invia Foto
+                          Invia Foto ({serata.foto_count || 0})
                         </Button>
                       </div>
                     </div>

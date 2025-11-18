@@ -127,6 +127,12 @@ export default function CameraApp() {
       console.log('✅ Upload successful:', response.data);
       toast.success("Foto caricata! ✨");
       setPhoto(null);
+      
+      // Assicurati che il video stream sia ancora attivo
+      if (videoRef.current && (!videoRef.current.srcObject || !stream)) {
+        console.log('🔄 Restarting camera...');
+        startCamera();
+      }
     } catch (error) {
       console.error('❌ Upload error:', error);
       console.error('Error details:', error.response?.data);

@@ -1263,12 +1263,20 @@ async def upload_photo(
     
     # Salva foto
     folder_path = Path(serata['folder_path'])
+    
+    # Crea la cartella se non esiste
+    folder_path.mkdir(parents=True, exist_ok=True)
+    
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     filename = f"foto_{timestamp}_{file.filename}"
     file_path = folder_path / filename
     
+    logger.info(f"Saving photo to: {file_path}")
+    
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+    
+    logger.info(f"✅ Photo saved: {filename}")
     
     # Notifica via WebSocket con admin_username per filtraggio
     await manager.broadcast({

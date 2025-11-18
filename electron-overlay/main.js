@@ -138,3 +138,38 @@ ipcMain.on('set-admin-username', (event, username) => {
   console.log(`🎯 Filtering photos for admin: ${adminUsername}`);
   event.sender.send('config-saved', { admin_username: adminUsername });
 });
+
+// Scarica foto e salva localmente
+ipcMain.on('download-photo', (event, data) => {
+  const { url, filename } = data;
+  
+  // Crea cartella locale per le foto (nella home dell'utente)
+  const homeDir = os.homedir();
+  const photoDir = path.join(homeDir, 'Karaoke_Foto_Serate', adminUsername || 'default');
+  
+  // Crea cartella se non esiste
+  if (!fs.existsSync(photoDir)) {
+    fs.mkdirSync(photoDir, { recursive: true });
+  }
+  
+  const localPath = path.join(photoDir, filename);
+  const file = fs.createWriteStream(localPath);
+  
+  console.log(`⬇️  Downloading ${url} to ${localPath}`);
+  
+  // Determina se usare http o https
+  const protocol = url.startsWith('https') ? https : http;
+  
+  protocol.get(url, (response) => {
+    response.pipe(file);
+    
+    file.on('finish', () => {
+      file.close();
+      console.log(`✅ Photo saved: ${localPath}`);
+      event.sender.send('photo-saved', { localPath: localPath });
+    });
+  }).on('error', (err) => {
+    fs.unlink(localPath, () => {}); // Elimina file parziale
+    console.error(`❌ Download error: ${err.message}`);
+  });
+});

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Camera, Image, Mail, Plus, X, QrCode, ArrowLeft } from "lucide-react";
+import { Camera, Mail, Plus, X, QrCode, ArrowLeft } from "lucide-react";
 import QRCodeLib from "qrcode";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -19,11 +19,7 @@ export default function GestioneSerate() {
   const [newSerata, setNewSerata] = useState({ nome: "", display_time: 5 });
   const [qrCode, setQrCode] = useState(null);
   const [selectedSerata, setSelectedSerata] = useState(null);
-  const [emailConfig, setEmailConfig] = useState({
-    sender_email: "",
-    sender_password: "",
-  });
-  const [showEmailForm, setShowEmailForm] = useState(false);
+  // ❌ RIMUOVI emailConfig e showEmailForm - non servono più!
   const navigate = useNavigate();
 
   const token = localStorage.getItem("admin_token");
@@ -103,27 +99,42 @@ export default function GestioneSerate() {
     }
   };
 
+  // ✅ NUOVA FUNZIONE CORRETTA - Controlla configurazione email prima di inviare
   const sendEmails = async (serataId) => {
     try {
+      // Prima controlla se esiste una configurazione email
+      const configCheck = await axios.get(`${API}/admin/email-config`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (configCheck.data.success === false || !configCheck.data.sender_email) {
+        toast.error("⚠️ Configura prima le credenziali email!");
+        navigate("/admin/email-config");
+        return;
+      }
+
+      // Se la config esiste, invia le email
+      toast.info("📧 Invio email in corso...");
+      
       const response = await axios.post(
         `${API}/admin/serata/${serataId}/send-emails`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.errors) {
+      if (response.data.errors && response.data.errors.length > 0) {
         toast.warning(
-          `Inviate ${response.data.sent}/${response.data.total} email. Alcuni errori.`
+          `Inviate ${response.data.sent}/${response.data.total} email. Alcuni errori: ${response.data.errors.join(', ')}`
         );
       } else {
-        toast.success(`${response.data.sent} email inviate con successo!`);
+        toast.success(`✅ ${response.data.sent} email inviate con successo!`);
       }
     } catch (error) {
       if (error.response?.status === 400 && error.response?.data?.detail?.includes("Configurazione email")) {
-        toast.error("Configura prima le tue credenziali SMTP nelle impostazioni");
+        toast.error("⚠️ Configura prima le tue credenziali SMTP!");
         navigate("/admin/email-config");
       } else {
-        toast.error("Errore nell'invio email");
+        toast.error(error.response?.data?.detail || "Errore nell'invio email");
       }
     }
   };
@@ -296,70 +307,7 @@ export default function GestioneSerate() {
           </CardContent>
         </Card>
 
-        {/* Configurazione Email */}
-        {showEmailForm && (
-          <Card className="mb-8 border-purple-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="w-5 h-5" />
-                Configurazione Email
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="sender_email">Email Mittente</Label>
-                  <Input
-                    id="sender_email"
-                    type="email"
-                    placeholder="tua@email.com"
-                    value={emailConfig.sender_email}
-                    onChange={(e) =>
-                      setEmailConfig({
-                        ...emailConfig,
-                        sender_email: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="sender_password">Password App Gmail</Label>
-                  <Input
-                    id="sender_password"
-                    type="password"
-                    placeholder="Password app Gmail"
-                    value={emailConfig.sender_password}
-                    onChange={(e) =>
-                      setEmailConfig({
-                        ...emailConfig,
-                        sender_password: e.target.value,
-                      })
-                    }
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    <a
-                      href="https://myaccount.google.com/apppasswords"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600"
-                    >
-                      Genera password app Gmail →
-                    </a>
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4">
-                <Button
-                  onClick={() => setShowEmailForm(false)}
-                  variant="outline"
-                  size="sm"
-                >
-                  Chiudi
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* ❌ RIMOSSO: Card Configurazione Email - ora si fa solo da /admin/email-config */}
 
         {/* Lista Serate */}
         <Card>
@@ -427,14 +375,9 @@ export default function GestioneSerate() {
                             </Button>
                           </>
                         )}
+                        {/* ✅ Pulsante Invia Email con controllo configurazione */}
                         <Button
-                          onClick={() => {
-                            if (!emailConfig.sender_email) {
-                              setShowEmailForm(true);
-                            } else {
-                              sendEmails(serata.id);
-                            }
-                          }}
+                          onClick={() => sendEmails(serata.id)}
                           size="sm"
                           className="bg-purple-600 hover:bg-purple-700"
                           disabled={serata.foto_count === 0}

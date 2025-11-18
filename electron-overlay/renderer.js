@@ -57,21 +57,26 @@ ipcRenderer.on('websocket-status', (event, status) => {
 
 // Nuova foto ricevuta
 ipcRenderer.on('new-photo', (event, data) => {
-  console.log('📸 Showing photo:', data.filename);
-  showPhoto(data.path);
+  console.log('📸 Showing photo:', data.filename, 'from URL:', data.url);
+  showPhoto(data.url);
 });
 
-function showPhoto(photoPath) {
-  // Verifica che il file esista
-  if (!fs.existsSync(photoPath)) {
-    console.error('Photo not found:', photoPath);
-    return;
-  }
+function showPhoto(photoUrl) {
+  console.log('🖼️  Loading photo from:', photoUrl);
 
   // Crea elemento img
   const img = document.createElement('img');
-  img.src = `file://${photoPath}`;
+  img.src = photoUrl;  // URL HTTP invece di file://
   img.className = 'photo-overlay';
+  
+  // Gestisci errori di caricamento
+  img.onerror = () => {
+    console.error('❌ Failed to load photo:', photoUrl);
+  };
+  
+  img.onload = () => {
+    console.log('✅ Photo loaded successfully');
+  };
 
   // Random position
   const position = positions[Math.floor(Math.random() * positions.length)];

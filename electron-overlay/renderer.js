@@ -174,6 +174,24 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// Carica configurazione salvata all'avvio
+window.addEventListener('DOMContentLoaded', () => {
+  const savedUrl = localStorage.getItem('backend_url');
+  const savedUsername = localStorage.getItem('admin_username');
+  
+  if (savedUrl) {
+    document.getElementById('backend-url').value = savedUrl;
+    ipcRenderer.send('set-backend-url', savedUrl);
+    console.log('📂 Loaded saved backend URL');
+  }
+  
+  if (savedUsername) {
+    document.getElementById('admin-username').value = savedUsername;
+    ipcRenderer.send('set-admin-username', savedUsername);
+    console.log('📂 Loaded saved admin username');
+  }
+});
+
 // Config save
 document.getElementById('save-config').addEventListener('click', () => {
   const url = document.getElementById('backend-url').value;
@@ -183,6 +201,16 @@ document.getElementById('save-config').addEventListener('click', () => {
     alert('⚠️ Inserisci il tuo username admin per filtrare le foto!');
     return;
   }
+  
+  if (!url) {
+    alert('⚠️ Inserisci il backend URL!');
+    return;
+  }
+  
+  // Salva in localStorage
+  localStorage.setItem('backend_url', url);
+  localStorage.setItem('admin_username', username);
+  console.log('💾 Config saved to localStorage');
   
   ipcRenderer.send('set-backend-url', url);
   ipcRenderer.send('set-admin-username', username);

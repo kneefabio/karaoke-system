@@ -1,5 +1,8 @@
 const { ipcRenderer } = require('electron');
 const fs = require('fs');
+const path = require('path');
+const https = require('https');
+const http = require('http');
 
 const statusEl = document.getElementById('status');
 const statusText = document.getElementById('status-text');
@@ -9,6 +12,7 @@ const controlBar = document.getElementById('control-bar');
 
 let displayTime = 5000; // Default 5 secondi
 let barVisible = true;
+let localPhotoFolder = null;
 
 // Animazioni disponibili
 const entryAnimations = [

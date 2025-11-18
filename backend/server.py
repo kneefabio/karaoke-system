@@ -1351,18 +1351,24 @@ async def upload_photo_with_token(
     
     logger.info(f"✅ Photo saved: {filename}")
     
+    # Crea URL pubblico per la foto
+    photo_url = f"/api/serata/{serata_id}/photo/{filename}"
+    
     # Notifica via WebSocket con admin_username per filtraggio
     await manager.broadcast({
         "type": "new_photo",
         "serata_id": serata_id,
         "admin_username": admin_username,
         "filename": filename,
-        "path": str(file_path)
+        "url": photo_url  # URL invece di path locale
     })
+    
+    logger.info(f"📡 Broadcast sent: {photo_url}")
     
     return {
         "success": True,
-        "filename": filename
+        "filename": filename,
+        "url": photo_url
     }
 
 @api_router.put("/admin/serata/{serata_id}/close")

@@ -111,6 +111,18 @@ app.on('window-all-closed', () => {
 // IPC per configurazione
 ipcMain.on('set-backend-url', (event, url) => {
   backendUrl = url;
+  
+  // Deriva HTTP URL dal WebSocket URL
+  // ws://localhost:8001/ws/photos -> http://localhost:8001
+  // wss://backend.com/ws/photos -> https://backend.com
+  if (url.startsWith('wss://')) {
+    backendHttpUrl = url.replace('wss://', 'https://').replace('/ws/photos', '');
+  } else if (url.startsWith('ws://')) {
+    backendHttpUrl = url.replace('ws://', 'http://').replace('/ws/photos', '');
+  }
+  
+  console.log(`🌐 Backend HTTP URL: ${backendHttpUrl}`);
+  
   if (ws) {
     ws.close();
   }

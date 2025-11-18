@@ -1302,6 +1302,8 @@ async def upload_photo(
     await manager.broadcast({
         "type": "new_photo",
         "serata_id": serata_id,
+        "serata_nome": serata['nome'],  # ✅ AGGIUNTO: nome serata
+        "serata_data": serata['data'],  # ✅ AGGIUNTO: data serata
         "admin_username": username,
         "filename": filename,
         "url": photo_url  # URL invece di path locale
@@ -1380,6 +1382,8 @@ async def upload_photo_with_token(
     await manager.broadcast({
         "type": "new_photo",
         "serata_id": serata_id,
+        "serata_nome": serata['nome'],  # ✅ AGGIUNTO
+        "serata_data": serata['data'],  # ✅ AGGIUNTO
         "admin_username": admin_username,
         "filename": filename,
         "url": photo_url  # URL invece di path locale

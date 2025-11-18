@@ -5,6 +5,7 @@ const WebSocket = require('ws');
 let mainWindow;
 let ws;
 let backendUrl = ''; // Lasciare vuoto - da configurare al primo avvio
+let backendHttpUrl = ''; // URL HTTP per scaricare le foto
 let adminUsername = ''; // Username admin da filtrare
 
 function createWindow() {

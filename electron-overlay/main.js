@@ -1,6 +1,10 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const https = require('https');
+const http = require('http');
 const WebSocket = require('ws');
+const os = require('os');
 
 let mainWindow;
 let ws;

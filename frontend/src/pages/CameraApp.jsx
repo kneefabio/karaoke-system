@@ -100,15 +100,21 @@ export default function CameraApp() {
   };
 
   const uploadPhoto = async () => {
-    if (!photo || !token) return;
+    if (!photo || !token) {
+      console.error('Upload failed - missing data:', { photo, token });
+      return;
+    }
 
     setUploading(true);
+    console.log('📤 Uploading photo...', { token: token.substring(0, 8), photoSize: photo.size });
 
     try {
       const formData = new FormData();
       formData.append("file", photo, `foto_${Date.now()}.jpg`);
 
-      await axios.post(
+      console.log('Sending to:', `${API}/serata-token/upload?token=${token}`);
+      
+      const response = await axios.post(
         `${API}/serata-token/upload?token=${token}`,
         formData,
         {
@@ -118,10 +124,13 @@ export default function CameraApp() {
         }
       );
 
+      console.log('✅ Upload successful:', response.data);
       toast.success("Foto caricata! ✨");
       setPhoto(null);
     } catch (error) {
-      toast.error("Errore nel caricamento");
+      console.error('❌ Upload error:', error);
+      console.error('Error details:', error.response?.data);
+      toast.error(error.response?.data?.detail || "Errore nel caricamento");
     } finally {
       setUploading(false);
     }

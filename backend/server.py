@@ -1592,7 +1592,7 @@ A presto!
                 msg.attach(part)
             
             # Invia email
-            server = smtplib.SMTP(email_config_doc['smtp_server'], email_config_doc['smtp_port'])
+            server = smtplib.SMTP_SSL(email_config_doc['smtp_server'], email_config_doc['smtp_port'])
             server.starttls()
             server.login(email_config_doc['sender_email'], email_config_doc['sender_password'])
             server.send_message(msg)

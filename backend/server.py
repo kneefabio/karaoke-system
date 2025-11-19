@@ -1212,14 +1212,10 @@ async def get_serate(username: str = Depends(verify_token_and_license)):
     """Ottieni tutte le serate dell'admin"""
     serate = await db.serate.find({"admin_username": username}, {"_id": 0}).to_list(None)
     
-    # Aggiungi conteggio foto
+    # ✅ CONTA FOTO DAL DATABASE invece che dal filesystem
     for serata in serate:
-        folder_path = Path(serata['folder_path'])
-        if folder_path.exists():
-            foto_count = len(list(folder_path.glob("*.jpg"))) + len(list(folder_path.glob("*.jpeg"))) + len(list(folder_path.glob("*.png")))
-            serata['foto_count'] = foto_count
-        else:
-            serata['foto_count'] = 0
+        foto_count = await db.photos.count_documents({"serata_id": serata['id']})
+        serata['foto_count'] = foto_count
     
     return serate
 
@@ -1280,12 +1276,11 @@ async def upload_photo(
     
     # Salva foto
     folder_path = Path(serata['folder_path'])
-    
-    # Crea la cartella se non esiste
     folder_path.mkdir(parents=True, exist_ok=True)
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    filename = f"foto_{timestamp}_{file.filename}"
+    unique_id = str(uuid.uuid4())[:8]
+    filename = f"foto_{timestamp}_{unique_id}.jpg"
     file_path = folder_path / filename
     
     logger.info(f"Saving photo to: {file_path}")
@@ -1295,6 +1290,19 @@ async def upload_photo(
     
     logger.info(f"✅ Photo saved: {filename}")
     
+    # ✅ SALVA NEL DATABASE
+    photo_doc = {
+        "id": str(uuid.uuid4()),
+        "serata_id": serata_id,
+        "filename": filename,
+        "file_path": str(file_path),
+        "admin_username": username,
+        "uploaded_at": datetime.now(timezone.utc).isoformat(),
+        "file_size": file.size if hasattr(file, 'size') else 0
+    }
+    await db.photos.insert_one(photo_doc)
+    logger.info(f"💾 Photo saved to database: {filename}")
+    
     # Crea URL pubblico per la foto
     photo_url = f"/api/serata/{serata_id}/photo/{filename}"
     
@@ -1302,11 +1310,11 @@ async def upload_photo(
     await manager.broadcast({
         "type": "new_photo",
         "serata_id": serata_id,
-        "serata_nome": serata['nome'],  # ✅ AGGIUNTO: nome serata
-        "serata_data": serata['data'],  # ✅ AGGIUNTO: data serata
+        "serata_nome": serata['nome'],
+        "serata_data": serata['data'],
         "admin_username": username,
         "filename": filename,
-        "url": photo_url  # URL invece di path locale
+        "url": photo_url
     })
     
     logger.info(f"📡 Broadcast sent: {photo_url}")
@@ -1360,12 +1368,11 @@ async def upload_photo_with_token(
     
     # Salva foto
     folder_path = Path(serata['folder_path'])
-    
-    # Crea la cartella se non esiste
     folder_path.mkdir(parents=True, exist_ok=True)
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    filename = f"foto_{timestamp}_{file.filename}"
+    unique_id = str(uuid.uuid4())[:8]
+    filename = f"foto_{timestamp}_{unique_id}.jpg"
     file_path = folder_path / filename
     
     logger.info(f"Saving photo to: {file_path}")
@@ -1375,6 +1382,19 @@ async def upload_photo_with_token(
     
     logger.info(f"✅ Photo saved: {filename}")
     
+    # ✅ SALVA NEL DATABASE
+    photo_doc = {
+        "id": str(uuid.uuid4()),
+        "serata_id": serata_id,
+        "filename": filename,
+        "file_path": str(file_path),
+        "admin_username": admin_username,
+        "uploaded_at": datetime.now(timezone.utc).isoformat(),
+        "file_size": file.size if hasattr(file, 'size') else 0
+    }
+    await db.photos.insert_one(photo_doc)
+    logger.info(f"💾 Photo saved to database: {filename}")
+    
     # Crea URL pubblico per la foto
     photo_url = f"/api/serata/{serata_id}/photo/{filename}"
     
@@ -1382,11 +1402,11 @@ async def upload_photo_with_token(
     await manager.broadcast({
         "type": "new_photo",
         "serata_id": serata_id,
-        "serata_nome": serata['nome'],  # ✅ AGGIUNTO
-        "serata_data": serata['data'],  # ✅ AGGIUNTO
+        "serata_nome": serata['nome'],
+        "serata_data": serata['data'],
         "admin_username": admin_username,
         "filename": filename,
-        "url": photo_url  # URL invece di path locale
+        "url": photo_url
     })
     
     logger.info(f"📡 Broadcast sent: {photo_url}")
@@ -1396,6 +1416,7 @@ async def upload_photo_with_token(
         "filename": filename,
         "url": photo_url
     }
+
 
 @api_router.put("/admin/serata/{serata_id}/close")
 async def close_serata(serata_id: str, username: str = Depends(verify_token_and_license)):
@@ -1486,6 +1507,8 @@ async def send_photos_email(
     from email.mime.text import MIMEText
     from email.mime.base import MIMEBase
     from email import encoders
+    import zipfile
+    import tempfile
     
     # Ottieni configurazione email dell'admin
     email_config_doc = await db.admin_email_configs.find_one({"admin_username": username})
@@ -1496,24 +1519,46 @@ async def send_photos_email(
     if not serata:
         raise HTTPException(status_code=404, detail="Serata non trovata")
     
-    # Ottieni cantanti con email per questo admin
+    # ✅ CONTA FOTO DAL DATABASE
+    foto_count = await db.photos.count_documents({"serata_id": serata_id})
+    if foto_count == 0:
+        return {"success": True, "sent": 0, "message": "Nessuna foto da inviare"}
+    
+    # Ottieni data serata per matching con cantanti
+    serata_data = serata['data']  # Es: "2025-11-19"
+    serata_date = datetime.fromisoformat(serata_data)
+    start_of_day = serata_date.replace(hour=0, minute=0, second=0)
+    end_of_day = serata_date.replace(hour=23, minute=59, second=59)
+    
+    # ✅ TROVA CANTANTI CON EMAIL per questa data
     singers = await db.singers.find({
         "admin_username": username,
-        "email": {"$exists": True, "$ne": None, "$ne": ""}
+        "email": {"$exists": True, "$ne": None, "$ne": ""},
+        "timestamp": {
+            "$gte": start_of_day.isoformat(),
+            "$lte": end_of_day.isoformat()
+        }
     }, {"_id": 0}).to_list(None)
     
     if not singers:
-        return {"success": True, "sent": 0, "message": "Nessun cantante con email"}
+        return {"success": True, "sent": 0, "message": "Nessun cantante con email per questa serata"}
     
-    # Lista foto
-    folder_path = Path(serata['folder_path'])
-    fotos = []
-    if folder_path.exists():
-        for ext in ['*.jpg', '*.jpeg', '*.png']:
-            fotos.extend(list(folder_path.glob(ext)))
+    # ✅ PRENDI FOTO DAL DATABASE
+    photos_docs = await db.photos.find({"serata_id": serata_id}).to_list(None)
     
-    if not fotos:
-        return {"success": True, "sent": 0, "message": "Nessuna foto da inviare"}
+    if not photos_docs:
+        return {"success": True, "sent": 0, "message": "Nessuna foto nel database"}
+    
+    # Crea ZIP con tutte le foto
+    temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+    zip_path = temp_zip.name
+    temp_zip.close()
+    
+    with zipfile.ZipFile(zip_path, 'w') as zipf:
+        for photo_doc in photos_docs:
+            file_path = Path(photo_doc['file_path'])
+            if file_path.exists():
+                zipf.write(file_path, photo_doc['filename'])
     
     sent_count = 0
     errors = []
@@ -1531,21 +1576,20 @@ Ciao {singer['nome']}!
 
 Grazie per aver partecipato alla serata karaoke {serata['nome']} del {serata['data']}.
 
-In allegato trovi tutte le foto della serata!
+In allegato trovi tutte le foto della serata in un archivio ZIP!
 
 A presto!
             """
             
             msg.attach(MIMEText(body, 'plain'))
             
-            # Allega foto (max 10 per email per non eccedere dimensione)
-            for foto in fotos[:10]:
-                with open(foto, 'rb') as f:
-                    part = MIMEBase('application', 'octet-stream')
-                    part.set_payload(f.read())
-                    encoders.encode_base64(part)
-                    part.add_header('Content-Disposition', f'attachment; filename={foto.name}')
-                    msg.attach(part)
+            # Allega ZIP
+            with open(zip_path, 'rb') as f:
+                part = MIMEBase('application', 'zip')
+                part.set_payload(f.read())
+                encoders.encode_base64(part)
+                part.add_header('Content-Disposition', f'attachment; filename=foto_serata_{serata["nome"]}_{serata["data"]}.zip')
+                msg.attach(part)
             
             # Invia email
             server = smtplib.SMTP(email_config_doc['smtp_server'], email_config_doc['smtp_port'])
@@ -1555,15 +1599,27 @@ A presto!
             server.quit()
             
             sent_count += 1
+            logger.info(f"✅ Email sent to {singer['email']}")
         except Exception as e:
             errors.append(f"{singer['email']}: {str(e)}")
+            logger.error(f"❌ Error sending to {singer['email']}: {e}")
+    
+    # Pulisci file ZIP temporaneo
+    try:
+        Path(zip_path).unlink()
+    except:
+        pass
     
     return {
         "success": True,
         "sent": sent_count,
         "total": len(singers),
+        "foto_inviate": len(photos_docs),
         "errors": errors if errors else None
     }
+
+
+
 
 app.include_router(api_router)
 

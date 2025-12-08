@@ -1,7 +1,7 @@
 export default {
+  rootDirectory: "frontend",
   build: {
-    command: "yarn install --network-timeout 300000 && yarn build",
+    command: "yarn install --ignore-engines && yarn build",
     directory: "build",
   },
-  rootDirectory: "frontend",
 };
